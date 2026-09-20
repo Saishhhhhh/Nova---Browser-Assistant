@@ -1,0 +1,58 @@
+{
+  "contender": "puppeteer",
+  "environment": "local",
+  "headed": false,
+  "iterations": 1,
+  "cold_launch_ms": 1056.86,
+  "navigation_ms": {
+    "p50": 219.13,
+    "p95": 219.13,
+    "min": 219.13,
+    "max": 219.13,
+    "mean": 219.13
+  },
+  "click_latency_ms": {
+    "p50": 47.33,
+    "p95": 47.33,
+    "min": 47.33,
+    "max": 47.33,
+    "mean": 47.33
+  },
+  "type_50_chars_ms": {
+    "p50": 219.4,
+    "p95": 219.4,
+    "min": 219.4,
+    "max": 219.4,
+    "mean": 219.4
+  },
+  "scroll_dispatch_ms": {
+    "p50": 4.27,
+    "p95": 4.27,
+    "min": 4.27,
+    "max": 4.27,
+    "mean": 4.27
+  },
+  "dom_10k_query_ms": {
+    "p50": 16.23,
+    "p95": 16.23,
+    "min": 16.23,
+    "max": 16.23,
+    "mean": 16.23
+  },
+  "axtree_extraction_ms": {
+    "p50": 1151.74,
+    "p95": 1151.74,
+    "min": 1151.74,
+    "max": 1151.74,
+    "mean": 1151.74
+  },
+  "avg_axtree_nodes": 30113,
+  "spa_filter_ms": {
+    "p50": 37.96,
+    "p95": 37.96,
+    "min": 37.96,
+    "max": 37.96,
+    "mean": 37.96
+  },
+  "success": true
+}
