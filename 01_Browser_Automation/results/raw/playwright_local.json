@@ -1,0 +1,58 @@
+{
+  "contender": "playwright",
+  "environment": "local",
+  "headed": false,
+  "iterations": 1,
+  "cold_launch_ms": 1323.56,
+  "navigation_ms": {
+    "p50": 212.1,
+    "p95": 212.1,
+    "min": 212.1,
+    "max": 212.1,
+    "mean": 212.1
+  },
+  "click_latency_ms": {
+    "p50": 62.53,
+    "p95": 62.53,
+    "min": 62.53,
+    "max": 62.53,
+    "mean": 62.53
+  },
+  "type_50_chars_ms": {
+    "p50": 132.09,
+    "p95": 132.09,
+    "min": 132.09,
+    "max": 132.09,
+    "mean": 132.09
+  },
+  "scroll_dispatch_ms": {
+    "p50": 12.34,
+    "p95": 12.34,
+    "min": 12.34,
+    "max": 12.34,
+    "mean": 12.34
+  },
+  "dom_10k_query_ms": {
+    "p50": 36.1,
+    "p95": 36.1,
+    "min": 36.1,
+    "max": 36.1,
+    "mean": 36.1
+  },
+  "axtree_extraction_ms": {
+    "p50": 4677.88,
+    "p95": 4677.88,
+    "min": 4677.88,
+    "max": 4677.88,
+    "mean": 4677.88
+  },
+  "avg_axtree_nodes": 30113,
+  "spa_filter_ms": {
+    "p50": 27.02,
+    "p95": 27.02,
+    "min": 27.02,
+    "max": 27.02,
+    "mean": 27.02
+  },
+  "success": true
+}
