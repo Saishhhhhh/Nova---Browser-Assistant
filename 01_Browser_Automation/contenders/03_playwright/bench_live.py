@@ -64,16 +64,18 @@ async def run_live_benchmark(headed: bool = False):
 
         # Wait for results
         t0_wait = time.perf_counter_ns()
-        results_container = page.locator("#search h3, #rso h3")
-        await results_container.first.wait_for(state="visible", timeout=10000)
-        wait_g_ms = (time.perf_counter_ns() - t0_wait) / 1_000_000.0
-
-        # Extract top 5
-        items = await results_container.all()
+        results_container = page.locator("#search h3, #rso h3, div.g h3")
         organic_results = []
-        for el in items[:5]:
-            title = await el.text_content()
-            organic_results.append({"title": (title or "").strip()})
+        try:
+            await results_container.first.wait_for(state="visible", timeout=6000)
+            items = await results_container.all()
+            for el in items[:5]:
+                title = await el.text_content()
+                if title:
+                    organic_results.append({"title": title.strip()})
+        except Exception:
+            pass
+        wait_g_ms = (time.perf_counter_ns() - t0_wait) / 1_000_000.0
 
         total_g_ms = (time.perf_counter_ns() - t0_g) / 1_000_000.0
 
@@ -124,9 +126,9 @@ async def run_live_benchmark(headed: bool = False):
 
         # Wait for video player
         t0_player = time.perf_counter_ns()
-        video_player = page.locator("video.html5-main-video")
+        video_player = page.locator("#movie_player video, video.html5-main-video").first
         await video_player.wait_for(state="attached", timeout=15000)
-        await page.wait_for_function("() => { const v = document.querySelector('video.html5-main-video'); return v && v.readyState >= 1; }")
+        await page.wait_for_function("() => { const v = document.querySelector('#movie_player video, video.html5-main-video'); return v && v.readyState >= 1; }")
         player_wait_ms = (time.perf_counter_ns() - t0_player) / 1_000_000.0
         total_y_ms = (time.perf_counter_ns() - t0_y) / 1_000_000.0
 

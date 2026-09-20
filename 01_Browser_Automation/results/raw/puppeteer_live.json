@@ -1,0 +1,24 @@
+{
+  "contender": "puppeteer",
+  "environment": "live",
+  "headed": false,
+  "google_search": {
+    "nav_ms": 632.78,
+    "type_ms": 438.96,
+    "wait_results_ms": 6001.38,
+    "total_ms": 7655.39,
+    "results_count": 0,
+    "success": false,
+    "top_result": null
+  },
+  "youtube": {
+    "nav_ms": 1881.97,
+    "type_ms": 231.76,
+    "wait_results_ms": 1335.84,
+    "player_ready_ms": 524.57,
+    "total_ms": 5741.33,
+    "first_video": "3 AM Coding Session - Lofi Hip Hop Mix [Study & Coding Beats]",
+    "success": true
+  },
+  "success": false
+}

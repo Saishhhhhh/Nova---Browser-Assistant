@@ -1,0 +1,24 @@
+{
+  "contender": "playwright",
+  "environment": "live",
+  "headed": false,
+  "google_search": {
+    "nav_ms": 904.64,
+    "type_ms": 793.02,
+    "wait_results_ms": 6003.54,
+    "total_ms": 7782.57,
+    "results_count": 0,
+    "success": false,
+    "top_result": null
+  },
+  "youtube": {
+    "nav_ms": 1763.44,
+    "type_ms": 543.44,
+    "wait_results_ms": 1415.14,
+    "player_ready_ms": 523.81,
+    "total_ms": 4861.77,
+    "first_video": "3 AM Coding Session - Lofi Hip Hop Mix [Study & Coding Beats]",
+    "success": true
+  },
+  "success": false
+}

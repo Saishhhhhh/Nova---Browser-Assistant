@@ -124,10 +124,38 @@ async def run_live_benchmark(headed: bool = False):
         """)
         await asyncio.sleep(1.0)
 
-        # Search box
-        yt_input = await tab_yt.select("input#search, input[name='search_query']")
+        # Search box with dynamic hydration retry
+        yt_input = None
+        for _ in range(50):
+            try:
+                yt_input = await tab_yt.select("input#search, input[name='search_query']")
+                if yt_input:
+                    break
+            except Exception:
+                pass
+            await asyncio.sleep(0.2)
+
+        if not yt_input:
+            # Fallback to evaluate focus & typing
+            await tab_yt.evaluate("""
+                (() => {
+                    const el = document.querySelector("input#search, input[name='search_query']");
+                    if (el) el.focus();
+                })()
+            """)
         t0_y_type = time.perf_counter_ns()
-        await yt_input.send_keys("lofi coding music\n")
+        if yt_input:
+            await yt_input.send_keys("lofi coding music\n")
+        else:
+            await tab_yt.evaluate("""
+                (() => {
+                    const el = document.querySelector("input#search, input[name='search_query']");
+                    if (el) {
+                        el.value = 'lofi coding music';
+                        el.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                })()
+            """)
         type_y_ms = (time.perf_counter_ns() - t0_y_type) / 1_000_000.0
 
         # Wait for video result

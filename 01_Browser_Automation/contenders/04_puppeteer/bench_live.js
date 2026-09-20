@@ -72,16 +72,20 @@ async function runLiveBenchmark({ headed = false } = {}) {
 
     // Wait for results
     const t0Wait = performance.now();
-    await page.waitForSelector('#search h3, #rso h3', { timeout: 10000 });
+    let organicResults = [];
+    try {
+      await page.waitForSelector('#search h3, #rso h3, div.g h3', { timeout: 6000 });
+      organicResults = await page.evaluate(() => {
+        const items = Array.from(document.querySelectorAll('#search h3, #rso h3, div.g h3')).slice(0, 5);
+        return items.map(h => ({
+          title: h.textContent.trim(),
+          link: h.closest('a') ? h.closest('a').href : ''
+        }));
+      });
+    } catch (e) {
+      // Bot detection or consent gate
+    }
     const waitGMs = performance.now() - t0Wait;
-
-    const organicResults = await page.evaluate(() => {
-      const items = Array.from(document.querySelectorAll('#search h3, #rso h3')).slice(0, 5);
-      return items.map(h => ({
-        title: h.textContent.trim(),
-        link: h.closest('a') ? h.closest('a').href : ''
-      }));
-    });
 
     const totalGMs = performance.now() - t0G;
 

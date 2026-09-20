@@ -1,0 +1,5 @@
+Contender,Cold_Launch_ms,Click_p50_ms,Click_p95_ms,Type_50c_p50_ms,DOM_10k_Query_p50_ms,AXTree_Extraction_p50_ms,Total_LOC
+Raw CDP,686.44,15.23,15.23,158.95,0.89,1144.22,541
+nodriver,536.49,5.93,5.93,145.07,1018.59,2492.66,373
+Playwright,1064.24,83.72,83.72,118.86,38.32,3324.71,287
+Puppeteer,603.44,100.27,100.27,168.01,13.82,956.7,310
