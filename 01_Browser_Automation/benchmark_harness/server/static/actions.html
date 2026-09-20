@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Benchmark: Micro Actions</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 24px; max-width: 800px; margin: auto; }
+    .card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+    button { padding: 10px 18px; font-size: 15px; cursor: pointer; border-radius: 6px; border: 1px solid #cbd5e1; background: #3b82f6; color: white; }
+    button:hover { background: #2563eb; }
+    input, select { padding: 8px 12px; font-size: 14px; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%; box-sizing: border-box; }
+    .status { margin-top: 8px; font-size: 13px; color: #64748b; }
+    .success { color: #16a34a; font-weight: bold; }
+    #hover-box { width: 150px; height: 100px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background 0.2s; }
+    #hover-box.hovered { background: #fde047; }
+    #spacer { height: 1600px; background: linear-gradient(to bottom, #f8fafc, #cbd5e1); border-radius: 8px; margin-top: 20px; padding: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Micro-Action Performance Fixture</h1>
+
+  <div class="card">
+    <h3>1. Click Test Target</h3>
+    <button id="btn-click-target">Click Me</button>
+    <div id="click-status" class="status">Awaiting click...</div>
+  </div>
+
+  <div class="card">
+    <h3>2. Text Input Target</h3>
+    <input id="input-text-target" type="text" placeholder="Type here...">
+    <div id="input-status" class="status">Keystrokes: 0</div>
+  </div>
+
+  <div class="card">
+    <h3>3. Select Dropdown Target</h3>
+    <select id="select-target">
+      <option value="">-- Choose Option --</option>
+      <option value="opt1">Option 1: Alpha</option>
+      <option value="opt2">Option 2: Beta</option>
+      <option value="opt3">Option 3: Gamma</option>
+    </select>
+    <div id="select-status" class="status">Selected: None</div>
+  </div>
+
+  <div class="card">
+    <h3>4. Hover Target</h3>
+    <div id="hover-box">Hover Over Me</div>
+    <div id="hover-status" class="status">Hover state: false</div>
+  </div>
+
+  <div class="card">
+    <h3>5. Scroll Benchmark Section</h3>
+    <p>Scroll down to reach the target element at the bottom.</p>
+    <div id="scroll-status" class="status">Scroll position: 0px</div>
+    <div id="spacer">
+      <div id="scroll-target" style="margin-top: 1400px; padding: 20px; background: #4ade80; border-radius: 6px; font-weight: bold; text-align: center;">
+        TARGET REACHED AT 1400px
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Click handling
+    const btn = document.getElementById('btn-click-target');
+    const clickStatus = document.getElementById('click-status');
+    let clickCount = 0;
+    btn.addEventListener('click', (e) => {
+      clickCount++;
+      clickStatus.textContent = `SUCCESS: Clicked ${clickCount} time(s)! Event timestamp: ${Date.now()}`;
+      clickStatus.className = 'status success';
+    });
+
+    // Input handling
+    const input = document.getElementById('input-text-target');
+    const inputStatus = document.getElementById('input-status');
+    input.addEventListener('input', (e) => {
+      inputStatus.textContent = `Keystrokes: ${input.value.length}, Current value: "${input.value}"`;
+      if (input.value.length > 0) inputStatus.className = 'status success';
+    });
+
+    // Select handling
+    const select = document.getElementById('select-target');
+    const selectStatus = document.getElementById('select-status');
+    select.addEventListener('change', (e) => {
+      selectStatus.textContent = `SUCCESS: Selected: ${select.value}`;
+      selectStatus.className = 'status success';
+    });
+
+    // Hover handling
+    const hoverBox = document.getElementById('hover-box');
+    const hoverStatus = document.getElementById('hover-status');
+    hoverBox.addEventListener('mouseenter', () => {
+      hoverBox.classList.add('hovered');
+      hoverStatus.textContent = 'Hover state: true (mouseenter received)';
+      hoverStatus.className = 'status success';
+    });
+    hoverBox.addEventListener('mouseleave', () => {
+      hoverBox.classList.remove('hovered');
+      hoverStatus.textContent = 'Hover state: false';
+      hoverStatus.className = 'status';
+    });
+
+    // Scroll handling
+    const scrollStatus = document.getElementById('scroll-status');
+    window.addEventListener('scroll', () => {
+      scrollStatus.textContent = `Scroll position: ${Math.round(window.scrollY)}px`;
+    });
+
+    // Readiness beacon
+    window.__fixture_ready = true;
+  </script>
+</body>
+</html>
