@@ -18,6 +18,12 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(STATIC_DIR), **kwargs)
 
+    def handle_one_request(self):
+        try:
+            super().handle_one_request()
+        except (ConnectionResetError, BrokenPipeError):
+            pass
+
     def log_message(self, format, *args):
         # Suppress noise during high-throughput benchmarking
         if os.environ.get("BENCHMARK_DEBUG"):
@@ -27,6 +33,10 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
     allow_reuse_address = True
+
+    def handle_error(self, request, client_address):
+        # Suppress standard socket error dump when client disconnects
+        pass
 
 
 def start_server(port: int = DEFAULT_PORT):

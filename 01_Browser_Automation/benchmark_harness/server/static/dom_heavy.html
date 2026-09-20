@@ -5,9 +5,9 @@
   <title>Benchmark: Heavy DOM (10k Nodes)</title>
   <style>
     body { font-family: system-ui, sans-serif; padding: 20px; }
-    .node-item { padding: 2px 4px; font-size: 11px; margin: 1px; border-left: 2px solid #94a3b8; }
-    .nested-container { margin-left: 8px; }
-    .highlight-target { background: #fef08a; padding: 4px; font-weight: bold; }
+    .section-block { margin-bottom: 10px; border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; }
+    .node-item { font-size: 11px; margin: 2px 0; color: #475569; }
+    .highlight-target { background: #fef08a; padding: 6px; font-weight: bold; border: 2px solid #eab308; }
   </style>
 </head>
 <body>
@@ -19,10 +19,11 @@
     const startTime = performance.now();
     const root = document.getElementById('benchmark-root');
     const TOTAL_NODES = 10000;
-    const TARGET_INDEX = 8742; // Deep needle in the haystack
+    const TARGET_INDEX = 8742;
 
-    let fragment = document.createDocumentFragment();
-    let currentParent = fragment;
+    const fragment = document.createDocumentFragment();
+    let currentBlock = document.createElement('div');
+    currentBlock.className = 'section-block';
 
     for (let i = 1; i <= TOTAL_NODES; i++) {
       const div = document.createElement('div');
@@ -33,35 +34,30 @@
       if (i === TARGET_INDEX) {
         div.className += ' highlight-target';
         div.id = 'needle-target';
-        div.innerHTML = `<span>NEEDLE TARGET (ID: needle-target, index: ${i})</span><button id="needle-btn" onclick="this.textContent='FOUND!'">Find Me</button>`;
+        div.innerHTML = `<span>NEEDLE TARGET (ID: needle-target, index: ${i})</span> <button id="needle-btn" onclick="this.textContent='FOUND!'">Find Me</button>`;
       } else {
-        div.textContent = `Node Item #${i} - metric dummy text for payload sizing`;
+        div.textContent = `Node Item #${i} - synthetic DOM payload content text for tree traversal and AXTree sizing`;
       }
 
-      // Every 50 nodes, create a nested hierarchy
-      if (i % 50 === 0) {
-        const nestedContainer = document.createElement('div');
-        nestedContainer.className = 'nested-container';
-        nestedContainer.appendChild(div);
-        currentParent.appendChild(nestedContainer);
-        if (i % 500 === 0) {
-          fragment.appendChild(currentParent);
-          currentParent = document.createElement('div');
-        } else {
-          currentParent = nestedContainer;
-        }
-      } else {
-        currentParent.appendChild(div);
+      currentBlock.appendChild(div);
+
+      // Group every 100 nodes into a section block
+      if (i % 100 === 0) {
+        fragment.appendChild(currentBlock);
+        currentBlock = document.createElement('div');
+        currentBlock.className = 'section-block';
       }
     }
-    fragment.appendChild(currentParent);
+    if (currentBlock.hasChildNodes()) {
+      fragment.appendChild(currentBlock);
+    }
     root.appendChild(fragment);
 
     const endTime = performance.now();
     const statusDiv = document.getElementById('generation-status');
     statusDiv.textContent = `Ready: ${TOTAL_NODES} DOM nodes generated in ${(endTime - startTime).toFixed(1)}ms. Needle ID: #needle-target`;
+    window.__total_nodes = document.querySelectorAll('.node-item').length;
     window.__fixture_ready = true;
-    window.__total_nodes = TOTAL_NODES;
   </script>
 </body>
 </html>
