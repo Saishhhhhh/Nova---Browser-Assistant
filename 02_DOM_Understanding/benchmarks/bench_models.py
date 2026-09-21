@@ -57,6 +57,11 @@ async def run_model_task_evaluation(
     selected_tasks = tasks[:max_tasks] if max_tasks else tasks
 
     for task in selected_tasks:
+        # Skip multi-field tasks that don't have a single target_selector
+        if "target_selector" not in task:
+            print(f"  [⏭️] Task #{task['id']:<2} | Skipped (multi-field task, no single target_selector)")
+            continue
+
         fix = task["fixture"]
         # Navigate only when fixture changes
         if fix != current_fixture:
@@ -180,6 +185,10 @@ async def run_models_benchmark(
                     continue
 
             resolved_name = matches[0] if matches else m
+
+            # Warmup: force Ollama to load model into VRAM before timing
+            await client.warmup_model(resolved_name)
+
             report = await run_model_task_evaluation(
                 client=client,
                 model_name=resolved_name,

@@ -53,6 +53,31 @@ class OllamaClient:
             print(f"[OllamaClient] Error pulling '{model_name}': {e}")
             return False
 
+    async def warmup_model(self, model_name: str) -> bool:
+        """Send a trivial prompt to force Ollama to load the model into VRAM."""
+        print(f"  [Warmup] Loading '{model_name}' into VRAM...")
+        payload = json.dumps({
+            "model": model_name,
+            "messages": [{"role": "user", "content": "hi"}],
+            "stream": False,
+            "options": {"num_predict": 1}
+        }).encode()
+        req = urllib.request.Request(
+            f"{self.base_url}/api/chat",
+            data=payload,
+            headers={"Content-Type": "application/json"}
+        )
+        try:
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(
+                None, lambda: urllib.request.urlopen(req, timeout=180.0).read()
+            )
+            print(f"  [Warmup] '{model_name}' loaded and ready.")
+            return True
+        except Exception as e:
+            print(f"  [Warmup] Failed for '{model_name}': {e}")
+            return False
+
     async def generate_grounding(
         self,
         model_name: str,
@@ -105,7 +130,7 @@ class OllamaClient:
 
         def read_stream():
             nonlocal ttft_ns, token_count
-            with urllib.request.urlopen(req, timeout=30.0) as resp:
+            with urllib.request.urlopen(req, timeout=180.0) as resp:
                 for line in resp:
                     if not line:
                         continue
@@ -129,7 +154,10 @@ class OllamaClient:
         tokens_per_sec = (token_count / (total_ms / 1000.0)) if total_ms > 0 else 0.0
 
         raw_output = "".join(full_chunks).strip()
-        parsed_action, is_valid_json = self._parse_output(raw_output)
+
+        # Strip <think>...</think> blocks from thinking models (e.g. Qwen3)
+        clean_output = re.sub(r'<think>[\s\S]*?</think>', '', raw_output).strip()
+        parsed_action, is_valid_json = self._parse_output(clean_output)
 
         return {
             "model": model_name,
