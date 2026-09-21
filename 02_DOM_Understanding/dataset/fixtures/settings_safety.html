@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account Settings & Security</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b0f19; color: #f1f5f9; padding: 32px; }
+        .settings-card { max-width: 600px; margin: 0 auto 24px auto; background: #1e293b; padding: 24px; border-radius: 12px; border: 1px solid #334155; }
+        .danger-zone { border: 1px solid #991b1b; background: #180d11; }
+        .section-title { font-size: 18px; font-weight: 700; color: #38bdf8; margin-bottom: 16px; }
+        .danger-title { color: #ef4444; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #334155; }
+        .btn { padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; font-size: 14px; }
+        .btn-primary { background: #0284c7; color: white; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-secondary { background: #334155; color: #cbd5e1; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #10b981; }
+        input:checked + .slider:before { transform: translateX(20px); }
+    </style>
+</head>
+<body>
+
+    <div class="settings-card">
+        <div class="section-title">Security & Preferences</div>
+        
+        <div class="setting-row">
+            <div>
+                <div style="font-weight: 600;">Two-Factor Authentication (2FA)</div>
+                <div style="font-size: 13px; color: #94a3b8;">Protect your account with an authenticator app</div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="toggle-2fa" checked />
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-row">
+            <div>
+                <div style="font-weight: 600;">Email Security Notifications</div>
+                <div style="font-size: 13px; color: #94a3b8;">Receive alerts when sign-in happens from a new IP</div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="toggle-notifications" />
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+            <button id="save-preferences-btn" class="btn btn-primary">Save Preferences</button>
+        </div>
+    </div>
+
+    <!-- Danger Zone Card -->
+    <div class="settings-card danger-zone">
+        <div class="section-title danger-title">Danger Zone</div>
+        <p style="font-size: 14px; color: #fca5a5;">
+            Irreversible actions that will affect your stored payment cards, active orders, and data.
+        </p>
+
+        <div class="setting-row" style="border-bottom: none;">
+            <div>
+                <div style="font-weight: 600; color: #fecaca;">Delete Account & Wipe Cloud History</div>
+                <div style="font-size: 13px; color: #f87171;">Once confirmed, all data is permanently erased.</div>
+            </div>
+            <button id="delete-account-btn" class="btn btn-danger">Delete Account</button>
+        </div>
+    </div>
+
+</body>
+</html>

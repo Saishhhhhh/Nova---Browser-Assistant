@@ -1,0 +1,200 @@
+"""
+Ollama Client with Streaming TTFT and Dual Format Parsing.
+Supports strict JSON output and bracket-notation parsing for LFM models.
+"""
+
+import time
+import json
+import re
+import asyncio
+from typing import Dict, Any, Optional, Tuple, List
+import urllib.request
+import urllib.error
+
+
+class OllamaClient:
+    def __init__(self, base_url: str = "http://127.0.0.1:11434"):
+        self.base_url = base_url.rstrip("/")
+
+    def is_server_running(self) -> bool:
+        """Checks if Ollama server is responding on localhost:11434."""
+        try:
+            req = urllib.request.Request(f"{self.base_url}/api/tags")
+            with urllib.request.urlopen(req, timeout=2.0) as resp:
+                return resp.status == 200
+        except Exception:
+            return False
+
+    def list_local_models(self) -> List[str]:
+        """Returns list of currently installed model names in Ollama."""
+        try:
+            req = urllib.request.Request(f"{self.base_url}/api/tags")
+            with urllib.request.urlopen(req, timeout=3.0) as resp:
+                data = json.loads(resp.read().decode())
+                return [m.get("name", "") for m in data.get("models", [])]
+        except Exception:
+            return []
+
+    async def pull_model(self, model_name: str) -> bool:
+        """Pulls a model asynchronously via Ollama REST API."""
+        print(f"[OllamaClient] Pulling model '{model_name}' (this may take a minute)...")
+        payload = json.dumps({"name": model_name}).encode()
+        req = urllib.request.Request(
+            f"{self.base_url}/api/pull",
+            data=payload,
+            headers={"Content-Type": "application/json"}
+        )
+        try:
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, lambda: urllib.request.urlopen(req, timeout=600.0).read())
+            print(f"[OllamaClient] Successfully pulled '{model_name}'")
+            return True
+        except Exception as e:
+            print(f"[OllamaClient] Error pulling '{model_name}': {e}")
+            return False
+
+    async def generate_grounding(
+        self,
+        model_name: str,
+        dom_representation: str,
+        voice_command: str,
+        system_instruction: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Executes a streaming completion to measure Time-to-First-Token (TTFT),
+        total latency, token rate, and parsed decision payload.
+        """
+        if not system_instruction:
+            system_instruction = (
+                "You are an ultra-fast speech browser grounding agent. "
+                "Given the visible webpage elements and user voice command, output ONLY a JSON object "
+                "with the target element id and action to perform.\n"
+                "Format: {\"action\": \"click\"|\"type\"|\"select\"|\"ask_confirmation\", \"target\": <int>, \"value\": <str|null>, \"reply\": <1-sentence speech reply>}"
+            )
+
+        user_prompt = (
+            f"Webpage Elements:\n{dom_representation}\n\n"
+            f"User Voice Command: \"{voice_command}\"\n"
+            f"Output strictly valid JSON with target ID:"
+        )
+
+        payload = {
+            "model": model_name,
+            "messages": [
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": user_prompt}
+            ],
+            "stream": True,
+            "options": {
+                "temperature": 0.0,
+                "num_predict": 128
+            }
+        }
+
+        # Measure TTFT and generation metrics
+        t0 = time.perf_counter_ns()
+        ttft_ns: Optional[int] = None
+        full_chunks = []
+        token_count = 0
+
+        req = urllib.request.Request(
+            f"{self.base_url}/api/chat",
+            data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json"}
+        )
+
+        def read_stream():
+            nonlocal ttft_ns, token_count
+            with urllib.request.urlopen(req, timeout=30.0) as resp:
+                for line in resp:
+                    if not line:
+                        continue
+                    try:
+                        chunk = json.loads(line.decode())
+                        msg = chunk.get("message", {}).get("content", "")
+                        if msg:
+                            if ttft_ns is None:
+                                ttft_ns = time.perf_counter_ns()
+                            full_chunks.append(msg)
+                            token_count += 1
+                    except Exception:
+                        pass
+
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, read_stream)
+
+        t_end = time.perf_counter_ns()
+        total_ms = (t_end - t0) / 1_000_000.0
+        ttft_ms = ((ttft_ns - t0) / 1_000_000.0) if ttft_ns else total_ms
+        tokens_per_sec = (token_count / (total_ms / 1000.0)) if total_ms > 0 else 0.0
+
+        raw_output = "".join(full_chunks).strip()
+        parsed_action, is_valid_json = self._parse_output(raw_output)
+
+        return {
+            "model": model_name,
+            "raw_output": raw_output,
+            "parsed_action": parsed_action,
+            "is_valid_json": is_valid_json,
+            "ttft_ms": round(ttft_ms, 2),
+            "total_ms": round(total_ms, 2),
+            "tokens_generated": token_count,
+            "tokens_per_sec": round(tokens_per_sec, 1)
+        }
+
+    def _parse_output(self, text: str) -> Tuple[Dict[str, Any], bool]:
+        """
+        Dual parser supporting standard JSON and bracket-notation (for LFM/Liquid models).
+        """
+        # 1. Try standard JSON or markdown-fenced JSON
+        clean_json = text
+        m = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', text)
+        if m:
+            clean_json = m.group(1).strip()
+        else:
+            # Look for outer curly braces
+            m_brace = re.search(r'\{[\s\S]*\}', text)
+            if m_brace:
+                clean_json = m_brace.group(0)
+
+        try:
+            data = json.loads(clean_json)
+            if isinstance(data, dict):
+                return data, True
+        except Exception:
+            pass
+
+        # 2. Try Bracket-Notation Parser (e.g., [click, 2] or [tool: click, target: 2])
+        m_bracket = re.search(r'\[(.*?)\]', text)
+        if m_bracket:
+            content = m_bracket.group(1).strip()
+            # Case A: "click, 2" or "type, 1, hello"
+            parts = [p.strip() for p in content.split(',')]
+            if len(parts) >= 2:
+                action = parts[0].replace('"', '').replace("'", '').lower()
+                target_str = re.search(r'\d+', parts[1])
+                if target_str:
+                    target = int(target_str.group(0))
+                    val = parts[2] if len(parts) > 2 else None
+                    return {
+                        "action": action,
+                        "target": target,
+                        "value": val,
+                        "reply": "Executing action"
+                    }, True
+
+        # 3. Fallback: Search for any number after target
+        m_fallback = re.search(r'(?:target|id|element|button)\s*[:=]?\s*(\d+)', text, re.IGNORECASE)
+        if m_fallback:
+            target = int(m_fallback.group(1))
+            action = "click"
+            if "type" in text.lower():
+                action = "type"
+            return {
+                "action": action,
+                "target": target,
+                "value": None,
+                "reply": "Executing action"
+            }, False
+
+        return {"action": "unknown", "target": None, "raw": text}, False
