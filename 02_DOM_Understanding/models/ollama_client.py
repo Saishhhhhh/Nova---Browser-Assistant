@@ -7,9 +7,44 @@ import time
 import json
 import re
 import asyncio
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Dict, Any, Optional, Tuple, List, Literal
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 import urllib.request
 import urllib.error
+
+
+class ClickAction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    status: Literal["found", "not_found"]
+    action: Optional[Literal["click", "type", "select"]] = None
+    target: Optional[int] = Field(default=None, description="The integer id of the target element from the list")
+    value: Optional[str] = Field(default=None, description="Text to type if action is type")
+    reply: Optional[str] = Field(default=None, description="Short 1-sentence speech response")
+
+    @model_validator(mode="after")
+    def validate_target_if_found(self):
+        if self.status == "found" and self.target is None:
+            raise ValueError("Target integer ID must be provided when status is 'found'")
+        if self.status == "found" and self.action is None:
+            self.action = "click"
+        return self
+
+
+def _extract_first_json_object(text: str) -> Optional[str]:
+    """Defense-in-depth repair path: if a model ever slips a preamble past
+    the grammar, pull the first balanced {...} block by bracket counting."""
+    start = text.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    for i, ch in enumerate(text[start:], start):
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : i + 1]
+    return None
 
 
 class OllamaClient:
@@ -83,25 +118,31 @@ class OllamaClient:
         model_name: str,
         dom_representation: str,
         voice_command: str,
-        system_instruction: Optional[str] = None
+        system_instruction: Optional[str] = None,
+        format_schema: Optional[Any] = None
     ) -> Dict[str, Any]:
         """
         Executes a streaming completion to measure Time-to-First-Token (TTFT),
         total latency, token rate, and parsed decision payload.
+        Constrains decoding via format schema to eliminate preambles and key drift.
         """
         if not system_instruction:
             system_instruction = (
                 "You are an ultra-fast speech browser grounding agent. "
                 "Given the visible webpage elements and user voice command, output ONLY a JSON object "
-                "with the target element id and action to perform.\n"
-                "Format: {\"action\": \"click\"|\"type\"|\"select\"|\"ask_confirmation\", \"target\": <int>, \"value\": <str|null>, \"reply\": <1-sentence speech reply>}"
+                "matching the schema.\n"
+                "If a matching element exists, output status='found' with its integer target id and action ('click', 'type', or 'select').\n"
+                "If NO element on the page matches the user request, output status='not_found'.\n"
+                "Format: {\"status\": \"found\"|\"not_found\", \"action\": \"click\"|\"type\"|\"select\"|null, \"target\": <int>|null, \"value\": <str>|null, \"reply\": <str>|null}"
             )
 
         user_prompt = (
             f"Webpage Elements:\n{dom_representation}\n\n"
             f"User Voice Command: \"{voice_command}\"\n"
-            f"Output strictly valid JSON with target ID:"
+            f"Output strictly valid JSON matching the schema:"
         )
+
+        active_format = format_schema if format_schema is not None else ClickAction.model_json_schema()
 
         payload = {
             "model": model_name,
@@ -110,9 +151,11 @@ class OllamaClient:
                 {"role": "user", "content": user_prompt}
             ],
             "stream": True,
+            "format": active_format,
             "options": {
                 "temperature": 0.0,
-                "num_predict": 128
+                "num_predict": 48,
+                "num_ctx": 4096
             }
         }
 
@@ -172,15 +215,60 @@ class OllamaClient:
 
     def _parse_output(self, text: str) -> Tuple[Dict[str, Any], bool]:
         """
-        Dual parser supporting standard JSON and bracket-notation (for LFM/Liquid models).
+        Parser supporting strict ClickAction validation, bracket-counting repair,
+        standard JSON, and bracket-notation (for LFM/Liquid models).
         """
-        # 1. Try standard JSON or markdown-fenced JSON
+        def format_action_obj(obj: ClickAction) -> Dict[str, Any]:
+            if obj.status == "not_found":
+                return {
+                    "status": "not_found",
+                    "action": "not_found",
+                    "target": None,
+                    "value": None,
+                    "reply": obj.reply or "No matching element found on the current page."
+                }
+            return {
+                "status": "found",
+                "action": obj.action or "click",
+                "target": obj.target,
+                "value": obj.value,
+                "reply": obj.reply or "Executing action"
+            }
+
+        # 1. Try strict Pydantic ClickAction validation
+        try:
+            action_obj = ClickAction.model_validate_json(text)
+            return format_action_obj(action_obj), True
+        except Exception:
+            pass
+
+        # 2. Defense-in-depth: bracket-counting repair if preamble slipped past
+        repaired = _extract_first_json_object(text)
+        if repaired:
+            try:
+                action_obj = ClickAction.model_validate_json(repaired)
+                return format_action_obj(action_obj), True
+            except Exception:
+                try:
+                    data = json.loads(repaired)
+                    if isinstance(data, dict):
+                        st = data.get("status", "found" if data.get("target") is not None else "not_found")
+                        return {
+                            "status": st,
+                            "action": data.get("action", "click" if st == "found" else "not_found"),
+                            "target": data.get("target"),
+                            "value": data.get("value"),
+                            "reply": data.get("reply", "")
+                        }, True
+                except Exception:
+                    pass
+
+        # 3. Try standard JSON or markdown-fenced JSON
         clean_json = text
         m = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', text)
         if m:
             clean_json = m.group(1).strip()
         else:
-            # Look for outer curly braces
             m_brace = re.search(r'\{[\s\S]*\}', text)
             if m_brace:
                 clean_json = m_brace.group(0)
@@ -188,11 +276,18 @@ class OllamaClient:
         try:
             data = json.loads(clean_json)
             if isinstance(data, dict):
-                return data, True
+                st = data.get("status", "found" if data.get("target") is not None else "not_found")
+                return {
+                    "status": st,
+                    "action": data.get("action", "click" if st == "found" else "not_found"),
+                    "target": data.get("target"),
+                    "value": data.get("value"),
+                    "reply": data.get("reply", "")
+                }, True
         except Exception:
             pass
 
-        # 2. Try Bracket-Notation Parser (e.g., [click, 2] or [tool: click, target: 2])
+        # 4. Try Bracket-Notation Parser (e.g., [click, 2] or [tool: click, target: 2])
         m_bracket = re.search(r'\[(.*?)\]', text)
         if m_bracket:
             content = m_bracket.group(1).strip()
@@ -205,13 +300,14 @@ class OllamaClient:
                     target = int(target_str.group(0))
                     val = parts[2] if len(parts) > 2 else None
                     return {
+                        "status": "found",
                         "action": action,
                         "target": target,
                         "value": val,
                         "reply": "Executing action"
                     }, True
 
-        # 3. Fallback: Search for any number after target
+        # 5. Fallback: Search for any number after target
         m_fallback = re.search(r'(?:target|id|element|button)\s*[:=]?\s*(\d+)', text, re.IGNORECASE)
         if m_fallback:
             target = int(m_fallback.group(1))
@@ -219,10 +315,11 @@ class OllamaClient:
             if "type" in text.lower():
                 action = "type"
             return {
+                "status": "found",
                 "action": action,
                 "target": target,
                 "value": None,
                 "reply": "Executing action"
             }, False
 
-        return {"action": "unknown", "target": None, "raw": text}, False
+        return {"status": "not_found", "action": "not_found", "target": None, "raw": text}, False

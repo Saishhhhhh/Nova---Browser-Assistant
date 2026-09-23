@@ -12,13 +12,47 @@ import json
 import re
 import time
 from typing import Dict, Any, Optional, List, Tuple, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from dom_extractors.context_aware_json import ContextAwareJSONExtractor
-from models.ollama_client import OllamaClient
+from models.ollama_client import OllamaClient, _extract_first_json_object
+from pipeline.page_classifier import PageStatus, PageBlockedError, check_and_stabilize_state
+from pipeline.tab_manager import match_tier0_physical_action
+
+
+SPECIFIC_ACTION_KEYWORDS: Dict[str, List[str]] = {
+    "cart": ["add to cart", "add to basket", "buy now", "purchase"],
+    "checkout": ["proceed to checkout", "checkout", "place your order", "pay now"],
+    "login": ["sign in", "log in", "login"],
+    "logout": ["sign out", "log out", "logout"],
+    "wishlist": ["add to wishlist", "save for later"]
+}
+
+
+def find_specific_action_target(elements: List[Dict[str, Any]], voice_command: str) -> Tuple[Optional[Dict[str, Any]], bool]:
+    """
+    Checks if the command is asking for a specific high-intent action (e.g. 'add to cart').
+    Returns (matching_element, was_specific_action).
+    """
+    cmd = voice_command.lower()
+    for category, keywords in SPECIFIC_ACTION_KEYWORDS.items():
+        if any(kw in cmd for kw in keywords):
+            for el in elements:
+                if el.get("tag") in ("input", "textarea") and el.get("type") in ("search", "text"):
+                    continue
+                text = (el.get("text") or "").lower()
+                dom_id = (el.get("dom_id") or "").lower()
+                placeholder = (el.get("placeholder") or "").lower()
+                aria = el.get("aria-label", "").lower() if isinstance(el.get("aria-label"), str) else ""
+
+                if any(kw in text or kw in dom_id or kw in placeholder or kw in aria for kw in keywords):
+                    return el, True
+            return None, True
+    return None, False
 
 
 class ConstraintIntent(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     is_constraint: bool = Field(description="True if the command involves selecting based on price, stops, time, or specific card attributes")
     sort: Optional[Literal["price_asc", "price_desc", "time_asc", "time_desc"]] = None
     max_stops: Optional[int] = None
@@ -109,6 +143,30 @@ CONSTRAINT_HINTS = {
 }
 
 
+def format_compact_elements(raw_items: List[Dict[str, Any]]) -> str:
+    """Formats raw element dictionaries into an ultra-dense, token-efficient list for SLMs."""
+    lines = []
+    for el in raw_items:
+        idx = el.get("id")
+        tag = el.get("tag", "")
+        role = el.get("role", tag)
+        text = el.get("text", "")
+        placeholder = el.get("placeholder", "")
+        dom_id = el.get("dom_id", "")
+
+        desc = []
+        if dom_id:
+            desc.append(f'id="{dom_id}"')
+        if placeholder:
+            desc.append(f'placeholder="{placeholder}"')
+        if text:
+            desc.append(f'"{text}"')
+
+        desc_str = " ".join(desc) if desc else tag
+        lines.append(f"[{idx}] {role} {desc_str}")
+    return "\n".join(lines)
+
+
 class HybridGroundingPipeline:
     def __init__(self, ollama_client: OllamaClient):
         self.client = ollama_client
@@ -150,7 +208,7 @@ class HybridGroundingPipeline:
                 {"role": "user", "content": user_prompt}
             ],
             "stream": False,
-            "format": "json",
+            "format": ConstraintIntent.model_json_schema(),
             "options": {"temperature": 0.0, "num_predict": 100}
         }
 
@@ -165,8 +223,13 @@ class HybridGroundingPipeline:
             resp = await loop.run_in_executor(None, lambda: urllib.request.urlopen(req, timeout=30.0).read())
             data = json.loads(resp.decode())
             content = data.get("message", {}).get("content", "{}")
-            parsed = json.loads(content)
-            return ConstraintIntent(**parsed)
+            try:
+                return ConstraintIntent.model_validate_json(content)
+            except Exception:
+                repaired = _extract_first_json_object(content)
+                if repaired:
+                    return ConstraintIntent.model_validate_json(repaired)
+                raise
         except Exception:
             # Fallback heuristic if LLM schema fails
             cmd = voice_command.lower()
@@ -191,6 +254,23 @@ class HybridGroundingPipeline:
         """
         t0 = time.perf_counter_ns()
 
+        # Step 0: Tier-0 Physical Router (scroll, page nav, refresh) with 0ms SLM latency
+        tier0 = match_tier0_physical_action(voice_command)
+        if tier0:
+            return {
+                "action": "physical",
+                "physical_action": tier0,
+                "target": None,
+                "value": None,
+                "reply": f"Physical command: {tier0}",
+                "is_tier0": True,
+                "is_constraint_fastpath": True,
+                "ttft_ms": 0.0,
+                "total_ms": 0.0,
+                "raw_output": f"tier0:{tier0}",
+                "is_valid_json": True
+            }
+
         # Step 1: Run Extraction and Intent Parsing in PARALLEL
         dom_task = asyncio.create_task(self.extractor.extract(page))
         intent_task = asyncio.create_task(self.parse_constraint_intent(voice_command, model_name))
@@ -200,6 +280,61 @@ class HybridGroundingPipeline:
 
         raw_elements: List[Dict[str, Any]] = dom_meta.get("raw_items", [])
 
+        # Step 1.5: Explicit Page State Classification (WAF / Challenge / Sparse Suspect)
+        html_size = len(dom_json)
+        page_status, reason, details = await check_and_stabilize_state(
+            page,
+            element_count=len(raw_elements),
+            html_byte_size=html_size
+        )
+
+        if page_status in (PageStatus.BLOCKED, PageStatus.SPARSE_SUSPECT):
+            total_ms = (time.perf_counter_ns() - t0) / 1_000_000.0
+            return {
+                "action": "handoff",
+                "target": None,
+                "value": None,
+                "reply": f"⚠️ Human Handoff: I am stuck behind a verification or anti-bot challenge on this site ({reason}). Please complete the verification in the Chrome window, then type 'refresh'.",
+                "is_constraint_fastpath": False,
+                "ttft_ms": 0.0,
+                "total_ms": round(total_ms, 2),
+                "raw_output": f"PAGE_{page_status.upper()}: {reason}",
+                "is_valid_json": True,
+                "page_status": page_status.value,
+                "challenge_details": details
+            }
+
+        # Step 1.8: Deterministic Specific Action Check (e.g. 'add to cart', 'checkout')
+        spec_elem, was_spec = find_specific_action_target(raw_elements, voice_command)
+        if was_spec:
+            total_ms = (time.perf_counter_ns() - t0) / 1_000_000.0
+            if spec_elem:
+                return {
+                    "status": "found",
+                    "action": "click",
+                    "target": spec_elem["id"],
+                    "value": None,
+                    "reply": f"Found '{spec_elem.get('text', '')}' button (#{spec_elem['id']}).",
+                    "is_constraint_fastpath": True,
+                    "ttft_ms": round(extraction_ms, 2),
+                    "total_ms": round(total_ms, 2),
+                    "raw_output": json.dumps({"status": "found", "action": "click", "target": spec_elem["id"]}),
+                    "is_valid_json": True
+                }
+            else:
+                return {
+                    "status": "not_found",
+                    "action": "not_found",
+                    "target": None,
+                    "value": None,
+                    "reply": f"No '{voice_command}' button found on the current page. If you are on search results, please click a product to open its detail page first.",
+                    "is_constraint_fastpath": True,
+                    "ttft_ms": round(extraction_ms, 2),
+                    "total_ms": round(total_ms, 2),
+                    "raw_output": json.dumps({"status": "not_found"}),
+                    "is_valid_json": True
+                }
+
         # Step 2: Check if command is a constraint query with matching card elements
         if intent.is_constraint:
             shortlist = apply_deterministic_constraints(raw_elements, intent)
@@ -207,6 +342,7 @@ class HybridGroundingPipeline:
                 winner = shortlist[0]
                 total_ms = (time.perf_counter_ns() - t0) / 1_000_000.0
                 return {
+                    "status": "found",
                     "action": intent.action or "click",
                     "target": winner["id"],
                     "value": None,
@@ -215,21 +351,54 @@ class HybridGroundingPipeline:
                     "shortlist_count": len(shortlist),
                     "ttft_ms": round(extraction_ms, 2),
                     "total_ms": round(total_ms, 2),
-                    "raw_output": json.dumps({"action": "click", "target": winner["id"]}),
+                    "raw_output": json.dumps({"status": "found", "action": "click", "target": winner["id"]}),
+                    "is_valid_json": True
+                }
+            else:
+                total_ms = (time.perf_counter_ns() - t0) / 1_000_000.0
+                return {
+                    "status": "not_found",
+                    "action": "not_found",
+                    "target": None,
+                    "value": None,
+                    "reply": "No elements on this page matched your specified constraints (price, stops, or time).",
+                    "is_constraint_fastpath": True,
+                    "ttft_ms": round(extraction_ms, 2),
+                    "total_ms": round(total_ms, 2),
+                    "raw_output": json.dumps({"status": "not_found"}),
                     "is_valid_json": True
                 }
 
         # Step 3: Standard Grounding Fallback for non-constraint commands
+        compact_dom = format_compact_elements(raw_elements)
         grounding_res = await self.client.generate_grounding(
             model_name=model_name,
-            dom_representation=dom_json,
+            dom_representation=compact_dom,
             voice_command=voice_command
         )
         total_ms = (time.perf_counter_ns() - t0) / 1_000_000.0
 
         res_payload = grounding_res.get("parsed_action") or {}
+        st = res_payload.get("status")
+        act = res_payload.get("action", "click")
+
+        if st == "not_found" or act == "not_found" or res_payload.get("target") is None:
+            return {
+                "status": "not_found",
+                "action": "not_found",
+                "target": None,
+                "value": None,
+                "reply": res_payload.get("reply") or f"No element matching '{voice_command}' was found on the page.",
+                "is_constraint_fastpath": False,
+                "ttft_ms": grounding_res.get("ttft_ms", 0.0),
+                "total_ms": round(total_ms, 2),
+                "raw_output": grounding_res.get("raw_output", ""),
+                "is_valid_json": grounding_res.get("is_valid_json", False)
+            }
+
         return {
-            "action": res_payload.get("action", "click"),
+            "status": "found",
+            "action": act,
             "target": res_payload.get("target"),
             "value": res_payload.get("value"),
             "reply": res_payload.get("reply", ""),

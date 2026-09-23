@@ -33,12 +33,13 @@ class ContextAwareJSONExtractor(BaseDOMExtractor):
 
                 function isVisible(el) {{
                     if (!el || !(el instanceof Element)) return false;
-                    if (el.offsetParent === null && el.tagName !== 'BODY') return false;
                     const style = window.getComputedStyle(el);
                     if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
                     const r = el.getBoundingClientRect();
                     if (r.width === 0 || r.height === 0) return false;
-                    if (r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) return false;
+                    // Allow 1.0 viewport height of vertical padding so adjacent scrolled cards are pre-indexed
+                    const vPad = window.innerHeight * 1.0;
+                    if (r.bottom < -vPad || r.top > window.innerHeight + vPad || r.right < 0 || r.left > window.innerWidth) return false;
                     return true;
                 }}
 
@@ -128,6 +129,12 @@ class ContextAwareJSONExtractor(BaseDOMExtractor):
                     return Object.keys(ctx).length ? ctx : null;
                 }}
 
+                // 1. Remove existing agent badges and highlight rings before re-indexing
+                document.querySelectorAll('.__agent_num_badge, .__agent_active_ring').forEach(el => el.remove());
+
+                // 2. Neutralize target="_blank" so link navigation stays within the same tab
+                document.querySelectorAll('a[target="_blank"]').forEach(a => a.setAttribute('target', '_self'));
+
                 const candidates = Array.from(document.querySelectorAll(INTERACTIVE_SELECTOR)).filter(isVisible);
                 const visible = [];
                 let count = 0;
@@ -167,6 +174,21 @@ class ContextAwareJSONExtractor(BaseDOMExtractor):
                         "x": Math.round(r.left + r.width / 2),
                         "y": Math.round(r.top + r.height / 2)
                     }};
+
+                    // Inject visual numbered badges if enabled
+                    if ({str(self.inject_visual_badges).lower()}) {{
+                        let existingBadge = document.querySelector(`.__agent_num_badge[data-badge-id="${{count}}"]`);
+                        if (!existingBadge) {{
+                            const badge = document.createElement('span');
+                            badge.className = '__agent_num_badge';
+                            badge.setAttribute('data-badge-id', String(count));
+                            badge.textContent = String(count);
+                            badge.style.cssText = 'position:absolute;background:#f59e0b;color:#111827;font-family:system-ui,-apple-system,sans-serif;font-size:11px;font-weight:900;padding:1px 6px;border-radius:4px;z-index:2147483647;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.6);border:1px solid #ffffff;line-height:16px;';
+                            badge.style.left = (r.left + window.scrollX - 4) + 'px';
+                            badge.style.top = (r.top + window.scrollY - 8) + 'px';
+                            document.body.appendChild(badge);
+                        }}
+                    }}
 
                     visible.push(item);
                 }}
