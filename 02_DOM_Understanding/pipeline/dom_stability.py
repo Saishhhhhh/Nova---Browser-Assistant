@@ -54,46 +54,40 @@ async def act_and_reindex(
     page: Page,
     action_coro: Coroutine,
     extractor: Any,
-    nav_timeout_ms: int = 3500,
+    nav_timeout_ms: int = 2500,
     quiet_ms: int = 300,
     quiet_timeout_ms: int = 4000,
 ) -> Tuple[str, Dict[str, Any]]:
     """
-    Run `action_coro` (e.g. page.click(selector)), then race:
-      - a navigation event ('framenavigated' or 'load'), or
-      - DOM quiescence (no mutations for quiet_ms)
-    whichever resolves first -- then re-extract the DOM before returning.
-
-    This is the wrapper every agent action (click/type/press Enter) should
-    go through, closing the "stale badges after navigation" gap.
+    Run `action_coro` (e.g. page.click(selector)), then:
+      - allow any immediate navigation or load state transition
+      - wait for DOM quiescence (no mutations for quiet_ms)
+      - recover gracefully if execution context was destroyed by a full-page reload
+      - re-extract and return freshly indexed elements.
     """
-    nav_wait = page.wait_for_event("framenavigated", timeout=nav_timeout_ms)
-    quiescence_wait = wait_for_stable(page, quiet_ms=quiet_ms, timeout_ms=quiet_timeout_ms)
-
     # Trigger action
     await action_coro
 
-    done, pending = await asyncio.wait(
-        [asyncio.create_task(nav_wait), asyncio.create_task(quiescence_wait)],
-        return_when=asyncio.FIRST_COMPLETED,
-    )
-    for task in pending:
-        task.cancel()
-        try:
-            await task
-        except (asyncio.CancelledError, Exception):
-            pass
-
-    # If navigation fired, wait for DOM content loaded and a short follow-up quiet window
+    # Give any in-flight navigation a brief window to settle
     try:
-        await page.wait_for_load_state("domcontentloaded", timeout=nav_timeout_ms)
+        await page.wait_for_load_state("domcontentloaded", timeout=1200)
     except Exception:
         pass
 
-    await wait_for_stable(page, quiet_ms=200, timeout_ms=1500)
+    # Wait for dynamic mutations to calm down
+    await wait_for_stable(page, quiet_ms=quiet_ms, timeout_ms=quiet_timeout_ms)
 
-    # Return freshly extracted DOM representation and metadata
-    return await extractor.extract(page)
+    # Return freshly extracted DOM representation and metadata (with reload recovery)
+    try:
+        return await extractor.extract(page)
+    except Exception:
+        # If execution context was destroyed by a full navigation, wait briefly for new page DOM
+        await asyncio.sleep(0.5)
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=2000)
+        except Exception:
+            pass
+        return await extractor.extract(page)
 
 
 async def click_and_reindex(

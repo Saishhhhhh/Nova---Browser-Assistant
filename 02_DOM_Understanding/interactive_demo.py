@@ -135,11 +135,11 @@ async def execute_browser_action(page, res: Dict[str, Any], extractor: Any = Non
     target_id = res.get("target")
     action = res.get("action", "click")
     value = res.get("value")
+    active_pg = tab_manager.active_page if tab_manager else page
 
     # Tier-0 physical browser controls (scroll, nav, reload) with 0ms SLM latency
     if action == "physical":
         action_type = res.get("physical_action", "scroll_down")
-        active_pg = tab_manager.active_page if tab_manager else page
         phys_res = await execute_physical_action(action_type, active_pg, tab_manager=tab_manager, extractor=extractor)
         print(f"  ⚡ [Tier-0 Action] {phys_res.get('reply')}")
         return
@@ -157,24 +157,128 @@ async def execute_browser_action(page, res: Dict[str, Any], extractor: Any = Non
         print("     👉 Please interact with the Chrome window directly. Once resolved, type 'refresh'.\n")
         return
 
+    # Tier-0.5 URL Direct Navigation
+    if action == "url_navigate":
+        nav_url = res.get("url")
+        print(f"  🌐 [URL Direct Nav] Navigating to {nav_url}...")
+        try:
+            await active_pg.goto(nav_url, wait_until="domcontentloaded", timeout=15000)
+        except Exception as e:
+            print(f"  ⚠️ Navigation warning: {e}")
+        if extractor:
+            await wait_for_stable(active_pg, quiet_ms=300, timeout_ms=3000)
+            try:
+                _, meta = await extractor.extract(active_pg)
+                print(f"  ✅ Page loaded & stabilized! Indexed {meta['element_count']} elements.")
+            except Exception:
+                pass
+        return
+
+    # Tier-0.5 Keyboard Shortcuts
+    if action == "keyboard":
+        focus_sel = res.get("focus_selector")
+        if focus_sel:
+            try:
+                await active_pg.click(focus_sel, timeout=1500)
+            except Exception:
+                pass
+        keys = res.get("keys")
+        single_key = res.get("key")
+        if keys:
+            for k in keys:
+                await active_pg.keyboard.press(k)
+                await asyncio.sleep(0.08)
+            print(f"  ⌨️  [Keyboard Shortcut] Pressed sequence: {' -> '.join(keys)}")
+        elif single_key:
+            await active_pg.keyboard.press(single_key)
+            print(f"  ⌨️  [Keyboard Shortcut] Pressed '{single_key}'")
+        if extractor:
+            await asyncio.sleep(0.3)
+            try:
+                await extractor.extract(active_pg)
+            except Exception:
+                pass
+        return
+
+    # Tier-0.5 Direct CSS Click Selector
+    if action == "click_selector":
+        sel = res.get("selector")
+        print(f"  👆 [Direct CSS Click] Clicking '{sel}'...")
+        try:
+            loc = active_pg.locator(sel).first
+            await loc.click(timeout=4000)
+            print(f"  ✅ Clicked '{sel}' successfully.")
+        except Exception as e:
+            print(f"  ⚠️ Could not click selector '{sel}': {e}")
+        if extractor:
+            await wait_for_stable(active_pg, quiet_ms=300, timeout_ms=3000)
+            try:
+                _, meta = await extractor.extract(active_pg)
+                print(f"  ✅ Re-indexed {meta['element_count']} elements.")
+            except Exception:
+                pass
+        return
+
+    # Tier-0.5 Direct CSS Type Selector
+    if action == "type_selector":
+        sel = res.get("selector")
+        val = res.get("value", "")
+        press_enter = res.get("press_enter", False)
+        print(f"  ⌨️  [Direct CSS Type] Typing '{val[:30]}' into '{sel}'...")
+        try:
+            loc = active_pg.locator(sel).first
+            await loc.fill(val, timeout=4000)
+            if press_enter:
+                await loc.press("Enter")
+            print(f"  ✅ Submitted input successfully.")
+        except Exception as e:
+            print(f"  ⚠️ Could not type into '{sel}': {e}")
+        if extractor:
+            await wait_for_stable(active_pg, quiet_ms=300, timeout_ms=3000)
+            try:
+                _, meta = await extractor.extract(active_pg)
+                print(f"  ✅ Re-indexed {meta['element_count']} elements.")
+            except Exception:
+                pass
+        return
+
     if not target_id:
         print(f"  [Notice] Model chose action='{action}' without an element target.")
         return
 
     selector = f'[data-agent-index="{target_id}"]'
-    el = page.locator(selector).first
+    el = active_pg.locator(selector).first
 
     if await el.count() == 0:
         print(f"  [Error] Element with data-agent-index='{target_id}' not found.")
         return
 
+    # Pre-action visibility check
+    try:
+        if not await el.is_visible():
+            print(f"  ⚠️ Element #{target_id} is hidden or scrolled out of view. Attempting scroll into view...")
+            await el.scroll_into_view_if_needed(timeout=2000)
+    except Exception:
+        pass
+
     # Visual highlight pause
-    await highlight_element_on_screen(page, target_id, f"🎯 Agent Target: #{target_id} ({action.upper()})")
-    await asyncio.sleep(0.6)
+    await highlight_element_on_screen(active_pg, target_id, f"🎯 Agent Target: #{target_id} ({action.upper()})")
+    await asyncio.sleep(0.5)
 
     # Perform action
     tag_name = await el.evaluate("el => el.tagName.toLowerCase()")
     input_type = await el.get_attribute("type") or ""
+
+    is_editable = await el.evaluate("""el => {
+        if (el.isContentEditable) return true;
+        if (['INPUT','TEXTAREA'].includes(el.tagName) &&
+            !['checkbox','radio','submit','button','hidden'].includes(el.type)) return true;
+        return false;
+    }""")
+
+    if action == "type" and not is_editable:
+        print(f"  ⚠️ Element #{target_id} is not an editable field ({tag_name}). Re-routing as click.")
+        action = "click"
 
     is_text_input = tag_name in ("input", "textarea") and input_type not in ("checkbox", "radio", "submit", "button")
 
@@ -183,48 +287,61 @@ async def execute_browser_action(page, res: Dict[str, Any], extractor: Any = Non
         text_to_type = value or extracted_query or "Test text"
         el_id = (await el.get_attribute("id") or "").lower()
         el_name = (await el.get_attribute("name") or "").lower()
-        is_search = "search" in el_id or "search" in el_name or input_type == "search" or "search" in voice_command.lower()
+        is_search = "search" in el_id or "search" in el_name or input_type == "search" or "search" in voice_command.lower() or res.get("is_search")
 
-        if is_search:
-            print(f"  🔍 [Search] Searching '{text_to_type}' on #{target_id} & reindexing...")
-            if extractor:
-                _, meta = await search_and_reindex(page, target_id, text_to_type, extractor)
-                print(f"  ✅ Search submitted & page stabilized! Re-indexed {meta['element_count']} elements.")
+        try:
+            if is_search:
+                print(f"  🔍 [Search] Searching '{text_to_type}' on #{target_id} & reindexing...")
+                if extractor:
+                    _, meta = await search_and_reindex(active_pg, target_id, text_to_type, extractor)
+                    print(f"  ✅ Search submitted & page stabilized! Re-indexed {meta['element_count']} elements.")
+                else:
+                    await el.fill("", timeout=4000)
+                    await el.type(text_to_type, delay=35)
+                    await el.press("Enter")
             else:
-                await el.fill("")
+                await el.fill("", timeout=4000)
                 await el.type(text_to_type, delay=35)
-                await el.press("Enter")
-        else:
-            await el.fill("")
-            await el.type(text_to_type, delay=35)
-            print(f"  ⌨️  [Type] Typed '{text_to_type}' into #{target_id}")
-            if extractor:
-                _, meta = await act_and_reindex(page, asyncio.sleep(0.1), extractor)
-                print(f"  ✅ Input registered. {meta['element_count']} elements indexed.")
+                print(f"  ⌨️  [Type] Typed '{text_to_type}' into #{target_id}")
+                if extractor:
+                    _, meta = await act_and_reindex(active_pg, asyncio.sleep(0.1), extractor)
+                    print(f"  ✅ Input registered. {meta['element_count']} elements indexed.")
+        except Exception as e:
+            print(f"  ⚠️ Error performing type action on #{target_id}: {e}")
 
     elif action == "click":
         print(f"  👆 [Click] Clicking element #{target_id} and waiting for DOM stabilization...")
-        if extractor:
-            _, meta = await click_and_reindex(page, target_id, extractor)
-            print(f"  ✅ Page stabilized! Re-indexed {meta['element_count']} elements with fresh badges.")
-        else:
-            await el.click()
+        try:
+            if extractor:
+                _, meta = await click_and_reindex(active_pg, target_id, extractor)
+                print(f"  ✅ Page stabilized! Re-indexed {meta['element_count']} elements with fresh badges.")
+            else:
+                await el.click(timeout=4000)
+        except Exception as e:
+            print(f"  ⚠️ Error clicking element #{target_id}: {e}")
 
     elif action == "select" or tag_name == "select":
         if value:
             try:
-                await el.select_option(value=value)
+                await el.select_option(value=value, timeout=4000)
             except Exception:
-                await el.select_option(index=0)
+                try:
+                    await el.select_option(index=0, timeout=4000)
+                except Exception as e:
+                    print(f"  ⚠️ Select option error: {e}")
             print(f"  🔽 [Select] Selected '{value}' on #{target_id}")
         else:
-            await el.click()
+            try:
+                await el.click(timeout=4000)
+            except Exception:
+                pass
         if extractor:
-            _, meta = await act_and_reindex(page, asyncio.sleep(0.1), extractor)
+            _, meta = await act_and_reindex(active_pg, asyncio.sleep(0.1), extractor)
             print(f"  ✅ Selection registered. {meta['element_count']} elements indexed.")
 
     elif action == "ask_confirmation":
         print(f"  🛡️ [Safety Confirmation Prompted] -> '{res.get('reply', 'Confirm action?')}'")
+
 
 
 async def main():
@@ -346,7 +463,7 @@ async def main():
                 for idx, cmd in enumerate(SHOWCASE_ACTIONS[choice], 1):
                     print(f"\n─────────────────────────────────────────────────────────────")
                     print(f"🎙️ [Voice Command #{idx}]: \"{cmd}\"")
-                    res = await pipeline.execute_grounding(tab_manager.active_page, cmd, model_choice)
+                    res = await pipeline.execute_grounding(tab_manager.active_page, cmd, model_choice, tab_manager=tab_manager)
                     print(f"⚡ Latency: {res['total_ms']}ms | Target: #{res.get('target')} | Action: {res.get('action')}")
                     if res.get("reply"):
                         print(f"🗣️ Speech Reply: \"{res['reply']}\"")
@@ -376,7 +493,7 @@ async def main():
                     continue
 
                 t0 = asyncio.get_event_loop().time()
-                res = await pipeline.execute_grounding(active_page, user_cmd, model_choice)
+                res = await pipeline.execute_grounding(active_page, user_cmd, model_choice, tab_manager=tab_manager)
                 elapsed = round((asyncio.get_event_loop().time() - t0) * 1000, 1)
 
                 target_id = res.get("target")

@@ -18,6 +18,8 @@ from dom_extractors.context_aware_json import ContextAwareJSONExtractor
 from models.ollama_client import OllamaClient, _extract_first_json_object
 from pipeline.page_classifier import PageStatus, PageBlockedError, check_and_stabilize_state
 from pipeline.tab_manager import match_tier0_physical_action
+from pipeline.site_adapters import get_adapter, match_cross_site_intent
+from pipeline.intent_router import match_tier1_intent
 
 
 SPECIFIC_ACTION_KEYWORDS: Dict[str, List[str]] = {
@@ -153,12 +155,18 @@ def format_compact_elements(raw_items: List[Dict[str, Any]]) -> str:
         text = el.get("text", "")
         placeholder = el.get("placeholder", "")
         dom_id = el.get("dom_id", "")
+        aria = el.get("aria_label", "")
+        sem_role = el.get("semantic_role", "")
 
         desc = []
+        if sem_role:
+            desc.append(f"[{sem_role}]")
         if dom_id:
             desc.append(f'id="{dom_id}"')
         if placeholder:
             desc.append(f'placeholder="{placeholder}"')
+        if aria and aria != text:
+            desc.append(f'aria="{aria}"')
         if text:
             desc.append(f'"{text}"')
 
@@ -244,13 +252,18 @@ class HybridGroundingPipeline:
         self,
         page,
         voice_command: str,
-        model_name: str
+        model_name: str,
+        tab_manager: Any = None
     ) -> Dict[str, Any]:
         """
         Main entrypoint:
-        Runs DOM extraction and Intent parsing concurrently (asyncio.gather).
-        If constraint detected and unambiguous: executes deterministic pick in <1ms.
-        Otherwise: executes full SLM grounding over context-enriched DOM.
+        Runs 6-tier pipeline:
+        - Tier 0: Physical Actions (scroll, back, reload) -> 0ms
+        - Tier 0.5: Site-Specific Adapters & Cross-Site Intents (URL direct, keyboard shortcuts) -> 0-50ms
+        - Tier 1: Deterministic Intent Router (search input typing, focused typing, media buttons, click text) -> <5ms
+        - Tier 2: Specific Action Keywords (add to cart, checkout, login) -> <5ms
+        - Tier 3: Typed Card Constraints (price, stops, time sorting & filtering) -> <50ms
+        - Tier 4: SLM Grounding Fallback with compact viewport DOM -> 200-800ms
         """
         t0 = time.perf_counter_ns()
 
@@ -270,6 +283,25 @@ class HybridGroundingPipeline:
                 "raw_output": f"tier0:{tier0}",
                 "is_valid_json": True
             }
+
+        # Step 0.5A: Cross-Site Intent Router (e.g. "search 24 inch monitor on amazon", "open youtube", "search cinejoy ...")
+        cross_res = match_cross_site_intent(voice_command)
+        if cross_res:
+            total_ms = (time.perf_counter_ns() - t0) / 1_000_000.0
+            cross_res["total_ms"] = round(total_ms, 2)
+            cross_res["is_constraint_fastpath"] = True
+            return cross_res
+
+        # Step 0.5B: Site-Specific Adapter for current page domain (shortcuts, direct URL search, selectors)
+        current_url = getattr(page, "url", "") or ""
+        adapter = get_adapter(current_url)
+        if adapter:
+            adapter_res = await adapter.handle(page, voice_command, tab_manager=tab_manager, extractor=self.extractor)
+            if adapter_res:
+                total_ms = (time.perf_counter_ns() - t0) / 1_000_000.0
+                adapter_res["total_ms"] = round(total_ms, 2)
+                adapter_res["is_constraint_fastpath"] = True
+                return adapter_res
 
         # Step 1: Run Extraction and Intent Parsing in PARALLEL
         dom_task = asyncio.create_task(self.extractor.extract(page))
@@ -303,6 +335,15 @@ class HybridGroundingPipeline:
                 "page_status": page_status.value,
                 "challenge_details": details
             }
+
+        # Step 1.6: Tier-1 Deterministic Intent Router (search input typing, focused typing, media buttons, text matching)
+        tier1_res = match_tier1_intent(voice_command, raw_elements)
+        if tier1_res:
+            total_ms = (time.perf_counter_ns() - t0) / 1_000_000.0
+            tier1_res["ttft_ms"] = round(extraction_ms, 2)
+            tier1_res["total_ms"] = round(total_ms, 2)
+            tier1_res["raw_output"] = json.dumps({"action": tier1_res.get("action"), "target": tier1_res.get("target")})
+            return tier1_res
 
         # Step 1.8: Deterministic Specific Action Check (e.g. 'add to cart', 'checkout')
         spec_elem, was_spec = find_specific_action_target(raw_elements, voice_command)
