@@ -378,7 +378,7 @@ async def main():
         target_name, file_path = FIXTURE_PAGES[choice]
         target_url = f"file:///{file_path.as_posix()}"
     else:
-        target_url = input("Enter full URL (e.g., https://news.ycombinator.com): ").strip()
+        target_url = input("Enter full URL (default: https://www.google.com): ").strip() or "https://www.google.com"
         if not target_url.startswith("http"):
             target_url = f"https://{target_url}"
         target_name = target_url
