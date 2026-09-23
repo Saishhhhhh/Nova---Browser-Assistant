@@ -23,7 +23,7 @@ from models.ollama_client import OllamaClient
 from dom_extractors.context_aware_json import ContextAwareJSONExtractor
 from pipeline.hybrid_pipeline import HybridGroundingPipeline
 from pipeline.dom_stability import act_and_reindex, click_and_reindex, search_and_reindex, wait_for_stable
-from pipeline.page_classifier import PageStatus, PageBlockedError, check_and_stabilize_state
+from pipeline.page_classifier import PageStatus, PageBlockedError, check_and_stabilize_state, check_challenge_and_prompt_user
 from pipeline.tab_manager import TabManager, execute_physical_action
 
 FIXTURES_DIR = MODULE_ROOT / "dataset" / "fixtures"
@@ -165,6 +165,8 @@ async def execute_browser_action(page, res: Dict[str, Any], extractor: Any = Non
             await active_pg.goto(nav_url, wait_until="domcontentloaded", timeout=15000)
         except Exception as e:
             print(f"  ⚠️ Navigation warning: {e}")
+        # Detect and prompt user for Cloudflare Turnstile / CAPTCHA
+        await check_challenge_and_prompt_user(active_pg)
         if extractor:
             await wait_for_stable(active_pg, quiet_ms=300, timeout_ms=3000)
             try:
@@ -289,6 +291,20 @@ async def execute_browser_action(page, res: Dict[str, Any], extractor: Any = Non
         el_name = (await el.get_attribute("name") or "").lower()
         is_search = "search" in el_id or "search" in el_name or input_type == "search" or "search" in voice_command.lower() or res.get("is_search")
 
+        # Guard against hallucinated raw URLs being typed into search inputs
+        if is_search and (text_to_type.startswith("http://") or text_to_type.startswith("https://")):
+            print(f"  🌐 [Auto-Reroute] Detected raw URL '{text_to_type}' in search action. Navigating directly instead of typing into input.")
+            try:
+                await active_pg.goto(text_to_type, wait_until="domcontentloaded", timeout=15000)
+                await check_challenge_and_prompt_user(active_pg)
+                if extractor:
+                    await wait_for_stable(active_pg, quiet_ms=300, timeout_ms=3000)
+                    _, meta = await extractor.extract(active_pg)
+                    print(f"  ✅ Navigated to URL & stabilized! Re-indexed {meta['element_count']} elements.")
+            except Exception as e:
+                print(f"  ⚠️ Error navigating to raw URL: {e}")
+            return
+
         try:
             if is_search:
                 print(f"  🔍 [Search] Searching '{text_to_type}' on #{target_id} & reindexing...")
@@ -377,6 +393,12 @@ async def main():
     print(f"\n🚀 Launching Browser (Headed Mode) for: {target_name}...")
     print(f"🤖 Grounding Model: {model_choice}")
 
+    print("\nSelect Browser Engine:")
+    print("  [1] Real Google Chrome (Default)")
+    print("  [2] Brave Browser (C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe)")
+    print("  [3] Connect to existing Brave via Remote Debugging (port 9222)")
+    browser_choice = input("Enter choice [1-3] (default: 1): ").strip() or "1"
+
     launch_args = [
         "--window-size=1280,850",
         "--disable-blink-features=AutomationControlled",
@@ -384,28 +406,56 @@ async def main():
         "--no-sandbox"
     ]
 
-    async with async_playwright() as p:
-        # Try real Google Chrome channel first to minimize fingerprinting, fallback to Chromium
-        try:
-            browser = await p.chromium.launch(
-                channel="chrome",
-                headless=False,
-                slow_mo=250,
-                args=launch_args
-            )
-            print("  🌐 Chrome Channel: Real Google Chrome binary (stealth mode active)")
-        except Exception:
-            browser = await p.chromium.launch(
-                headless=False,
-                slow_mo=250,
-                args=launch_args
-            )
-            print("  🌐 Chrome Channel: Bundled Chromium (stealth flags applied)")
+    brave_path = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
 
-        context = await browser.new_context(
-            viewport={"width": 1280, "height": 850},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
-        )
+    async with async_playwright() as p:
+        if browser_choice == "3":
+            print("\n🔌 Connecting to existing Brave session on http://localhost:9222...")
+            try:
+                browser = await p.chromium.connect_over_cdp("http://localhost:9222")
+                context = browser.contexts[0]
+                print("  ✅ Connected to live Brave session!")
+            except Exception as e:
+                print(f"  ❌ Could not connect to Brave on port 9222 ({e}).")
+                print("  👉 Tip: Launch Brave with: brave.exe --remote-debugging-port=9222")
+                return
+        elif browser_choice == "2":
+            print(f"\n🦁 Launching Brave Browser ({brave_path})...")
+            try:
+                browser = await p.chromium.launch(
+                    executable_path=brave_path,
+                    headless=False,
+                    slow_mo=250,
+                    args=launch_args
+                )
+                print("  🌐 Browser Channel: Brave Browser (Headed)")
+            except Exception as e:
+                print(f"  ⚠️ Could not launch Brave directly ({e}), falling back to Chrome...")
+                browser = await p.chromium.launch(channel="chrome", headless=False, slow_mo=250, args=launch_args)
+            context = await browser.new_context(
+                viewport={"width": 1280, "height": 850},
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+            )
+        else:
+            try:
+                browser = await p.chromium.launch(
+                    channel="chrome",
+                    headless=False,
+                    slow_mo=250,
+                    args=launch_args
+                )
+                print("  🌐 Browser Channel: Real Google Chrome binary (stealth mode active)")
+            except Exception:
+                browser = await p.chromium.launch(
+                    headless=False,
+                    slow_mo=250,
+                    args=launch_args
+                )
+                print("  🌐 Chrome Channel: Bundled Chromium (stealth flags applied)")
+            context = await browser.new_context(
+                viewport={"width": 1280, "height": 850},
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+            )
 
         # Patch navigator.webdriver, window.chrome, and plugins bot detection signals
         await context.add_init_script("""

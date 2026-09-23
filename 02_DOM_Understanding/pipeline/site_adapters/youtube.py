@@ -86,6 +86,18 @@ class YouTubeAdapter(BaseSiteAdapter):
                 "is_valid_json": True
             }
 
+        # 3.5. Open / Play First Video
+        if re.search(r"\b(?:open|play|click|watch)\s+(?:the\s+)?(?:first\s+video|first\s+result|first\s+one|video)\b", cmd):
+            return {
+                "status": "found",
+                "action": "click_selector",
+                "selector": "ytd-video-renderer a#video-title, ytd-rich-item-renderer a#video-title, #contents ytd-thumbnail a, a#video-title",
+                "reply": "Opening the first video.",
+                "is_adapter_fastpath": True,
+                "total_ms": 0.0,
+                "is_valid_json": True
+            }
+
         # 4. Playback Keyboard Shortcuts (with video focus)
         KEYBOARD_SHORTCUTS = [
             (r"\b(play|pause|resume|stop)\b", "k", "Toggling playback (play/pause)."),

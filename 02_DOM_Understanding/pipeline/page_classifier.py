@@ -39,11 +39,11 @@ CHALLENGE_DETECTION_JS = """
     if (window.bmak !== undefined) globals.push("bmak");
 
     const hasTurnstile = !!document.querySelector(
-        'iframe[src*="turnstile"], iframe[src*="challenges.cloudflare.com"], #challenge-running, #cf-please-wait'
+        'iframe[src*="turnstile"], iframe[src*="challenges.cloudflare.com"], iframe[src*="recaptcha"], iframe[src*="hcaptcha"], #challenge-running, #cf-please-wait, #challenge-form, .cf-turnstile'
     );
 
     const title = (document.title || "").toLowerCase();
-    const bodyText = (document.body ? document.body.innerText.slice(0, 1500) : "").toLowerCase();
+    const bodyText = (document.body ? document.body.innerText.slice(0, 2000) : "").toLowerCase();
 
     const textMarkers = [
         "just a moment",
@@ -53,7 +53,12 @@ CHALLENGE_DETECTION_JS = """
         "additional security check",
         "to discuss automated access",
         "access denied",
-        "attention required! | cloudflare"
+        "attention required! | cloudflare",
+        "our systems have detected unusual traffic",
+        "security check",
+        "verify you're human",
+        "please solve this puzzle",
+        "press & hold"
     ];
 
     const matchedText = textMarkers.filter(m => title.includes(m) || bodyText.includes(m));
@@ -150,3 +155,39 @@ async def check_and_stabilize_state(
     # Short bounded wait to allow JS-verification redirects to resolve on their own
     await asyncio.sleep(retry_wait_ms / 1000.0)
     return await classify_page_state(page, element_count, html_byte_size)
+
+
+async def check_challenge_and_prompt_user(page: Page) -> bool:
+    """
+    Checks if page is currently challenged by Cloudflare / Turnstile / CAPTCHA / WAF.
+    If challenged, alerts the user with high visibility and pauses until the user solves it in the browser.
+    Returns True if a challenge was detected, False otherwise.
+    """
+    try:
+        markers = await page.evaluate(CHALLENGE_DETECTION_JS)
+    except Exception:
+        return False
+
+    is_blocked = bool(markers.get("globals") or markers.get("has_turnstile") or markers.get("matched_text"))
+    if not is_blocked:
+        return False
+
+    reasons = []
+    if markers.get("has_turnstile"):
+        reasons.append("Cloudflare Turnstile verification")
+    if markers.get("matched_text"):
+        reasons.append(f"Bot challenge ('{markers['matched_text'][0]}')")
+    if markers.get("globals"):
+        reasons.append(f"WAF protection ({markers['globals'][0]})")
+
+    reason_str = ", ".join(reasons) if reasons else "Security verification required"
+    print("\n" + "!" * 65)
+    print(f"🛑 [BOT CHALLENGE / CAPTCHA DETECTED]: {reason_str}")
+    print("👉 Please solve the verification checkbox or puzzle in the browser window.")
+    print("!" * 65)
+
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, input, "Press Enter here once you have solved the verification in the browser...")
+    await asyncio.sleep(1.0)
+    return True
+

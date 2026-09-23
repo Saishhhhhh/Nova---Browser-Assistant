@@ -1,7 +1,7 @@
 """
 Visual Live Tour: Automated Headed Showcase of All 14 Site Adapters.
-Opens a live visible Google Chrome window, displays an on-screen HUD overlay,
-and demonstrates every priority site adapter with real zero-latency actions.
+Opens a live visible Google Chrome or Brave browser window, displays an on-screen
+HUD overlay, and demonstrates every priority site adapter with real zero-latency actions.
 """
 
 import sys
@@ -20,6 +20,7 @@ from dom_extractors.context_aware_json import ContextAwareJSONExtractor
 from models.ollama_client import OllamaClient
 from pipeline.hybrid_pipeline import HybridGroundingPipeline
 from pipeline.tab_manager import TabManager
+from pipeline.page_classifier import check_challenge_and_prompt_user
 from interactive_demo import execute_browser_action
 
 
@@ -29,22 +30,24 @@ TOUR_SCENARIOS = [
         "description": "Direct URL search & tab filtering",
         "commands": [
             "search for quantum computing",
-            "images"
+            "first result"
         ]
     },
     {
         "site": "YouTube",
-        "description": "Cross-site direct search & keyboard shortcuts",
+        "description": "Search, open video, theater mode & fullscreen",
         "commands": [
             "search for lofi beats on youtube",
+            "open the first video",
             "theater mode",
             "fullscreen",
-            "minimize"
+            "minimize",
+            "pause"
         ]
     },
     {
         "site": "Amazon",
-        "description": "Direct product search & cart navigation",
+        "description": "Product search & instant cart navigation",
         "commands": [
             "search for wireless mouse on amazon",
             "go to cart"
@@ -52,9 +55,9 @@ TOUR_SCENARIOS = [
     },
     {
         "site": "Flipkart",
-        "description": "Fast-path e-commerce search",
+        "description": "E-commerce product search",
         "commands": [
-            "search for backpack on flipkart"
+            "search for iphone 15 on flipkart"
         ]
     },
     {
@@ -62,19 +65,21 @@ TOUR_SCENARIOS = [
         "description": "Direct subreddit navigation & J/K post navigation",
         "commands": [
             "go to r/technology",
-            "next post"
+            "next post",
+            "upvote"
         ]
     },
     {
         "site": "GitHub",
-        "description": "Code search & file navigation shortcuts",
+        "description": "Code search & repo issues navigation",
         "commands": [
-            "search for python on github"
+            "search for python on github",
+            "issues"
         ]
     },
     {
         "site": "Cinejoy (Google Route)",
-        "description": "Dynamic Google Search routing for domain rotation",
+        "description": "Dynamic Google Search routing for movie streaming",
         "commands": [
             "watch interstellar on cinejoy"
         ]
@@ -124,7 +129,7 @@ TOUR_SCENARIOS = [
     },
     {
         "site": "Instagram",
-        "description": "Direct social media feed navigation",
+        "description": "Direct social media explore navigation",
         "commands": [
             "open instagram"
         ]
@@ -143,7 +148,7 @@ HUD_INJECTION_JS = """
             left: 50%;
             transform: translateX(-50%);
             z-index: 2147483647;
-            background: rgba(15, 23, 42, 0.92);
+            background: rgba(15, 23, 42, 0.94);
             color: #f8fafc;
             padding: 10px 22px;
             border-radius: 30px;
@@ -192,41 +197,83 @@ async def main():
     print("=" * 65)
     print("🌟 LIVE VISUAL TOUR: 14 PRIORITY SITES AUTOMATED SHOWCASE")
     print("=" * 65)
-    print("This will launch a real visible Google Chrome browser and demonstrate")
+    print("This will launch a real visible browser and demonstrate")
     print("every site adapter live on screen with the on-screen HUD overlay.\n")
 
-    step_mode = input("Run in step-by-step mode [press Enter each time]? (y/N): ").strip().lower() == "y"
+    print("Select Browser to Run Visual Tour:")
+    print("  [1] Real Google Chrome (Default)")
+    print("  [2] Brave Browser (C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe)")
+    print("  [3] Connect to existing Brave via Remote Debugging (port 9222)")
+    browser_choice = input("Enter choice [1-3] (default: 1): ").strip() or "1"
+
+    step_mode = input("\nRun in step-by-step mode [press Enter each action]? (y/N): ").strip().lower() == "y"
     delay_sec = 2.5 if not step_mode else 0.5
 
     client = OllamaClient()
     pipeline = HybridGroundingPipeline(ollama_client=client)
     pipeline.extractor.inject_visual_badges = True
 
-    async with async_playwright() as p:
-        print("\n🚀 Launching Google Chrome (Headed Mode)...")
-        browser = None
-        try:
-            browser = await p.chromium.launch(
-                channel="chrome",
-                headless=False,
-                args=[
-                    "--start-maximized",
-                    "--disable-blink-features=AutomationControlled",
-                    "--no-first-run",
-                    "--no-default-browser-check"
-                ]
-            )
-        except Exception:
-            print("  ℹ️ Real Chrome channel not found, falling back to Chromium...")
-            browser = await p.chromium.launch(
-                headless=False,
-                args=["--start-maximized", "--disable-blink-features=AutomationControlled"]
-            )
+    brave_path = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
 
-        context = await browser.new_context(
-            no_viewport=True,
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-        )
+    launch_args = [
+        "--start-maximized",
+        "--disable-blink-features=AutomationControlled",
+        "--no-first-run",
+        "--no-default-browser-check"
+    ]
+
+    async with async_playwright() as p:
+        browser = None
+        context = None
+
+        if browser_choice == "3":
+            print("\n🔌 Connecting to existing Brave session on http://localhost:9222...")
+            try:
+                browser = await p.chromium.connect_over_cdp("http://localhost:9222")
+                context = browser.contexts[0]
+                print("  ✅ Connected to live Brave session!")
+            except Exception as e:
+                print(f"  ❌ Could not connect to Brave on port 9222 ({e}).")
+                print("  👉 Tip: Launch Brave with: brave.exe --remote-debugging-port=9222")
+                return
+        elif browser_choice == "2":
+            print(f"\n🦁 Launching Brave Browser ({brave_path})...")
+            try:
+                browser = await p.chromium.launch(
+                    executable_path=brave_path,
+                    headless=False,
+                    slow_mo=200,
+                    args=launch_args
+                )
+                print("  🌐 Browser Channel: Brave Browser (Headed)")
+            except Exception as e:
+                print(f"  ⚠️ Could not launch Brave directly ({e}), falling back to Chrome...")
+                browser = await p.chromium.launch(channel="chrome", headless=False, slow_mo=200, args=launch_args)
+            context = await browser.new_context(
+                no_viewport=True,
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+            )
+        else:
+            print("\n🚀 Launching Google Chrome (Headed Mode)...")
+            try:
+                browser = await p.chromium.launch(
+                    channel="chrome",
+                    headless=False,
+                    slow_mo=200,
+                    args=launch_args
+                )
+                print("  🌐 Chrome Channel: Real Google Chrome binary (stealth mode active)")
+            except Exception:
+                browser = await p.chromium.launch(
+                    headless=False,
+                    slow_mo=200,
+                    args=launch_args
+                )
+                print("  🌐 Chrome Channel: Bundled Chromium (stealth flags applied)")
+            context = await browser.new_context(
+                no_viewport=True,
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+            )
 
         await context.add_init_script("""
             Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
@@ -235,13 +282,14 @@ async def main():
             Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
         """)
 
-        page = await context.new_page()
+        page = await context.new_page() if not context.pages else context.pages[0]
         tab_manager = TabManager(context, initial_page=page)
 
         # Initial launch to Google
         print("🌐 Opening initial viewport at https://www.google.com...")
         await page.goto("https://www.google.com", wait_until="domcontentloaded")
         await asyncio.sleep(1.0)
+        await check_challenge_and_prompt_user(page)
 
         total_scenarios = len(TOUR_SCENARIOS)
         successful_actions = 0
@@ -283,6 +331,9 @@ async def main():
                 )
 
                 successful_actions += 1
+
+                # Check if anti-bot challenge appeared
+                await check_challenge_and_prompt_user(tab_manager.active_page)
 
                 # Re-inject HUD on newly navigated page
                 await asyncio.sleep(0.5)
