@@ -50,12 +50,12 @@ class CinejoyAdapter(BaseSiteAdapter):
 
         # 2. Open Cinejoy via Google Search
         if any(p in cmd for p in ("open cinejoy", "go to cinejoy", "visit cinejoy")):
-            url = "https://www.google.com/search?q=cinejoy+movies&btnI=1"
+            url = "https://www.google.com/search?q=cinejoy+movies"
             return {
                 "status": "found",
                 "action": "url_navigate",
                 "url": url,
-                "reply": "Opening Cinejoy via Google.",
+                "reply": "Searching Google for Cinejoy.",
                 "is_adapter_fastpath": True,
                 "total_ms": 0.0,
                 "is_valid_json": True

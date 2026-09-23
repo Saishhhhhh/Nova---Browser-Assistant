@@ -39,7 +39,7 @@ CHALLENGE_DETECTION_JS = """
     if (window.bmak !== undefined) globals.push("bmak");
 
     const hasTurnstile = !!document.querySelector(
-        'iframe[src*="turnstile"], iframe[src*="challenges.cloudflare.com"], iframe[src*="recaptcha"], iframe[src*="hcaptcha"], #challenge-running, #cf-please-wait, #challenge-form, .cf-turnstile'
+        'iframe[src*="turnstile"], iframe[src*="challenges.cloudflare.com"], #challenge-running, #cf-please-wait, #challenge-form, .cf-turnstile'
     );
 
     const title = (document.title || "").toLowerCase();

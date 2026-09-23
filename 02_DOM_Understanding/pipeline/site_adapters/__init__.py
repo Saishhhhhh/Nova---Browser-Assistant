@@ -61,46 +61,38 @@ def match_cross_site_intent(voice_command: str) -> Optional[Dict[str, Any]]:
 
     # 1. Cinejoy & GoGoAnime (routed via Google Search per user specification)
     if "cinejoy" in cmd:
-        m = re.search(r"^(?:search(?:\s+for)?|find|watch|stream|play)?\s*(.+?)\s*(?:on|in|from)?\s*cinejoy$", cmd)
-        query = m.group(1).strip() if m else ""
-        if query and query not in ("open", "go to", "visit"):
-            return {
-                "status": "found",
-                "action": "url_navigate",
-                "url": f"https://www.google.com/search?q={urllib.parse.quote_plus('cinejoy ' + query)}",
-                "reply": f"Searching Google for '{query}' on Cinejoy.",
-                "is_adapter_fastpath": True,
-                "total_ms": 0.0,
-                "is_valid_json": True
-            }
+        m = re.search(r"^(?:search(?:\s+for)?|find|watch|stream|play)\s+(.+?)(?:\s+(?:on|in|from)\s+(?:cinejoy|google))?$", cmd)
+        raw_q = m.group(1).strip() if m else ""
+        if raw_q and raw_q not in ("cinejoy", "movies", "film", "movie"):
+            url = f"https://www.google.com/search?q={urllib.parse.quote_plus('cinejoy ' + raw_q)}"
+            reply = f"Searching Google for '{raw_q}' on Cinejoy."
+        else:
+            url = "https://www.google.com/search?q=cinejoy"
+            reply = "Searching Google for Cinejoy."
         return {
             "status": "found",
             "action": "url_navigate",
-            "url": "https://www.google.com/search?q=cinejoy+movies&btnI=1",
-            "reply": "Opening Cinejoy via Google.",
+            "url": url,
+            "reply": reply,
             "is_adapter_fastpath": True,
             "total_ms": 0.0,
             "is_valid_json": True
         }
 
     if "gogoanime" in cmd:
-        m = re.search(r"^(?:search(?:\s+for)?|find|watch|stream|play)?\s*(.+?)\s*(?:on|in|from)?\s*gogoanime$", cmd)
-        query = m.group(1).strip() if m else ""
-        if query and query not in ("open", "go to", "visit"):
-            return {
-                "status": "found",
-                "action": "url_navigate",
-                "url": f"https://www.google.com/search?q={urllib.parse.quote_plus('gogoanime ' + query)}",
-                "reply": f"Searching Google for '{query}' on GoGoAnime.",
-                "is_adapter_fastpath": True,
-                "total_ms": 0.0,
-                "is_valid_json": True
-            }
+        m = re.search(r"^(?:search(?:\s+for)?|find|watch|stream|play)\s+(.+?)(?:\s+(?:on|in|from)\s+(?:gogoanime|google))?$", cmd)
+        raw_q = m.group(1).strip() if m else ""
+        if raw_q and raw_q not in ("gogoanime", "anime", "show"):
+            url = f"https://www.google.com/search?q={urllib.parse.quote_plus('gogoanime ' + raw_q)}"
+            reply = f"Searching Google for '{raw_q}' on GoGoAnime."
+        else:
+            url = "https://www.google.com/search?q=gogoanime"
+            reply = "Searching Google for GoGoAnime."
         return {
             "status": "found",
             "action": "url_navigate",
-            "url": "https://www.google.com/search?q=gogoanime+watch+anime&btnI=1",
-            "reply": "Opening GoGoAnime via Google.",
+            "url": url,
+            "reply": reply,
             "is_adapter_fastpath": True,
             "total_ms": 0.0,
             "is_valid_json": True
@@ -194,19 +186,43 @@ def match_cross_site_intent(voice_command: str) -> Optional[Dict[str, Any]]:
                 "is_valid_json": True
             }
 
-    # 6. Google Search
-    m_google = re.search(r"^(?:google|search\s+google\s+for|search\s+on\s+google\s+for)\s+(.+)$", cmd)
-    if m_google:
-        q = m_google.group(1).strip()
+    # 6. Google Search & Navigation
+    if re.search(r"^(?:open|go\s+to|visit)\s+google(?:\.com)?$", cmd):
         return {
             "status": "found",
             "action": "url_navigate",
-            "url": f"https://www.google.com/search?q={urllib.parse.quote_plus(q)}",
-            "reply": f"Googling '{q}'.",
+            "url": "https://www.google.com",
+            "reply": "Opening Google.",
             "is_adapter_fastpath": True,
             "total_ms": 0.0,
             "is_valid_json": True
         }
+
+    m_google = re.search(r"^(?:google|search\s+(?:for\s+)?(.+?)\s+on\s+google|search\s+google\s+for\s+(.+)|search\s+on\s+google\s+for\s+(.+))$", cmd)
+    if m_google:
+        q = (m_google.group(1) or m_google.group(2) or m_google.group(3) or "").strip()
+        if q:
+            return {
+                "status": "found",
+                "action": "url_navigate",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote_plus(q)}",
+                "reply": f"Googling '{q}'.",
+                "is_adapter_fastpath": True,
+                "total_ms": 0.0,
+                "is_valid_json": True
+            }
+        elif cmd.startswith("google "):
+            q = cmd[7:].strip()
+            if q:
+                return {
+                    "status": "found",
+                    "action": "url_navigate",
+                    "url": f"https://www.google.com/search?q={urllib.parse.quote_plus(q)}",
+                    "reply": f"Googling '{q}'.",
+                    "is_adapter_fastpath": True,
+                    "total_ms": 0.0,
+                    "is_valid_json": True
+                }
 
     # 7. AI Assistants: ChatGPT, Claude, Gemini
     if re.search(r"\b(open|go\s+to)\s+chatgpt\b", cmd):

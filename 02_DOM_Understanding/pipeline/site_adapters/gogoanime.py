@@ -51,12 +51,12 @@ class GoGoAnimeAdapter(BaseSiteAdapter):
 
         # 2. Open GoGoAnime via Google Search
         if any(p in cmd for p in ("open gogoanime", "go to gogoanime", "visit gogoanime")):
-            url = "https://www.google.com/search?q=gogoanime+watch+anime&btnI=1"
+            url = "https://www.google.com/search?q=gogoanime+watch+anime"
             return {
                 "status": "found",
                 "action": "url_navigate",
                 "url": url,
-                "reply": "Opening GoGoAnime via Google.",
+                "reply": "Searching Google for GoGoAnime.",
                 "is_adapter_fastpath": True,
                 "total_ms": 0.0,
                 "is_valid_json": True
