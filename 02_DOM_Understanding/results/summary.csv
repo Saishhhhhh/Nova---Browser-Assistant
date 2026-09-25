@@ -1,6 +1,0 @@
-model,total_tasks,accuracy_pct,json_valid_pct,avg_ttft_ms,avg_total_ms,tokens_per_sec
-llama3.2:3b,25,80.0,96.0,353.5,855.9,30.0
-hammer2.1:3b,25,80.0,88.0,321.3,764.7,29.0
-hammer2.1:1.5b,25,64.0,96.0,257.6,479.1,38.5
-lfm2.5:1.2b,25,52.0,96.0,220.4,554.3,56.8
-xlam:1b,25,24.0,96.0,139.6,257.4,52.7
