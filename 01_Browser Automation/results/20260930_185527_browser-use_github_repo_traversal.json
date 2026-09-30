@@ -1,0 +1,17 @@
+{
+  "candidate": "browser-use",
+  "provider": "cerebras",
+  "model": "cerebras/gpt-oss-120b",
+  "task_id": "github_repo_traversal",
+  "task_name": "GitHub Issues Traversal & Multi-Item Extraction",
+  "success": true,
+  "total_duration_sec": 138.49203181266785,
+  "time_to_first_action_sec": 69.61468601226807,
+  "step_count": 3,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": "{\"issues\":[{\"number\":43023,\"title\":\"[Feature]: signCount option for credentials\"},{\"number\":43019,\"title\":\"[Bug]: Unrendered text ends up in accessible names and aria snapshots\"}]}",
+  "error_message": null,
+  "timestamp": "2026-09-30T18:55:27.060499"
+}

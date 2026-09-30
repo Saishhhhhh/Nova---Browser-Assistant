@@ -1,0 +1,20 @@
+{
+  "candidate": "stagehand",
+  "provider": "cerebras",
+  "model": "cerebras/gpt-oss-120b",
+  "task_id": "form_auth_and_state",
+  "task_name": "Form Authentication & State Verification",
+  "success": true,
+  "total_duration_sec": 77.678,
+  "time_to_first_action_sec": 5.777,
+  "step_count": 5,
+  "prompt_tokens": 5591,
+  "completion_tokens": 983,
+  "total_tokens": 6574,
+  "extracted_data": {
+    "success": true,
+    "message": "You logged into a secure area!; page is secure area: true"
+  },
+  "error_message": null,
+  "timestamp": "2026-09-30T18:19:27.616Z"
+}

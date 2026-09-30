@@ -1,0 +1,17 @@
+{
+  "candidate": "browser-use",
+  "provider": "cerebras",
+  "model": "cerebras/gpt-oss-120b",
+  "task_id": "ecommerce_filter_extract",
+  "task_name": "E-Commerce Category Filter & Deep Extraction",
+  "success": true,
+  "total_duration_sec": 70.14753723144531,
+  "time_to_first_action_sec": 10.038760423660278,
+  "step_count": 5,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": "{ \"title\": \"It's Only the Himalayas\", \"price\": \"\u00a345.17\", \"upc\": \"a22124811bfa8350\" }",
+  "error_message": null,
+  "timestamp": "2026-09-30T18:49:19.818591"
+}

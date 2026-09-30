@@ -1,0 +1,17 @@
+{
+  "candidate": "browser-use",
+  "provider": "groq",
+  "model": "groq/openai/gpt-oss-120b",
+  "task_id": "form_auth_and_state",
+  "task_name": "Form Authentication & State Verification",
+  "success": true,
+  "total_duration_sec": 39.120484590530396,
+  "time_to_first_action_sec": 35.37541842460632,
+  "step_count": 6,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": "The login page was loaded and the input fields for username (index 8) and password (index 9) as well as the Login button (index 10) were identified. However, attempts to enter the credentials and submit the form were not successful, so the secure area message could not be verified. Consequently, the requested JSON output with success:true cannot be produced. The task remains incomplete.",
+  "error_message": null,
+  "timestamp": "2026-09-30T15:34:01.434415"
+}

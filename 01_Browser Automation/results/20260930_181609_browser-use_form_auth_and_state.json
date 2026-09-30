@@ -1,0 +1,17 @@
+{
+  "candidate": "browser-use",
+  "provider": "cerebras",
+  "model": "cerebras/gpt-oss-120b",
+  "task_id": "form_auth_and_state",
+  "task_name": "Form Authentication & State Verification",
+  "success": true,
+  "total_duration_sec": 16.1699378490448,
+  "time_to_first_action_sec": 10.645112037658691,
+  "step_count": 2,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": "{\"success\": true, \"message\": \"You logged into a secure area!\"}",
+  "error_message": null,
+  "timestamp": "2026-09-30T18:16:09.473409"
+}

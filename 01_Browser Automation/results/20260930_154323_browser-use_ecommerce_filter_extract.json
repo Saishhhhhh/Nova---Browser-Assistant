@@ -1,0 +1,17 @@
+{
+  "candidate": "browser-use",
+  "provider": "groq",
+  "model": "groq/openai/gpt-oss-20b",
+  "task_id": "ecommerce_filter_extract",
+  "task_name": "E-Commerce Category Filter & Deep Extraction",
+  "success": false,
+  "total_duration_sec": 29.952478885650635,
+  "time_to_first_action_sec": null,
+  "step_count": 0,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": null,
+  "error_message": "Task did not reach completion within step limit.",
+  "timestamp": "2026-09-30T15:43:23.754562"
+}

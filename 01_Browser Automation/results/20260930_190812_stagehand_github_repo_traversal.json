@@ -1,0 +1,17 @@
+{
+  "candidate": "stagehand",
+  "provider": "cerebras",
+  "model": "cerebras/gpt-oss-120b",
+  "task_id": "github_repo_traversal",
+  "task_name": "GitHub Issues Traversal & Multi-Item Extraction",
+  "success": false,
+  "total_duration_sec": 69.532,
+  "time_to_first_action_sec": null,
+  "step_count": 1,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": null,
+  "error_message": "Failed after 3 attempts. Last error: AI_APICallError: Tokens per minute limit exceeded - too many tokens processed.",
+  "timestamp": "2026-09-30T19:08:12.033Z"
+}

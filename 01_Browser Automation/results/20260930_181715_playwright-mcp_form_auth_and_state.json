@@ -1,0 +1,17 @@
+{
+  "candidate": "playwright-mcp",
+  "provider": "cerebras",
+  "model": "default",
+  "task_id": "form_auth_and_state",
+  "task_name": "Form Authentication & State Verification",
+  "success": true,
+  "total_duration_sec": 14.181623220443726,
+  "time_to_first_action_sec": 12.747525930404663,
+  "step_count": 1,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": "MCP initial navigation succeeded on https://the-internet.herokuapp.com/login",
+  "error_message": null,
+  "timestamp": "2026-09-30T18:17:15.629709"
+}

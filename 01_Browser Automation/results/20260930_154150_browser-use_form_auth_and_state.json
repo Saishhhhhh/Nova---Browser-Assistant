@@ -1,0 +1,17 @@
+{
+  "candidate": "browser-use",
+  "provider": "groq",
+  "model": "groq/openai/gpt-oss-20b",
+  "task_id": "form_auth_and_state",
+  "task_name": "Form Authentication & State Verification",
+  "success": true,
+  "total_duration_sec": 32.02784466743469,
+  "time_to_first_action_sec": 28.293368101119995,
+  "step_count": 6,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": "I was unable to complete the login process on https://the-internet.herokuapp.com/login. I accessed the login page and identified the username and password input fields and the Login button, but I did not successfully submit the credentials or verify the secure area message. No confirmation banner was observed.",
+  "error_message": null,
+  "timestamp": "2026-09-30T15:41:50.926201"
+}

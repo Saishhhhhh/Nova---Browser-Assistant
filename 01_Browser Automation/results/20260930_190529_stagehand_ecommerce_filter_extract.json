@@ -1,0 +1,21 @@
+{
+  "candidate": "stagehand",
+  "provider": "cerebras",
+  "model": "cerebras/gpt-oss-120b",
+  "task_id": "ecommerce_filter_extract",
+  "task_name": "E-Commerce Category Filter & Deep Extraction",
+  "success": true,
+  "total_duration_sec": 70.643,
+  "time_to_first_action_sec": 4.512,
+  "step_count": 4,
+  "prompt_tokens": 14419,
+  "completion_tokens": 631,
+  "total_tokens": 15050,
+  "extracted_data": {
+    "title": "It's Only the Himalayas",
+    "price": "£45.17",
+    "upc": "a22124811bfa8350"
+  },
+  "error_message": null,
+  "timestamp": "2026-09-30T19:05:29.726Z"
+}

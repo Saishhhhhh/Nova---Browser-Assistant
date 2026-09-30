@@ -1,0 +1,10 @@
+browser-use==0.13.10
+# browser-use's ChatLiteLLM (used for every Cerebras/DeepInfra run) imports litellm but
+# browser-use does not depend on it; in the original venv it came from unclecode-litellm 1.81.13.
+litellm>=1.81
+mcp==2.1.1
+langchain-core==1.6.5
+langchain-openai==1.3.4
+openai==2.26.0
+python-dotenv==1.2.2
+tabulate==0.10.0

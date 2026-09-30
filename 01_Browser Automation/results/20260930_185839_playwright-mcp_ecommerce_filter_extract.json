@@ -1,0 +1,21 @@
+{
+  "candidate": "playwright-mcp",
+  "provider": "cerebras",
+  "model": "default",
+  "task_id": "ecommerce_filter_extract",
+  "task_name": "E-Commerce Category Filter & Deep Extraction",
+  "success": true,
+  "total_duration_sec": 191.96920824050903,
+  "time_to_first_action_sec": 6.991079330444336,
+  "step_count": 12,
+  "prompt_tokens": 70312,
+  "completion_tokens": 1441,
+  "total_tokens": 71753,
+  "extracted_data": {
+    "title": "It's Only the Himalayas",
+    "price": "\u00a345.17",
+    "upc": "a22124811bfa8350"
+  },
+  "error_message": null,
+  "timestamp": "2026-09-30T18:58:39.170371"
+}

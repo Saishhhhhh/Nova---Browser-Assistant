@@ -1,0 +1,17 @@
+{
+  "candidate": "playwright-mcp",
+  "provider": "cerebras",
+  "model": "default",
+  "task_id": "form_auth_and_state",
+  "task_name": "Form Authentication & State Verification",
+  "success": false,
+  "total_duration_sec": 7.85788106918335,
+  "time_to_first_action_sec": null,
+  "step_count": 0,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": null,
+  "error_message": "unhandled errors in a TaskGroup (1 sub-exception)",
+  "timestamp": "2026-09-30T18:33:27.281956"
+}

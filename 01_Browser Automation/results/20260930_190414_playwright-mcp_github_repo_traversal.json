@@ -1,0 +1,28 @@
+{
+  "candidate": "playwright-mcp",
+  "provider": "cerebras",
+  "model": "default",
+  "task_id": "github_repo_traversal",
+  "task_name": "GitHub Issues Traversal & Multi-Item Extraction",
+  "success": true,
+  "total_duration_sec": 73.58789372444153,
+  "time_to_first_action_sec": 4.4535253047943115,
+  "step_count": 6,
+  "prompt_tokens": 32785,
+  "completion_tokens": 1114,
+  "total_tokens": 33899,
+  "extracted_data": {
+    "issues": [
+      {
+        "number": "43023",
+        "title": "[Feature]: signCount option for credentials"
+      },
+      {
+        "number": "43019",
+        "title": "[Bug]: Unrendered text ends up in accessible names and aria snapshots"
+      }
+    ]
+  },
+  "error_message": null,
+  "timestamp": "2026-09-30T19:04:14.690642"
+}

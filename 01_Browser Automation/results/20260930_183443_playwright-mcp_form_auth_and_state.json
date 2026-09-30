@@ -1,0 +1,17 @@
+{
+  "candidate": "playwright-mcp",
+  "provider": "cerebras",
+  "model": "default",
+  "task_id": "form_auth_and_state",
+  "task_name": "Form Authentication & State Verification",
+  "success": false,
+  "total_duration_sec": 7.843974828720093,
+  "time_to_first_action_sec": null,
+  "step_count": 0,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": null,
+  "error_message": "AttributeError: 'Tool' object has no attribute 'inputSchema'",
+  "timestamp": "2026-09-30T18:34:43.930539"
+}

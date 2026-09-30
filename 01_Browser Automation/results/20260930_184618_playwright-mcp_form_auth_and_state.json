@@ -1,0 +1,17 @@
+{
+  "candidate": "playwright-mcp",
+  "provider": "cerebras",
+  "model": "default",
+  "task_id": "form_auth_and_state",
+  "task_name": "Form Authentication & State Verification",
+  "success": false,
+  "total_duration_sec": 132.44523763656616,
+  "time_to_first_action_sec": 8.494163990020752,
+  "step_count": 14,
+  "prompt_tokens": 54383,
+  "completion_tokens": 1600,
+  "total_tokens": 55983,
+  "extracted_data": null,
+  "error_message": "Did not call task_complete within the step limit.",
+  "timestamp": "2026-09-30T18:46:18.565630"
+}

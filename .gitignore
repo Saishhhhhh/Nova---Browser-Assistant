@@ -11,3 +11,7 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+.venv/
+.env
+*.log
+.playwright-mcp/

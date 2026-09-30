@@ -1,0 +1,17 @@
+{
+  "candidate": "browser-use",
+  "provider": "cerebras",
+  "model": "cerebras/gpt-oss-120b",
+  "task_id": "media_spa_navigation",
+  "task_name": "Dynamic SPA & Video Navigation",
+  "success": true,
+  "total_duration_sec": 214.47556066513062,
+  "time_to_first_action_sec": 14.665420770645142,
+  "step_count": 5,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": "{\"video_title\": \"lofi hip hop radio \ud83d\udcda beats to relax/study to\"}",
+  "error_message": null,
+  "timestamp": "2026-09-30T18:53:08.543523"
+}

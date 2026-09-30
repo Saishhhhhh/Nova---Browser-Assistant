@@ -1,0 +1,17 @@
+{
+  "candidate": "browser-use",
+  "provider": "deepinfra",
+  "model": "deepinfra/openai/gpt-oss-120b",
+  "task_id": "media_spa_navigation",
+  "task_name": "Dynamic SPA & Video Navigation",
+  "success": true,
+  "total_duration_sec": 248.1449933052063,
+  "time_to_first_action_sec": 34.998401403427124,
+  "step_count": 8,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": "{\"video_title\": \"Lofi Girl relaxing beats\"}",
+  "error_message": null,
+  "timestamp": "2026-09-30T20:59:07.430727"
+}

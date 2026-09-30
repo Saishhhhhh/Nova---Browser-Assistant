@@ -1,0 +1,19 @@
+{
+  "candidate": "playwright-mcp",
+  "provider": "cerebras",
+  "model": "default",
+  "task_id": "media_spa_navigation",
+  "task_name": "Dynamic SPA & Video Navigation",
+  "success": true,
+  "total_duration_sec": 140.81161642074585,
+  "time_to_first_action_sec": 3.947449207305908,
+  "step_count": 8,
+  "prompt_tokens": 62613,
+  "completion_tokens": 777,
+  "total_tokens": 63390,
+  "extracted_data": {
+    "video_title": "lofi hip hop radio \ud83d\udcda beats to relax/study to"
+  },
+  "error_message": null,
+  "timestamp": "2026-09-30T19:03:01.078594"
+}

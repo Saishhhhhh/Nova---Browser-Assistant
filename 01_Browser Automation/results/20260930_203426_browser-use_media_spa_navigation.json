@@ -1,0 +1,17 @@
+{
+  "candidate": "browser-use",
+  "provider": "deepinfra",
+  "model": "deepinfra/openai/gpt-oss-120b-Turbo",
+  "task_id": "media_spa_navigation",
+  "task_name": "Dynamic SPA & Video Navigation",
+  "success": true,
+  "total_duration_sec": 67.21575808525085,
+  "time_to_first_action_sec": 22.899791717529297,
+  "step_count": 10,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "extracted_data": "First video title identified but not played due to step limit.",
+  "error_message": null,
+  "timestamp": "2026-09-30T20:34:26.062721"
+}
