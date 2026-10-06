@@ -125,7 +125,7 @@ async def main(headed: bool) -> int:
                 total += 1
                 passed += int(ok)
             print(f"  [{verdict:>26}] {res.total_ms:7.0f} ms (settle {res.settle_ms:4.0f}, read {res.read_ms:4.0f}) | {command}")
-            print(f"      {res.error or res.detail}")
+            print(f"      {res.error or res.detail}" + ("" if res.verified is None else f"  [self-check: {'moved' if res.verified else 'DID NOT MOVE'}]"))
             if not ok:
                 break  # later steps depend on this one
 

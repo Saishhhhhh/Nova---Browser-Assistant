@@ -6,16 +6,28 @@ browser-use's own Tools actions (click/input/send_keys/scroll/navigate/go_back).
 No LLM is involved and nothing here is specific to any website.
 
 A command the rules can't resolve confidently is NOT guessed at: run() returns
-handled=False so a caller can escalate (small model, then the full browser-use agent).
+handled=False so a caller can escalate to the full browser-use agent.
+
+Optional small-model step: pass picker=make_picker_from_env() and, ONLY when the rules
+refuse, one short model call gets the command plus a compact numbered element list and
+returns which element to click / type into (or "none"). Without a picker nothing here
+calls any API.
 """
 import asyncio
+import json
+import os
 import re
 import time
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
+from pathlib import Path
 from typing import Optional
 
+from dotenv import load_dotenv
+
 from browser_use.tools.service import Tools
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 MIN_SCORE = 0.6
 GENERIC_WORDS = {"button", "link", "tab", "icon", "option", "field", "box", "input", "menu", "item"}
@@ -155,6 +167,167 @@ def find_search_box(elements: list):
     return best
 
 
+PROVIDERS = {
+    "cerebras": ("https://api.cerebras.ai/v1", "CEREBRAS_API_KEY"),
+    "deepinfra": ("https://api.deepinfra.com/v1/openai", "DEEPINFRA_API_KEY"),
+    "ollama": (None, None),  # local: no key; address comes from OLLAMA_BASE_URL
+}
+DEFAULT_MODELS = {
+    "cerebras": "gpt-oss-120b",
+    "deepinfra": "google/gemma-4-31B-it-turbo",
+    "ollama": os.getenv("OLLAMA_MODEL", "qwen2.5:3b"),
+}
+MAX_ELEMENTS = 250
+PICK_SYSTEM = (
+    "You help a voice-controlled browser. You get a spoken command and a numbered list of the "
+    "elements on the current page. Decide which single element the command is about.\n"
+    "Reply with ONE line of JSON and nothing else:\n"
+    '{"action": "click", "index": <number>}   to click an element\n'
+    '{"action": "type", "index": <number>, "text": "<text to type>"}   to type into an input\n'
+    '{"action": "none", "index": null}   if the command is a question, needs several steps, '
+    "or no element clearly matches\n"
+    "Never guess: if you are not fairly sure which element is meant, answer none."
+)
+
+
+# Small local models need the task spelled out with examples (the cloud prompt above makes
+# them over-refuse). The examples deliberately use unrelated words (cart, search, weather).
+PICK_SYSTEM_SMALL = (
+    "You control a web browser by voice. Below is a spoken command and a numbered list of the "
+    'elements on the page, each shown as [number] kind "label".\n'
+    "Choose the ONE element the command refers to and reply with JSON only.\n"
+    'To click: {"action": "click", "index": 12}\n'
+    'To type:  {"action": "type", "index": 5, "text": "what to type"}\n'
+    'If nothing fits, or the command is a question or needs several steps: {"action": "none", "index": null}\n'
+    "Pick the element whose label matches the words of the command, and use its exact number from the list.\n\n"
+    'Command: open my shopping cart\nElements:\n[3] a "home"\n[7] a "cart 2"\n[9] button "search"\n'
+    '{"action": "click", "index": 7}\n\n'
+    'Command: write red shoes in the search\nElements:\n[2] input:search "search"\n[5] a "help"\n'
+    '{"action": "type", "index": 2, "text": "red shoes"}\n\n'
+    'Command: what is the weather\nElements:\n[1] a "news"\n[4] a "sports"\n'
+    '{"action": "none", "index": null}'
+)
+
+
+@dataclass
+class Pick:
+    action: str = "none"           # click | type | none
+    index: Optional[int] = None
+    text: Optional[str] = None
+    note: str = ""
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+
+
+def format_elements(elements: list, limit: int = MAX_ELEMENTS) -> str:
+    """Compact list for the model: '[index] role "label"'. Unlabelled non-input elements are skipped."""
+    lines = []
+    for e in elements:
+        label = (e.labels[0] if e.labels else (e.weak_labels[0] if e.weak_labels else ""))[:80]
+        if not label and not e.is_text_input:
+            continue
+        kind = f"input:{e.input_type or 'text'}" if e.tag == "input" else (e.role or e.tag)
+        lines.append(f'[{e.index}] {kind} "{label}"')
+        if len(lines) >= limit:
+            break
+    return "\n".join(lines)
+
+
+def parse_pick(raw: str) -> Pick:
+    """Tolerant parser: finds the JSON object in the reply; anything unusable becomes 'none'."""
+    raw = raw or ""
+    data = None
+    for pattern in (r"\{.*\}", r"\{.*?\}"):
+        m = re.search(pattern, raw, re.S)
+        if m:
+            try:
+                data = json.loads(m.group(0))
+                break
+            except ValueError:
+                continue
+    if not isinstance(data, dict):
+        return Pick(note="no usable JSON in reply")
+    action = str(data.get("action", "none")).lower()
+    idx = data.get("index")
+    if isinstance(idx, str):  # small models write "21", "[21]" or "#21"
+        m_idx = re.fullmatch(r"\D*(\d+)\D*", idx.strip())
+        idx = int(m_idx.group(1)) if m_idx else None
+    idx = idx if isinstance(idx, int) and not isinstance(idx, bool) else None
+    text = data.get("text")
+    text = text if isinstance(text, str) and text.strip() else None
+    if action not in {"click", "type"} or idx is None:
+        return Pick(note="model answered none")
+    if action == "type" and text is None:
+        return Pick(note="type without text")
+    return Pick(action=action, index=idx, text=text)
+
+
+class OpenAICompatiblePicker:
+    """One short chat call to Cerebras or DeepInfra (both speak the OpenAI API)."""
+
+    def __init__(self, provider: str, model: str, system: Optional[str] = None):
+        base_url, key_env = PROVIDERS[provider]
+        self.provider, self.model = provider, model
+        self.system = system or (PICK_SYSTEM_SMALL if provider == "ollama" else PICK_SYSTEM)
+        if provider == "ollama":
+            # Ollama's own API: lets us raise the context window (its default of 4096 tokens silently
+            # cuts long page lists) and force valid JSON, which the OpenAI-style endpoint can't do.
+            self.ollama_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
+            return
+        key = os.getenv(key_env, "")
+        if not key or key.startswith("your_"):
+            raise RuntimeError(f"{key_env} is not set in .env")
+        from openai import AsyncOpenAI
+        self.client = AsyncOpenAI(base_url=base_url, api_key=key, timeout=20.0, max_retries=0)
+
+    async def _pick_ollama(self, command: str, elements: list) -> Pick:
+        import httpx
+        body = {
+            "model": self.model, "stream": False, "format": "json", "keep_alive": "10m",
+            "messages": [
+                {"role": "system", "content": self.system},
+                {"role": "user", "content": f"Command: {command}\nElements:\n{format_elements(elements)}"},
+            ],
+            "options": {"temperature": 0, "num_ctx": 8192, "num_predict": 200},
+        }
+        async with httpx.AsyncClient(timeout=120.0) as client:  # a cold local model can take a while to load
+            r = await client.post(f"{self.ollama_url}/api/chat", json=body)
+            r.raise_for_status()
+        data = r.json()
+        pick = parse_pick((data.get("message") or {}).get("content", ""))
+        pick.prompt_tokens = data.get("prompt_eval_count", 0)
+        pick.completion_tokens = data.get("eval_count", 0)
+        return pick
+
+    async def pick(self, command: str, elements: list) -> Pick:
+        if self.provider == "ollama":
+            return await self._pick_ollama(command, elements)
+        extra = {}
+        if self.provider == "cerebras" and self.model.startswith("gpt-oss"):
+            extra["reasoning_effort"] = "low"  # reasoning tokens would otherwise eat the answer budget
+        r = await self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": self.system},
+                {"role": "user", "content": f"Command: {command}\n\nElements:\n{format_elements(elements)}"},
+            ],
+            temperature=0,
+            max_tokens=600,
+            **extra,
+        )
+        pick = parse_pick(r.choices[0].message.content or "")
+        if r.usage:
+            pick.prompt_tokens, pick.completion_tokens = r.usage.prompt_tokens, r.usage.completion_tokens
+        return pick
+
+
+def make_picker_from_env() -> OpenAICompatiblePicker:
+    """FASTPATH_PROVIDER (cerebras|deepinfra|ollama, default cerebras) and optional FASTPATH_MODEL."""
+    provider = (os.getenv("FASTPATH_PROVIDER") or "cerebras").strip().lower()
+    model = (os.getenv("FASTPATH_MODEL") or "").strip() or DEFAULT_MODELS[provider]
+    return OpenAICompatiblePicker(provider, model)
+
+
 @dataclass
 class Intent:
     kind: str
@@ -194,17 +367,28 @@ class Result:
     handled: bool
     detail: str = ""
     error: Optional[str] = None
+    verified: Optional[bool] = None  # True/False once the effect was checked (scroll); None = not checked
+    used_model: bool = False
+    picked: str = ""  # label of the element the model chose (empty if it chose nothing valid)
+    model_ms: float = 0.0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
     settle_ms: float = 0.0
     read_ms: float = 0.0
     total_ms: float = 0.0
 
 
 class FastPath:
-    def __init__(self, browser):
+    def __init__(self, browser, picker=None):
         self.browser = browser
+        self.picker = picker  # optional small-model step; None = rules only, no API calls
         self.tools = Tools()
         self.action_model = self.tools.registry.create_action_model()
         self._dirty = False  # the previous command may have changed the page
+
+    async def _scroll_y(self) -> float:
+        page = await self.browser.get_current_page()
+        return float(await asyncio.wait_for(page.evaluate("() => window.scrollY"), 3) or 0)
 
     async def _act(self, payload: dict):
         result = await self.tools.act(self.action_model.model_validate(payload), browser_session=self.browser)
@@ -251,30 +435,97 @@ class FastPath:
         intent = parse_command(command)
         res = Result(command=command, intent=intent.kind, handled=False)
         try:
-            if intent.kind == "unknown":
+            if intent.kind == "unknown" and self.picker is None:
                 res.detail = "no rule matches this command"
             elif intent.kind == "navigate":
                 await self._act({"navigate": {"url": intent.target, "new_tab": False}})
                 self._dirty = True
                 res.handled, res.detail = True, f"navigated to {intent.target}"
             elif intent.kind == "scroll":
-                await self._settle_if_dirty(res)
-                await self._act({"scroll": {"down": intent.direction == "down", "pages": intent.amount}})
-                res.handled, res.detail = True, f"scrolled {intent.direction}"
+                # no upfront settle: _run_scroll checks the page moved and only then waits and retries
+                await self._run_scroll(intent, res)
             elif intent.kind == "back":
                 await self._act({"go_back": {}})
                 self._dirty = True
                 res.handled, res.detail = True, "went back"
-            else:
+            else:  # search / type / click, or an unknown command when a model is available
                 await self._settle_if_dirty(res)
                 t_read = time.perf_counter()
                 elements = await self._read_page()
                 res.read_ms = (time.perf_counter() - t_read) * 1000
-                await self._run_dom_intent(intent, elements, res)
+                if intent.kind != "unknown":
+                    await self._run_dom_intent(intent, elements, res)
+                if not res.handled and self.picker is not None:
+                    await self._ask_model(command, elements, res)
         except Exception as e:
             res.handled, res.error = True, f"{type(e).__name__}: {e}"
         res.total_ms = (time.perf_counter() - start) * 1000
         return res
+
+    async def _wait_scrollable(self, timeout: float) -> None:
+        """Wait until the page is taller than the window (content has rendered), or give up."""
+        deadline = time.perf_counter() + timeout
+        while time.perf_counter() < deadline:
+            try:
+                page = await self.browser.get_current_page()
+                room = float(await asyncio.wait_for(
+                    page.evaluate("() => document.documentElement.scrollHeight - window.innerHeight"), 2) or 0)
+            except Exception:
+                return
+            if room > 50:
+                return
+            await asyncio.sleep(0.15)
+
+    async def _run_scroll(self, intent: Intent, res: Result) -> None:
+        """Scroll, then check the page really moved; if not, wait for it to settle and try once more."""
+        payload = {"scroll": {"down": intent.direction == "down", "pages": intent.amount}}
+        try:
+            before = await self._scroll_y()
+        except Exception:
+            before = None  # can't measure on this page; just do the action
+        after = before
+        for attempt in (1, 2):
+            await self._act(payload)
+            if before is None:
+                res.handled, res.detail = True, f"scrolled {intent.direction} (not verified)"
+                return
+            await asyncio.sleep(0.3)
+            after = await self._scroll_y()
+            if abs(after - before) > 1:
+                break
+            if attempt == 1:
+                await self._wait_scrollable(3.0)
+        res.handled = True
+        res.verified = abs(after - before) > 1
+        res.detail = (f"scrolled {intent.direction} ({before:.0f} -> {after:.0f} px)" if res.verified
+                      else f"scroll ran twice but the page did not move (still {after:.0f} px)")
+
+    async def _ask_model(self, command: str, elements: list, res: Result) -> None:
+        """Rules refused: one short model call picks the element. Anything unclear stays refused."""
+        res.used_model = True
+        rules_note = res.detail or "no rule matches"
+        t = time.perf_counter()
+        try:
+            pick = await self.picker.pick(command, elements)
+        except Exception as e:
+            res.model_ms = (time.perf_counter() - t) * 1000
+            res.detail = f"{rules_note} | model call failed: {type(e).__name__}"
+            return
+        res.model_ms = (time.perf_counter() - t) * 1000
+        res.prompt_tokens, res.completion_tokens = pick.prompt_tokens, pick.completion_tokens
+        target = next((e for e in elements if e.index == pick.index), None) if pick.index is not None else None
+        label = (target.labels[:1] or target.weak_labels[:1]) if target else ""
+        res.picked = label[0] if label else ""
+        if pick.action == "click" and target:
+            await self._act({"click": {"index": target.index}})
+            self._dirty = True
+            res.handled, res.detail = True, f"model clicked [{target.index}] {label}"
+        elif pick.action == "type" and target and pick.text:
+            await self._act({"input": {"index": target.index, "text": pick.text, "clear": True}})
+            res.handled, res.detail = True, f"model typed into [{target.index}] {label}"
+        else:
+            why = pick.note or "model chose an element that is not on the page"
+            res.detail = f"{rules_note} | model declined ({why})"
 
     async def _run_dom_intent(self, intent: Intent, elements: list, res: Result) -> None:
         if intent.kind == "search":
