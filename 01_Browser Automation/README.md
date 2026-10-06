@@ -2,7 +2,9 @@
 
 **Status: complete.** Winner: **browser-use**, driven by **Cerebras `gpt-oss-120b`**, with page extraction offloaded to **DeepInfra `gemma-4-31B-it-turbo`**.
 
-This folder holds the benchmark harness, the raw results, and the findings. The main finding goes beyond "which tool wins": on real, heavy pages the dominant cost is how much page content the agent sends to the model on every step, not which model or provider is used. That finding reshapes Experiments 2 and 8 (see [Implications](#implications-for-the-next-experiments)).
+This folder holds the benchmark harness, the raw results, and the findings. The main finding goes beyond "which tool wins": a full agent loop costs a model call per step, and each call carries a large fixed prompt, so it can't meet a voice-latency budget for simple commands on any provider. Experiment 2 acted on that (see [Implications](#implications-for-the-next-experiments) and [02_Reasoning_and_Routing](../02_Reasoning_and_Routing/README.md)).
+
+> **Correction (added after Experiment 2):** an earlier version of this README said the dominant cost was the *page content* browser-use sends each step ("thousands of elements"). Measuring the prompt directly showed that was overstated. Of a ~9,400-token request on a trivial page, the page list was 156 tokens; the rest was fixed overhead (system prompt + action schema). Details in the latency section below.
 
 ---
 
@@ -62,7 +64,7 @@ These are the full-matrix runs. Earlier rows in `SUMMARY.md` are setup/debug run
 - **Built-in self-check.** Its judge flags results it doubts instead of silently reporting success. That's useful for a voice agent that must say when it isn't sure.
 - **Takes any provider** through its own LLM wrappers (`ChatLiteLLM`), DOM-first by default, vision optional.
 - **Playwright MCP** passed everything, but only after a larger step budget, and it was the slowest and most token-hungry: raw tool calls need a separate call to find an element and another to act on it.
-- **Stagehand** used far smaller prompts per action (~1.5k tokens per `act` on the login page) and was quickest on its passes, but it failed half the tasks. Its small, focused prompts are the model for the "trimmed page" idea in Experiment 2.
+- **Stagehand** used far smaller prompts per action (~1.5k tokens per `act` on the login page) and was quickest on its passes, but it failed half the tasks. Its smaller prompts come mostly from a leaner prompt, not from trimming the page (browser-use's page list on that login page is only 156 tokens; see the measurements below).
 
 ---
 
@@ -96,8 +98,9 @@ The YouTube task was used to find out why runs took minutes when Cerebras genera
 **What the timings show**
 
 - **Cerebras:** the first ~4 calls take ~4s each, then calls stall for almost exactly one minute. Stagehand logged an extraction taking 60,664 ms and one Cerebras error said `Tokens per minute limit exceeded`. Heavy pages exhaust the account's per-minute token budget in about four steps.
-- **DeepInfra:** no per-minute stall, but each call is slow because the prompts are large (the same model answered a 7k-token test prompt in 3-4s).
-- **Common root cause:** browser-use sends the page's full interactive-element list every step. YouTube pages have thousands of elements (the agent clicked element #8,844). Switching provider only changes how that cost shows up. This is an inference from timings; browser-use's per-step token counts are not yet logged.
+- **DeepInfra:** no per-minute stall, but calls were slow (10-35s per step with the models used; one hit browser-use's 75s limit). The same model answered a 7k-token test prompt in 3-4s, so these prompts are bigger than that or the calls were slower under this load; the per-step prompt size was not measured at the time.
+- **What the prompt actually contains (measured afterwards, no API calls):** every request carries a **fixed ~9,400 tokens** in default mode (system prompt 5,242 + action schema ~4,100). `flash_mode` cuts the system prompt to 504 tokens. The page list on top of that is small on most pages: login form 156 tokens (7 elements), books.toscrape 2,243 (189), YouTube home 963 (57), GitHub repo 8,096 (396). browser-use also caps the list at 40,000 characters. Cross-check: Groq rejected the login-page request at ~9,500 tokens, which matches 5,242 + 4,114 + 156.
+- **So the earlier explanation was wrong.** It is not that browser-use sends "thousands of elements" per step (indexes like #8,844 are node IDs, not counts). Each *step* costs a model call with a large fixed prompt, and a multi-step task pays that every step. Not measured: YouTube search/watch pages, how history grows per step, and the Cerebras account's actual per-minute limit. The minute-long stalls fit a token cap but that is still an inference.
 - Smaller contributors: YouTube's first load hits an 8s page-readiness timeout; browser-use's default judge, planning (it writes a `todo.md`) and verbose reasoning add calls.
 
 **Speed settings now in [candidate_01_browser_use/run_benchmark.py](candidate_01_browser_use/run_benchmark.py)**
@@ -148,11 +151,11 @@ The YouTube task was used to find out why runs took minutes when Cerebras genera
 
 ## 7. Implications for the next experiments
 
-1. **Don't send every command through browser-use's full agent loop.** Most voice commands are single actions. A router should handle known commands with no model call (e.g. YouTube search is a URL: the agent itself fell back to `youtube.com/results?search_query=...`), handle single commands on unknown pages with one model call on a trimmed page, and use the browser-use agent only for complex requests.
-2. **Test with realistic voice commands**, not multi-step scripts like these four tasks.
-3. **Candidate models must reliably produce browser-use's action format.** gpt-oss on DeepInfra did not.
-4. **Page size per step is the main latency lever** (pruning, visible-area-only, caching between steps), ahead of model or provider choice.
-5. **Log browser-use token usage** before optimising, so prompt sizes are measured instead of inferred.
+1. **Don't send every command through browser-use's full agent loop.** Most voice commands are single actions. A router should handle known commands with no model call, handle the rest with one short model call, and use the browser-use agent only for complex requests. *(Built and measured in Experiment 2.)*
+2. **Test with realistic voice commands**, not multi-step scripts like these four tasks. *(Done in Experiment 2: 18 commands.)*
+3. **Candidate models must reliably produce browser-use's action format.** gpt-oss on DeepInfra did not; the agent stays on Cerebras.
+4. **The per-step cost is a model call carrying a large fixed prompt** (~9.4k tokens in default mode, ~4.4k with `flash_mode`), plus the page list (0.2k-8k tokens). The levers are fewer agent steps, a shorter prompt, and a model that doesn't hit a per-minute cap. (Earlier text here said page size was the main lever; that was wrong, see the correction at the top.)
+5. **Log browser-use token usage per step** so prompt sizes at each step are measured instead of inferred (still not done).
 
 ---
 

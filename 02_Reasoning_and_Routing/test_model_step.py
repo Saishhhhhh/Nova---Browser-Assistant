@@ -51,6 +51,23 @@ def offline_tests() -> None:
     check("garbage -> none", parse_pick("I think you should click the button").action == "none")
     check("empty -> none", parse_pick("").action == "none")
 
+    print("== defaults (offline, nothing is sent)")
+    saved = {k: os.environ.pop(k, None) for k in ("FASTPATH_PROVIDER", "FASTPATH_MODEL", "FASTPATH_TIMEOUT")}
+    try:
+        picker = make_picker_from_env()
+        check("default provider is deepinfra", picker.provider == "deepinfra", picker.provider)
+        check("default model is Gemma 4 31B turbo", picker.model == "google/gemma-4-31B-it-turbo", picker.model)
+        check("default timeout is 10 seconds", picker.timeout == 10.0, str(picker.timeout))
+        os.environ["FASTPATH_TIMEOUT"] = "9"
+        check("timeout comes from FASTPATH_TIMEOUT", make_picker_from_env().timeout == 9.0)
+    except RuntimeError as e:
+        print(f"  [skip] {e}")
+    finally:
+        for k, v in saved.items():
+            os.environ.pop(k, None)
+            if v is not None:
+                os.environ[k] = v
+
     print("== element list for the model (offline)")
     els = [
         ElementInfo(1, "a", "", "", {}, labels=["sign in"]),
@@ -121,6 +138,19 @@ async def plumbing_tests(headed: bool) -> None:
 
     r = await fast.run("explode")
     check("model raises -> refused, no crash", not r.handled and "model call failed" in r.detail, r.detail)
+
+    class SlowPicker:
+        timeout = 0.5  # the limit FastPath should enforce
+
+        async def pick(self, command, elements):
+            await asyncio.sleep(4)  # far slower than the limit
+            return Pick(action="click", index=elements[0].index)
+
+    t0 = asyncio.get_event_loop().time()
+    r = await FastPath(browser, picker=SlowPicker()).run("take me to the mystery section")
+    waited = asyncio.get_event_loop().time() - t0
+    check("slow model -> gives up at the limit, refused", not r.handled and "timed out" in r.detail and waited < 3.5,
+          f"waited {waited:.1f}s: {r.detail}")
 
     nomodel = FastPath(browser)
     r = await nomodel.run("take me to the mystery section")

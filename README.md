@@ -94,7 +94,7 @@ Philosophy: **experiment → evidence → decision → build.** Each experiment 
 | Order | Experiment | Depends on | Status |
 |---|---|---|---|
 | 1 | Browser automation tool | none — foundational, gates everything downstream | **Done** — browser-use ([details](01_Browser%20Automation/README.md)) |
-| 2 | Reasoning LLM + command routing | needs Exp 1's DOM/action format | Next — scope updated after Exp 1 |
+| 2 | Reasoning LLM + command routing | needs Exp 1's DOM/action format | **Done** — rules → DeepInfra Gemma → browser-use agent ([details](02_Reasoning_and_Routing/README.md)) |
 | 3 | Vision / screenshot understanding | needs Exp 1's real pages/screenshots | Not started |
 | 4 | STT | none (independent, can run in parallel with 1-3) | Not started |
 | 5 | VAD | none (independent, can run in parallel with 1-3) | Not started |
@@ -110,19 +110,13 @@ Rationale: browser automation is the highest-uncertainty, foundational piece —
 **Tested:** browser-use, Stagehand v4, Playwright MCP (Crawl4AI removed: it can't click or type). 4 tasks (login form, e-commerce extraction, YouTube search + open video, GitHub issues), headed, same model for every candidate (Cerebras `gpt-oss-120b`).
 **Result:** browser-use 4/4 (2 successes disputed by its own self-check), Playwright MCP 4/4 but slowest and most token-hungry, Stagehand 2/4.
 **Decision:** **browser-use** as the browser-control layer; main model **Cerebras `gpt-oss-120b`**; page extraction on **DeepInfra `gemma-4-31B-it-turbo`**.
-**Key finding:** on heavy pages the dominant cost is the full page element list browser-use sends every step (YouTube: thousands of elements), not the model or provider. Cerebras hits its per-minute token cap after ~4 steps; DeepInfra is slow per call; gpt-oss on DeepInfra also produced invalid browser-use actions. Full write-up, numbers and caveats: [01_Browser Automation/README.md](01_Browser%20Automation/README.md).
+**Key finding:** a full agent loop costs one model call per step, each carrying a large fixed prompt (~9.4k tokens in default mode), so it can't meet a voice-latency budget for simple commands on any provider. Cerebras hit a per-minute limit after ~4 steps; DeepInfra calls were slow; gpt-oss on DeepInfra also produced invalid browser-use actions. (An earlier version of this line blamed the page content sent each step; measuring showed the page list is small, 156 to 8,096 tokens, so that was corrected.) Full write-up, numbers and caveats: [01_Browser Automation/README.md](01_Browser%20Automation/README.md).
 
-### Exp 2 — Reasoning LLM + command routing (scope updated after Exp 1)
-Exp 1 showed that sending every command through browser-use's full agent loop can't meet the latency targets on real sites, so this experiment now designs and tests the **router** as well as the model.
-
-**Routing tiers to build and measure:**
-1. **Known commands → no model call.** Deterministic handlers / site adapters (e.g. YouTube or Google search = open the results URL, "play the first result" = click a known element, back/scroll/open URL = direct browser actions).
-2. **Single command on an unfamiliar page → one model call on a trimmed page** (visible or relevant elements only, not the full element list).
-3. **Complex, multi-step or ambiguous → browser-use agent** (the Exp 1 setup).
-
-**Candidates (what's accessible):** Cerebras `gpt-oss-120b` / `qwen-3.8-27b`; via DeepInfra: Claude, Gemini, gpt-oss, Gemma, Qwen, Llama, Mistral; local via Ollama: `qwen2.5:3b`, `hammer2.1:3b`, `llama3.2:3b`, `xlam:1b` (4GB VRAM).
-**Test:** ~15-20 realistic **voice commands** (e.g. "open YouTube", "search for lofi music", "play the first video", "scroll down", "go back", "click sign in", "what's on this page"), plus some ambiguous/multi-step ones, run through the router. Score routing correctness, action accuracy, latency per tier, cost. Log browser-use token usage per step (not yet captured).
-**Winner needs:** the tier-1 fast path covers the common commands in well under 3s; a tier-2 model that reliably emits the exact action format (gpt-oss on DeepInfra failed this in Exp 1 — test for it explicitly); a clear rule for escalating to tier 3.
+### Exp 2 — Reasoning LLM + command routing — ✅ Done
+**Built:** a router with three tiers, no per-site code: (1) generic text-matching rules over browser-use's page reader, no model; (2) when the rules refuse, one short model call that picks the element to click/type into, or refuses; (3) the full browser-use agent on the same open browser. Entry point: `CommandRouter.run_command(text)`.
+**Tested:** 18 spoken-style commands on real sites (14 should act, 4 vague ones must be refused) on 8 models, plus the rules on 5 sites and the handoff to the agent.
+**Result:** models of about 30B and up got 10-11 of 13 right with 1 wrong click and refused all 4 vague commands. Everything at 8B or below, local or cloud, guessed on vague commands (1 to 4 wrong clicks) and was right 3-9 times of 13, so **no small local model is usable for this step**. Rules alone take ~1.4-2.8s per command with no model; the model step adds 0.4s (Cerebras) to 1.4s (Gemma).
+**Decision:** model step = **DeepInfra `gemma-4-31B-it-turbo`** (most accurate, never rate-limited) with a 10s time limit; Cerebras `gpt-oss-120b` is ~3x faster but rate-limited 7 of 17 back-to-back calls, so it is an optional switch, not the default. The agent keeps Cerebras `gpt-oss-120b`. Full write-up, tables and caveats: [02_Reasoning_and_Routing/README.md](02_Reasoning_and_Routing/README.md).
 
 ### Exp 3 — Vision / screenshot understanding
 **Approaches:** pure DOM (baseline), screenshot+VLM, Set-of-Mark prompting, hybrid DOM+screenshot.
@@ -152,11 +146,11 @@ Uses the Exp 4-6 winners in a bare voice loop (no browser). Tune endpointing del
 ### Exp 8 — End-to-end latency budget
 Wire together the winners from Exp 1-7 (browser tool → reasoning routing → vision fallback → STT → VAD → TTS → turn-taking) into the full loop and instrument every stage (VAD detection → STT → routing → reasoning → perception → action → verification → TTS). Run ~10 full commands (mix of simple and multi-step) and produce a latency waterfall. Identify the bottleneck stage and propose one concrete fix (parallelizing STT with DOM pre-fetch, caching the DOM tree between steps, streaming TTS on partial output, etc.).
 **Target:** under 3s end-of-speech → start-of-response for simple commands; under 5s for vision-requiring commands.
-**Note from Exp 1:** expect page data per step to be the biggest lever — trimming it (visible-area only, relevant elements only), caching it between steps, and keeping extraction on a separate provider. In Exp 1 the YouTube task took 160-215s on Cerebras (67-248s on DeepInfra, with invalid actions), while model generation speed was never the limit.
+**Note from Exp 1 and 2:** the levers are the number of model calls per command and the fixed prompt each carries, not page size. Keep simple commands off the agent loop (the rules and one short model call take 1.4-3s; the agent took minutes on heavy sites in Exp 1), keep `flash_mode` on, and keep page extraction on a separate provider. Also budget for: a page-settle wait of up to 4s on pages that keep changing, the 10s model time limit, and Cerebras per-minute rate limits on back-to-back commands. Speak a short "on it" immediately so the user doesn't sit in silence while any of this runs.
 
 ---
 
 ## Synthesis — after all experiments
-1. Fill in one "final stack" table: Browser tool / STT / VAD / TTS / Local reasoning model / API reasoning model / Vision model / routing rule / endpointing value. Decided so far: **Browser tool = browser-use** (Exp 1).
+1. Fill in one "final stack" table: Browser tool / STT / VAD / TTS / Local reasoning model / API reasoning model / Vision model / routing rule / endpointing value. Decided so far: **Browser tool = browser-use** with Cerebras `gpt-oss-120b` for the agent (Exp 1); **routing = rules → DeepInfra `gemma-4-31B-it-turbo` (10s limit) → agent** (Exp 2); **local reasoning model = none** (nothing at 8B or below was safe enough in Exp 2).
 2. Validate the *combination* in Exp 8, not just each piece in isolation — a component that wins its own experiment but breaks the end-to-end budget should be swapped, not tolerated.
 3. Only then move to the integration build.

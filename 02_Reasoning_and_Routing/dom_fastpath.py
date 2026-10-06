@@ -269,16 +269,19 @@ class OpenAICompatiblePicker:
         base_url, key_env = PROVIDERS[provider]
         self.provider, self.model = provider, model
         self.system = system or (PICK_SYSTEM_SMALL if provider == "ollama" else PICK_SYSTEM)
+        # Longest we wait for an answer before treating it as "couldn't decide" (seconds).
+        self.timeout = float(os.getenv("FASTPATH_TIMEOUT", "10"))
         if provider == "ollama":
             # Ollama's own API: lets us raise the context window (its default of 4096 tokens silently
             # cuts long page lists) and force valid JSON, which the OpenAI-style endpoint can't do.
             self.ollama_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
+            self.timeout = max(self.timeout, 120.0)  # a cold local model can take a while to load
             return
         key = os.getenv(key_env, "")
         if not key or key.startswith("your_"):
             raise RuntimeError(f"{key_env} is not set in .env")
         from openai import AsyncOpenAI
-        self.client = AsyncOpenAI(base_url=base_url, api_key=key, timeout=20.0, max_retries=0)
+        self.client = AsyncOpenAI(base_url=base_url, api_key=key, timeout=self.timeout, max_retries=0)
 
     async def _pick_ollama(self, command: str, elements: list) -> Pick:
         import httpx
@@ -290,7 +293,7 @@ class OpenAICompatiblePicker:
             ],
             "options": {"temperature": 0, "num_ctx": 8192, "num_predict": 200},
         }
-        async with httpx.AsyncClient(timeout=120.0) as client:  # a cold local model can take a while to load
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
             r = await client.post(f"{self.ollama_url}/api/chat", json=body)
             r.raise_for_status()
         data = r.json()
@@ -322,8 +325,10 @@ class OpenAICompatiblePicker:
 
 
 def make_picker_from_env() -> OpenAICompatiblePicker:
-    """FASTPATH_PROVIDER (cerebras|deepinfra|ollama, default cerebras) and optional FASTPATH_MODEL."""
-    provider = (os.getenv("FASTPATH_PROVIDER") or "cerebras").strip().lower()
+    """FASTPATH_PROVIDER (deepinfra|cerebras|ollama, default deepinfra), optional FASTPATH_MODEL and
+    FASTPATH_TIMEOUT (seconds, default 10). DeepInfra Gemma was the most accurate in the 18-command
+    benchmark and never hit a rate limit; Cerebras is ~3x faster but rate-limits back-to-back commands."""
+    provider = (os.getenv("FASTPATH_PROVIDER") or "deepinfra").strip().lower()
     model = (os.getenv("FASTPATH_MODEL") or "").strip() or DEFAULT_MODELS[provider]
     return OpenAICompatiblePicker(provider, model)
 
@@ -505,8 +510,13 @@ class FastPath:
         res.used_model = True
         rules_note = res.detail or "no rule matches"
         t = time.perf_counter()
+        limit = getattr(self.picker, "timeout", None)
         try:
-            pick = await self.picker.pick(command, elements)
+            pick = await asyncio.wait_for(self.picker.pick(command, elements), limit)
+        except asyncio.TimeoutError:
+            res.model_ms = (time.perf_counter() - t) * 1000
+            res.detail = f"{rules_note} | model timed out after {limit:.0f}s"
+            return
         except Exception as e:
             res.model_ms = (time.perf_counter() - t) * 1000
             res.detail = f"{rules_note} | model call failed: {type(e).__name__}"
