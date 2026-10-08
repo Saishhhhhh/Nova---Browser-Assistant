@@ -1,0 +1,57 @@
+{
+ "hand_cut": {
+  "wer_pct": 0.6,
+  "exact_pct": 97,
+  "intent_pct": 97
+ },
+ "vad_cut": [
+  {
+   "detector": "silero",
+   "threshold": 0.5,
+   "hangover_s": 0.3,
+   "files_with_wrong_command_count": 0,
+   "wer_pct": 0.6,
+   "exact_pct": 97,
+   "intent_pct": 97,
+   "clips_sent": 36,
+   "mean_clip_s": 2.32,
+   "errors": 0
+  },
+  {
+   "detector": "silero",
+   "threshold": 0.5,
+   "hangover_s": 0.5,
+   "files_with_wrong_command_count": 0,
+   "wer_pct": 0.6,
+   "exact_pct": 97,
+   "intent_pct": 97,
+   "clips_sent": 36,
+   "mean_clip_s": 2.51,
+   "errors": 0
+  },
+  {
+   "detector": "webrtc3",
+   "threshold": 0.5,
+   "hangover_s": 0.5,
+   "files_with_wrong_command_count": 0,
+   "wer_pct": 0.6,
+   "exact_pct": 97,
+   "intent_pct": 97,
+   "clips_sent": 36,
+   "mean_clip_s": 2.44,
+   "errors": 0
+  },
+  {
+   "detector": "energy",
+   "threshold": 12.0,
+   "hangover_s": 0.5,
+   "files_with_wrong_command_count": 0,
+   "wer_pct": 0.6,
+   "exact_pct": 97,
+   "intent_pct": 97,
+   "clips_sent": 36,
+   "mean_clip_s": 2.36,
+   "errors": 0
+  }
+ ]
+}

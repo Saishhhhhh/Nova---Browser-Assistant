@@ -1,0 +1,6165 @@
+{
+ "n_commands": 40,
+ "pre_roll_s": 0.3,
+ "cost": {
+  "silero": {
+   "ms_per_frame": 0.93,
+   "frame_ms": 32.0,
+   "cpu_share_of_one_core": 0.0291
+  },
+  "webrtc0": {
+   "ms_per_frame": 0.014,
+   "frame_ms": 20.0,
+   "cpu_share_of_one_core": 0.0007
+  },
+  "webrtc1": {
+   "ms_per_frame": 0.01,
+   "frame_ms": 20.0,
+   "cpu_share_of_one_core": 0.0005
+  },
+  "webrtc2": {
+   "ms_per_frame": 0.008,
+   "frame_ms": 20.0,
+   "cpu_share_of_one_core": 0.0004
+  },
+  "webrtc3": {
+   "ms_per_frame": 0.011,
+   "frame_ms": 20.0,
+   "cpu_share_of_one_core": 0.0005
+  },
+  "energy": {
+   "ms_per_frame": 0.128,
+   "frame_ms": 20.0,
+   "cpu_share_of_one_core": 0.0064
+  }
+ },
+ "rows": [
+  {
+   "detector": "silero",
+   "threshold": 0.3,
+   "hangover_s": 0.3,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 24,
+     "end_latency_ms_median": 424,
+     "end_latency_ms_p95": 564
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 2,
+     "start_lag_ms_p95": 70,
+     "end_latency_ms_median": 430,
+     "end_latency_ms_p95": 513
+    },
+    "pink10": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 442,
+     "end_latency_ms_p95": 553
+    },
+    "pink5": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 466,
+     "end_latency_ms_p95": 584
+    },
+    "clicks": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 70,
+     "end_latency_ms_median": 432,
+     "end_latency_ms_p95": 564
+    }
+   }
+  },
+  {
+   "detector": "silero",
+   "threshold": 0.3,
+   "hangover_s": 0.5,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 24,
+     "end_latency_ms_median": 616,
+     "end_latency_ms_p95": 756
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 2,
+     "start_lag_ms_p95": 70,
+     "end_latency_ms_median": 622,
+     "end_latency_ms_p95": 705
+    },
+    "pink10": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 634,
+     "end_latency_ms_p95": 745
+    },
+    "pink5": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 658,
+     "end_latency_ms_p95": 776
+    },
+    "clicks": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 70,
+     "end_latency_ms_median": 624,
+     "end_latency_ms_p95": 756
+    }
+   }
+  },
+  {
+   "detector": "silero",
+   "threshold": 0.3,
+   "hangover_s": 0.8,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 24,
+     "end_latency_ms_median": 904,
+     "end_latency_ms_p95": 1044
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 2,
+     "start_lag_ms_p95": 70,
+     "end_latency_ms_median": 910,
+     "end_latency_ms_p95": 993
+    },
+    "pink10": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 922,
+     "end_latency_ms_p95": 1033
+    },
+    "pink5": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 946,
+     "end_latency_ms_p95": 1064
+    },
+    "clicks": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 70,
+     "end_latency_ms_median": 912,
+     "end_latency_ms_p95": 1044
+    }
+   }
+  },
+  {
+   "detector": "silero",
+   "threshold": 0.5,
+   "hangover_s": 0.3,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 8,
+     "start_lag_ms_p95": 32,
+     "end_latency_ms_median": 412,
+     "end_latency_ms_p95": 532
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 100,
+     "end_latency_ms_median": 412,
+     "end_latency_ms_p95": 500
+    },
+    "pink10": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 16,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 420,
+     "end_latency_ms_p95": 516
+    },
+    "pink5": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 28,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 424,
+     "end_latency_ms_p95": 519
+    },
+    "clicks": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 101,
+     "end_latency_ms_median": 412,
+     "end_latency_ms_p95": 532
+    }
+   }
+  },
+  {
+   "detector": "silero",
+   "threshold": 0.5,
+   "hangover_s": 0.5,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 8,
+     "start_lag_ms_p95": 32,
+     "end_latency_ms_median": 604,
+     "end_latency_ms_p95": 724
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 100,
+     "end_latency_ms_median": 604,
+     "end_latency_ms_p95": 692
+    },
+    "pink10": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 16,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 612,
+     "end_latency_ms_p95": 708
+    },
+    "pink5": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 28,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 616,
+     "end_latency_ms_p95": 711
+    },
+    "clicks": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 101,
+     "end_latency_ms_median": 604,
+     "end_latency_ms_p95": 724
+    }
+   }
+  },
+  {
+   "detector": "silero",
+   "threshold": 0.5,
+   "hangover_s": 0.8,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 8,
+     "start_lag_ms_p95": 32,
+     "end_latency_ms_median": 892,
+     "end_latency_ms_p95": 1012
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 100,
+     "end_latency_ms_median": 892,
+     "end_latency_ms_p95": 980
+    },
+    "pink10": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 16,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 900,
+     "end_latency_ms_p95": 996
+    },
+    "pink5": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 28,
+     "start_lag_ms_p95": 174,
+     "end_latency_ms_median": 904,
+     "end_latency_ms_p95": 999
+    },
+    "clicks": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 12,
+     "start_lag_ms_p95": 101,
+     "end_latency_ms_median": 892,
+     "end_latency_ms_p95": 1012
+    }
+   }
+  },
+  {
+   "detector": "silero",
+   "threshold": 0.7,
+   "hangover_s": 0.3,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 14,
+     "start_lag_ms_p95": 77,
+     "end_latency_ms_median": 404,
+     "end_latency_ms_p95": 517
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 100,
+     "end_latency_ms_median": 404,
+     "end_latency_ms_p95": 470
+    },
+    "pink10": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 175,
+     "end_latency_ms_median": 402,
+     "end_latency_ms_p95": 501
+    },
+    "pink5": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 34,
+     "start_lag_ms_p95": 175,
+     "end_latency_ms_median": 394,
+     "end_latency_ms_p95": 469
+    },
+    "clicks": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 121,
+     "end_latency_ms_median": 404,
+     "end_latency_ms_p95": 517
+    }
+   }
+  },
+  {
+   "detector": "silero",
+   "threshold": 0.7,
+   "hangover_s": 0.5,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 14,
+     "start_lag_ms_p95": 77,
+     "end_latency_ms_median": 596,
+     "end_latency_ms_p95": 709
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 100,
+     "end_latency_ms_median": 596,
+     "end_latency_ms_p95": 662
+    },
+    "pink10": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 175,
+     "end_latency_ms_median": 594,
+     "end_latency_ms_p95": 693
+    },
+    "pink5": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 34,
+     "start_lag_ms_p95": 175,
+     "end_latency_ms_median": 586,
+     "end_latency_ms_p95": 661
+    },
+    "clicks": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 121,
+     "end_latency_ms_median": 596,
+     "end_latency_ms_p95": 709
+    }
+   }
+  },
+  {
+   "detector": "silero",
+   "threshold": 0.7,
+   "hangover_s": 0.8,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 14,
+     "start_lag_ms_p95": 77,
+     "end_latency_ms_median": 884,
+     "end_latency_ms_p95": 997
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 100,
+     "end_latency_ms_median": 884,
+     "end_latency_ms_p95": 950
+    },
+    "pink10": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 175,
+     "end_latency_ms_median": 882,
+     "end_latency_ms_p95": 981
+    },
+    "pink5": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 34,
+     "start_lag_ms_p95": 175,
+     "end_latency_ms_median": 874,
+     "end_latency_ms_p95": 949
+    },
+    "clicks": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 121,
+     "end_latency_ms_median": 884,
+     "end_latency_ms_p95": 997
+    }
+   }
+  },
+  {
+   "detector": "webrtc0",
+   "threshold": 0.5,
+   "hangover_s": 0.3,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 0,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 29,
+     "problems": {
+      "V4": [
+       [
+        1,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -20,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 500,
+     "end_latency_ms_p95": 658
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 0,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 2,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 28,
+     "end_latency_ms_median": 440,
+     "end_latency_ms_p95": 480
+    },
+    "pink10": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 7,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 123,
+     "end_latency_ms_median": 370,
+     "end_latency_ms_p95": 442
+    },
+    "pink5": {
+     "ok": 34,
+     "clipped": 0,
+     "split": 2,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 8,
+     "problems": {
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 141,
+     "end_latency_ms_median": 340,
+     "end_latency_ms_p95": 489
+    },
+    "clicks": {
+     "ok": 37,
+     "clipped": 0,
+     "split": 1,
+     "merged": 2,
+     "missed": 0,
+     "false_alarms": 51,
+     "problems": {
+      "V4": [
+       [
+        1,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -80,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 560,
+     "end_latency_ms_p95": 1048
+    }
+   }
+  },
+  {
+   "detector": "webrtc0",
+   "threshold": 0.5,
+   "hangover_s": 0.5,
+   "conditions": {
+    "clean": {
+     "ok": 32,
+     "clipped": 0,
+     "split": 0,
+     "merged": 8,
+     "missed": 0,
+     "false_alarms": 14,
+     "problems": {
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -50,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 700,
+     "end_latency_ms_p95": 1065
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 2,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 24,
+     "end_latency_ms_median": 640,
+     "end_latency_ms_p95": 680
+    },
+    "pink10": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 6,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 123,
+     "end_latency_ms_median": 570,
+     "end_latency_ms_p95": 642
+    },
+    "pink5": {
+     "ok": 36,
+     "clipped": 0,
+     "split": 0,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 6,
+     "problems": {
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 135,
+     "end_latency_ms_median": 540,
+     "end_latency_ms_p95": 800
+    },
+    "clicks": {
+     "ok": 21,
+     "clipped": 0,
+     "split": 0,
+     "merged": 19,
+     "missed": 0,
+     "false_alarms": 19,
+     "problems": {
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -480,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 1080,
+     "end_latency_ms_p95": 1840
+    }
+   }
+  },
+  {
+   "detector": "webrtc0",
+   "threshold": 0.5,
+   "hangover_s": 0.8,
+   "conditions": {
+    "clean": {
+     "ok": 23,
+     "clipped": 0,
+     "split": 0,
+     "merged": 17,
+     "missed": 0,
+     "false_alarms": 6,
+     "problems": {
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -80,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 1000,
+     "end_latency_ms_p95": 1138
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 24,
+     "end_latency_ms_median": 940,
+     "end_latency_ms_p95": 980
+    },
+    "pink10": {
+     "ok": 37,
+     "clipped": 0,
+     "split": 0,
+     "merged": 3,
+     "missed": 0,
+     "false_alarms": 3,
+     "problems": {
+      "V9": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 132,
+     "end_latency_ms_median": 860,
+     "end_latency_ms_p95": 940
+    },
+    "pink5": {
+     "ok": 34,
+     "clipped": 0,
+     "split": 0,
+     "merged": 6,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 141,
+     "end_latency_ms_median": 830,
+     "end_latency_ms_p95": 940
+    },
+    "clicks": {
+     "ok": 11,
+     "clipped": 0,
+     "split": 0,
+     "merged": 29,
+     "missed": 0,
+     "false_alarms": 7,
+     "problems": {
+      "V1": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -520,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 1120,
+     "end_latency_ms_p95": 1630
+    }
+   }
+  },
+  {
+   "detector": "webrtc1",
+   "threshold": 0.5,
+   "hangover_s": 0.3,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 0,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 24,
+     "problems": {
+      "V4": [
+       [
+        1,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 500,
+     "end_latency_ms_p95": 640
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 0,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 46,
+     "end_latency_ms_median": 440,
+     "end_latency_ms_p95": 462
+    },
+    "pink10": {
+     "ok": 38,
+     "clipped": 1,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 4,
+     "problems": {
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 182,
+     "end_latency_ms_median": 360,
+     "end_latency_ms_p95": 440
+    },
+    "pink5": {
+     "ok": 31,
+     "clipped": 1,
+     "split": 4,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 2,
+     "problems": {
+      "V2": [
+       [
+        0,
+        "split"
+       ]
+      ],
+      "V6": [
+       [
+        1,
+        "split"
+       ],
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 40,
+     "start_lag_ms_p95": 198,
+     "end_latency_ms_median": 300,
+     "end_latency_ms_p95": 429
+    },
+    "clicks": {
+     "ok": 37,
+     "clipped": 0,
+     "split": 1,
+     "merged": 2,
+     "missed": 0,
+     "false_alarms": 51,
+     "problems": {
+      "V4": [
+       [
+        1,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -60,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 540,
+     "end_latency_ms_p95": 1048
+    }
+   }
+  },
+  {
+   "detector": "webrtc1",
+   "threshold": 0.5,
+   "hangover_s": 0.5,
+   "conditions": {
+    "clean": {
+     "ok": 32,
+     "clipped": 0,
+     "split": 0,
+     "merged": 8,
+     "missed": 0,
+     "false_alarms": 13,
+     "problems": {
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -20,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 700,
+     "end_latency_ms_p95": 1065
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 43,
+     "end_latency_ms_median": 640,
+     "end_latency_ms_p95": 661
+    },
+    "pink10": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 3,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 181,
+     "end_latency_ms_median": 560,
+     "end_latency_ms_p95": 640
+    },
+    "pink5": {
+     "ok": 35,
+     "clipped": 1,
+     "split": 0,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 40,
+     "start_lag_ms_p95": 190,
+     "end_latency_ms_median": 500,
+     "end_latency_ms_p95": 640
+    },
+    "clicks": {
+     "ok": 23,
+     "clipped": 0,
+     "split": 0,
+     "merged": 17,
+     "missed": 0,
+     "false_alarms": 22,
+     "problems": {
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -420,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 980,
+     "end_latency_ms_p95": 1604
+    }
+   }
+  },
+  {
+   "detector": "webrtc1",
+   "threshold": 0.5,
+   "hangover_s": 0.8,
+   "conditions": {
+    "clean": {
+     "ok": 27,
+     "clipped": 0,
+     "split": 0,
+     "merged": 13,
+     "missed": 0,
+     "false_alarms": 7,
+     "problems": {
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -20,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 1000,
+     "end_latency_ms_p95": 1330
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 43,
+     "end_latency_ms_median": 940,
+     "end_latency_ms_p95": 961
+    },
+    "pink10": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 2,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 181,
+     "end_latency_ms_median": 860,
+     "end_latency_ms_p95": 940
+    },
+    "pink5": {
+     "ok": 36,
+     "clipped": 0,
+     "split": 0,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 40,
+     "start_lag_ms_p95": 190,
+     "end_latency_ms_median": 800,
+     "end_latency_ms_p95": 940
+    },
+    "clicks": {
+     "ok": 12,
+     "clipped": 0,
+     "split": 0,
+     "merged": 28,
+     "missed": 0,
+     "false_alarms": 9,
+     "problems": {
+      "V1": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -350,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 1180,
+     "end_latency_ms_p95": 1629
+    }
+   }
+  },
+  {
+   "detector": "webrtc2",
+   "threshold": 0.5,
+   "hangover_s": 0.3,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 5,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 450,
+     "end_latency_ms_p95": 591
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 120,
+     "end_latency_ms_median": 380,
+     "end_latency_ms_p95": 421
+    },
+    "pink10": {
+     "ok": 38,
+     "clipped": 1,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 184,
+     "end_latency_ms_median": 300,
+     "end_latency_ms_p95": 400
+    },
+    "pink5": {
+     "ok": 24,
+     "clipped": 3,
+     "split": 9,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V2": [
+       [
+        0,
+        "split"
+       ],
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V3": [
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "split"
+       ],
+       [
+        1,
+        "split"
+       ],
+       [
+        2,
+        "split"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "split"
+       ],
+       [
+        2,
+        "split"
+       ],
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 40,
+     "start_lag_ms_p95": 208,
+     "end_latency_ms_median": 240,
+     "end_latency_ms_p95": 360
+    },
+    "clicks": {
+     "ok": 38,
+     "clipped": 0,
+     "split": 0,
+     "merged": 2,
+     "missed": 0,
+     "false_alarms": 20,
+     "problems": {
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 520,
+     "end_latency_ms_p95": 1026
+    }
+   }
+  },
+  {
+   "detector": "webrtc2",
+   "threshold": 0.5,
+   "hangover_s": 0.5,
+   "conditions": {
+    "clean": {
+     "ok": 36,
+     "clipped": 0,
+     "split": 0,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 3,
+     "problems": {
+      "V4": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 660,
+     "end_latency_ms_p95": 820
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 120,
+     "end_latency_ms_median": 580,
+     "end_latency_ms_p95": 621
+    },
+    "pink10": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 182,
+     "end_latency_ms_median": 510,
+     "end_latency_ms_p95": 600
+    },
+    "pink5": {
+     "ok": 31,
+     "clipped": 2,
+     "split": 3,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V2": [
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V6": [
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 40,
+     "start_lag_ms_p95": 196,
+     "end_latency_ms_median": 440,
+     "end_latency_ms_p95": 560
+    },
+    "clicks": {
+     "ok": 30,
+     "clipped": 0,
+     "split": 0,
+     "merged": 10,
+     "missed": 0,
+     "false_alarms": 10,
+     "problems": {
+      "V3": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -20,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 820,
+     "end_latency_ms_p95": 1675
+    }
+   }
+  },
+  {
+   "detector": "webrtc2",
+   "threshold": 0.5,
+   "hangover_s": 0.8,
+   "conditions": {
+    "clean": {
+     "ok": 28,
+     "clipped": 0,
+     "split": 0,
+     "merged": 12,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": -20,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 950,
+     "end_latency_ms_p95": 1281
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 120,
+     "end_latency_ms_median": 880,
+     "end_latency_ms_p95": 921
+    },
+    "pink10": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 182,
+     "end_latency_ms_median": 810,
+     "end_latency_ms_p95": 900
+    },
+    "pink5": {
+     "ok": 36,
+     "clipped": 0,
+     "split": 0,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 40,
+     "start_lag_ms_p95": 190,
+     "end_latency_ms_median": 740,
+     "end_latency_ms_p95": 860
+    },
+    "clicks": {
+     "ok": 14,
+     "clipped": 0,
+     "split": 0,
+     "merged": 26,
+     "missed": 0,
+     "false_alarms": 4,
+     "problems": {
+      "V2": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 0,
+     "end_latency_ms_median": 1390,
+     "end_latency_ms_p95": 1896
+    }
+   }
+  },
+  {
+   "detector": "webrtc3",
+   "threshold": 0.5,
+   "hangover_s": 0.3,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 10,
+     "start_lag_ms_p95": 103,
+     "end_latency_ms_median": 380,
+     "end_latency_ms_p95": 420
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 181,
+     "end_latency_ms_median": 360,
+     "end_latency_ms_p95": 401
+    },
+    "pink10": {
+     "ok": 38,
+     "clipped": 1,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 186,
+     "end_latency_ms_median": 320,
+     "end_latency_ms_p95": 400
+    },
+    "pink5": {
+     "ok": 22,
+     "clipped": 4,
+     "split": 9,
+     "merged": 4,
+     "missed": 1,
+     "false_alarms": 0,
+     "problems": {
+      "V2": [
+       [
+        0,
+        "split"
+       ],
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V3": [
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V5": [
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "split"
+       ],
+       [
+        1,
+        "split"
+       ],
+       [
+        2,
+        "split"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "split"
+       ],
+       [
+        2,
+        "split"
+       ],
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 60,
+     "start_lag_ms_p95": 255,
+     "end_latency_ms_median": 240,
+     "end_latency_ms_p95": 360
+    },
+    "clicks": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 7,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 101,
+     "end_latency_ms_median": 400,
+     "end_latency_ms_p95": 761
+    }
+   }
+  },
+  {
+   "detector": "webrtc3",
+   "threshold": 0.5,
+   "hangover_s": 0.5,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 10,
+     "start_lag_ms_p95": 103,
+     "end_latency_ms_median": 580,
+     "end_latency_ms_p95": 620
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 181,
+     "end_latency_ms_median": 560,
+     "end_latency_ms_p95": 601
+    },
+    "pink10": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 183,
+     "end_latency_ms_median": 520,
+     "end_latency_ms_p95": 600
+    },
+    "pink5": {
+     "ok": 30,
+     "clipped": 2,
+     "split": 3,
+     "merged": 4,
+     "missed": 1,
+     "false_alarms": 0,
+     "problems": {
+      "V2": [
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V6": [
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "missed"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 80,
+     "start_lag_ms_p95": 249,
+     "end_latency_ms_median": 440,
+     "end_latency_ms_p95": 560
+    },
+    "clicks": {
+     "ok": 36,
+     "clipped": 1,
+     "split": 1,
+     "merged": 2,
+     "missed": 0,
+     "false_alarms": 6,
+     "problems": {
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        2,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 104,
+     "end_latency_ms_median": 600,
+     "end_latency_ms_p95": 1104
+    }
+   }
+  },
+  {
+   "detector": "webrtc3",
+   "threshold": 0.5,
+   "hangover_s": 0.8,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 10,
+     "start_lag_ms_p95": 103,
+     "end_latency_ms_median": 880,
+     "end_latency_ms_p95": 920
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 181,
+     "end_latency_ms_median": 860,
+     "end_latency_ms_p95": 901
+    },
+    "pink10": {
+     "ok": 39,
+     "clipped": 0,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 1,
+     "problems": {
+      "V9": [
+       [
+        0,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 186,
+     "end_latency_ms_median": 820,
+     "end_latency_ms_p95": 900
+    },
+    "pink5": {
+     "ok": 35,
+     "clipped": 0,
+     "split": 0,
+     "merged": 4,
+     "missed": 1,
+     "false_alarms": 0,
+     "problems": {
+      "V7": [
+       [
+        0,
+        "missed"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 80,
+     "start_lag_ms_p95": 246,
+     "end_latency_ms_median": 740,
+     "end_latency_ms_p95": 860
+    },
+    "clicks": {
+     "ok": 25,
+     "clipped": 0,
+     "split": 0,
+     "merged": 15,
+     "missed": 0,
+     "false_alarms": 2,
+     "problems": {
+      "V3": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 88,
+     "end_latency_ms_median": 880,
+     "end_latency_ms_p95": 1552
+    }
+   }
+  },
+  {
+   "detector": "energy",
+   "threshold": 9.0,
+   "hangover_s": 0.3,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 0,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 62,
+     "end_latency_ms_median": 300,
+     "end_latency_ms_p95": 300
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 101,
+     "end_latency_ms_median": 300,
+     "end_latency_ms_p95": 320
+    },
+    "pink10": {
+     "ok": 34,
+     "clipped": 2,
+     "split": 3,
+     "merged": 0,
+     "missed": 1,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "split"
+       ]
+      ],
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 40,
+     "start_lag_ms_p95": 245,
+     "end_latency_ms_median": 240,
+     "end_latency_ms_p95": 390
+    },
+    "pink5": {
+     "ok": 25,
+     "clipped": 6,
+     "split": 6,
+     "merged": 0,
+     "missed": 3,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "split"
+       ],
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V5": [
+       [
+        1,
+        "split"
+       ],
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V6": [
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V7": [
+       [
+        1,
+        "split"
+       ],
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        2,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 100,
+     "start_lag_ms_p95": 550,
+     "end_latency_ms_median": 160,
+     "end_latency_ms_p95": 300
+    },
+    "clicks": {
+     "ok": 39,
+     "clipped": 0,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 62,
+     "end_latency_ms_median": 300,
+     "end_latency_ms_p95": 736
+    }
+   }
+  },
+  {
+   "detector": "energy",
+   "threshold": 9.0,
+   "hangover_s": 0.5,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 61,
+     "end_latency_ms_median": 500,
+     "end_latency_ms_p95": 500
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 101,
+     "end_latency_ms_median": 500,
+     "end_latency_ms_p95": 524
+    },
+    "pink10": {
+     "ok": 36,
+     "clipped": 1,
+     "split": 0,
+     "merged": 2,
+     "missed": 1,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V4": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        3,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 40,
+     "start_lag_ms_p95": 244,
+     "end_latency_ms_median": 440,
+     "end_latency_ms_p95": 904
+    },
+    "pink5": {
+     "ok": 31,
+     "clipped": 5,
+     "split": 1,
+     "merged": 0,
+     "missed": 3,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V5": [
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V6": [
+       [
+        1,
+        "clipped"
+       ]
+      ],
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "clipped"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        2,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 100,
+     "start_lag_ms_p95": 545,
+     "end_latency_ms_median": 360,
+     "end_latency_ms_p95": 615
+    },
+    "clicks": {
+     "ok": 36,
+     "clipped": 0,
+     "split": 0,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V3": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 65,
+     "end_latency_ms_median": 500,
+     "end_latency_ms_p95": 1095
+    }
+   }
+  },
+  {
+   "detector": "energy",
+   "threshold": 9.0,
+   "hangover_s": 0.8,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 61,
+     "end_latency_ms_median": 800,
+     "end_latency_ms_p95": 800
+    },
+    "pink20": {
+     "ok": 38,
+     "clipped": 0,
+     "split": 0,
+     "merged": 2,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 103,
+     "end_latency_ms_median": 800,
+     "end_latency_ms_p95": 832
+    },
+    "pink10": {
+     "ok": 34,
+     "clipped": 1,
+     "split": 0,
+     "merged": 4,
+     "missed": 1,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V4": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V7": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        3,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 40,
+     "start_lag_ms_p95": 246,
+     "end_latency_ms_median": 740,
+     "end_latency_ms_p95": 1308
+    },
+    "pink5": {
+     "ok": 29,
+     "clipped": 4,
+     "split": 0,
+     "merged": 4,
+     "missed": 3,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        2,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 80,
+     "start_lag_ms_p95": 548,
+     "end_latency_ms_median": 660,
+     "end_latency_ms_p95": 984
+    },
+    "clicks": {
+     "ok": 20,
+     "clipped": 0,
+     "split": 0,
+     "merged": 20,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V2": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V3": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 80,
+     "end_latency_ms_median": 940,
+     "end_latency_ms_p95": 1845
+    }
+   }
+  },
+  {
+   "detector": "energy",
+   "threshold": 12.0,
+   "hangover_s": 0.3,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 0,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 84,
+     "end_latency_ms_median": 280,
+     "end_latency_ms_p95": 300
+    },
+    "pink20": {
+     "ok": 37,
+     "clipped": 1,
+     "split": 2,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V2": [
+       [
+        0,
+        "split"
+       ]
+      ],
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 146,
+     "end_latency_ms_median": 260,
+     "end_latency_ms_p95": 300
+    },
+    "pink10": {
+     "ok": 28,
+     "clipped": 4,
+     "split": 5,
+     "merged": 0,
+     "missed": 3,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "split"
+       ]
+      ],
+      "V5": [
+       [
+        1,
+        "split"
+       ],
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V7": [
+       [
+        1,
+        "split"
+       ],
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        2,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 100,
+     "start_lag_ms_p95": 527,
+     "end_latency_ms_median": 180,
+     "end_latency_ms_p95": 269
+    },
+    "pink5": {
+     "ok": 6,
+     "clipped": 13,
+     "split": 2,
+     "merged": 0,
+     "missed": 19,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V3": [
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V7": [
+       [
+        1,
+        "clipped"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "split"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "split"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 120,
+     "start_lag_ms_p95": 520,
+     "end_latency_ms_median": -560,
+     "end_latency_ms_p95": 190
+    },
+    "clicks": {
+     "ok": 39,
+     "clipped": 0,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "split"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 84,
+     "end_latency_ms_median": 300,
+     "end_latency_ms_p95": 736
+    }
+   }
+  },
+  {
+   "detector": "energy",
+   "threshold": 12.0,
+   "hangover_s": 0.5,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 82,
+     "end_latency_ms_median": 480,
+     "end_latency_ms_p95": 500
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 142,
+     "end_latency_ms_median": 460,
+     "end_latency_ms_p95": 500
+    },
+    "pink10": {
+     "ok": 32,
+     "clipped": 4,
+     "split": 1,
+     "merged": 0,
+     "missed": 3,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V5": [
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        2,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 100,
+     "start_lag_ms_p95": 515,
+     "end_latency_ms_median": 380,
+     "end_latency_ms_p95": 465
+    },
+    "pink5": {
+     "ok": 11,
+     "clipped": 9,
+     "split": 1,
+     "merged": 0,
+     "missed": 19,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V3": [
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "missed"
+       ]
+      ],
+      "V7": [
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 120,
+     "start_lag_ms_p95": 490,
+     "end_latency_ms_median": 230,
+     "end_latency_ms_p95": 385
+    },
+    "clicks": {
+     "ok": 36,
+     "clipped": 0,
+     "split": 0,
+     "merged": 4,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V3": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 90,
+     "end_latency_ms_median": 500,
+     "end_latency_ms_p95": 1065
+    }
+   }
+  },
+  {
+   "detector": "energy",
+   "threshold": 12.0,
+   "hangover_s": 0.8,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 82,
+     "end_latency_ms_median": 780,
+     "end_latency_ms_p95": 800
+    },
+    "pink20": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 142,
+     "end_latency_ms_median": 760,
+     "end_latency_ms_p95": 800
+    },
+    "pink10": {
+     "ok": 33,
+     "clipped": 4,
+     "split": 0,
+     "merged": 0,
+     "missed": 3,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V5": [
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        2,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 100,
+     "start_lag_ms_p95": 512,
+     "end_latency_ms_median": 680,
+     "end_latency_ms_p95": 764
+    },
+    "pink5": {
+     "ok": 13,
+     "clipped": 8,
+     "split": 0,
+     "merged": 0,
+     "missed": 19,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V3": [
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "missed"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "clipped"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 120,
+     "start_lag_ms_p95": 460,
+     "end_latency_ms_median": 540,
+     "end_latency_ms_p95": 680
+    },
+    "clicks": {
+     "ok": 21,
+     "clipped": 0,
+     "split": 0,
+     "merged": 19,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V2": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V3": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "merged"
+       ],
+       [
+        1,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 0,
+     "start_lag_ms_p95": 80,
+     "end_latency_ms_median": 800,
+     "end_latency_ms_p95": 1540
+    }
+   }
+  },
+  {
+   "detector": "energy",
+   "threshold": 15.0,
+   "hangover_s": 0.3,
+   "conditions": {
+    "clean": {
+     "ok": 38,
+     "clipped": 1,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V2": [
+       [
+        0,
+        "split"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 182,
+     "end_latency_ms_median": 280,
+     "end_latency_ms_p95": 300
+    },
+    "pink20": {
+     "ok": 36,
+     "clipped": 2,
+     "split": 2,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V2": [
+       [
+        0,
+        "split"
+       ]
+      ],
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V9": [
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 60,
+     "start_lag_ms_p95": 243,
+     "end_latency_ms_median": 240,
+     "end_latency_ms_p95": 300
+    },
+    "pink10": {
+     "ok": 12,
+     "clipped": 17,
+     "split": 6,
+     "merged": 0,
+     "missed": 5,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        2,
+        "split"
+       ]
+      ],
+      "V3": [
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V5": [
+       [
+        1,
+        "split"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "split"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V7": [
+       [
+        1,
+        "split"
+       ],
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ],
+       [
+        2,
+        "split"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 120,
+     "start_lag_ms_p95": 684,
+     "end_latency_ms_median": 80,
+     "end_latency_ms_p95": 232
+    },
+    "pink5": {
+     "ok": 0,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 40,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V3": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ]
+     },
+     "start_lag_ms_median": null,
+     "start_lag_ms_p95": null,
+     "end_latency_ms_median": null,
+     "end_latency_ms_p95": null
+    },
+    "clicks": {
+     "ok": 38,
+     "clipped": 1,
+     "split": 1,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V2": [
+       [
+        0,
+        "split"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 182,
+     "end_latency_ms_median": 280,
+     "end_latency_ms_p95": 462
+    }
+   }
+  },
+  {
+   "detector": "energy",
+   "threshold": 15.0,
+   "hangover_s": 0.5,
+   "conditions": {
+    "clean": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 181,
+     "end_latency_ms_median": 480,
+     "end_latency_ms_p95": 500
+    },
+    "pink20": {
+     "ok": 38,
+     "clipped": 2,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V9": [
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 50,
+     "start_lag_ms_p95": 241,
+     "end_latency_ms_median": 440,
+     "end_latency_ms_p95": 500
+    },
+    "pink10": {
+     "ok": 22,
+     "clipped": 12,
+     "split": 1,
+     "merged": 0,
+     "missed": 5,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V3": [
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ]
+      ],
+      "V5": [
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ]
+      ],
+      "V7": [
+       [
+        3,
+        "split"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "clipped"
+       ],
+       [
+        1,
+        "clipped"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 120,
+     "start_lag_ms_p95": 649,
+     "end_latency_ms_median": 310,
+     "end_latency_ms_p95": 427
+    },
+    "pink5": {
+     "ok": 0,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 40,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V3": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ]
+     },
+     "start_lag_ms_median": null,
+     "start_lag_ms_p95": null,
+     "end_latency_ms_median": null,
+     "end_latency_ms_p95": null
+    },
+    "clicks": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V10": [
+       [
+        0,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 181,
+     "end_latency_ms_median": 480,
+     "end_latency_ms_p95": 901
+    }
+   }
+  },
+  {
+   "detector": "energy",
+   "threshold": 15.0,
+   "hangover_s": 0.8,
+   "conditions": {
+    "clean": {
+     "ok": 40,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {},
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 181,
+     "end_latency_ms_median": 780,
+     "end_latency_ms_p95": 800
+    },
+    "pink20": {
+     "ok": 39,
+     "clipped": 1,
+     "split": 0,
+     "merged": 0,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V9": [
+       [
+        3,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 50,
+     "start_lag_ms_p95": 241,
+     "end_latency_ms_median": 740,
+     "end_latency_ms_p95": 800
+    },
+    "pink10": {
+     "ok": 28,
+     "clipped": 7,
+     "split": 0,
+     "merged": 0,
+     "missed": 5,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V3": [
+       [
+        3,
+        "clipped"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "clipped"
+       ]
+      ],
+      "V5": [
+       [
+        2,
+        "clipped"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "clipped"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        2,
+        "clipped"
+       ],
+       [
+        3,
+        "clipped"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 120,
+     "start_lag_ms_p95": 642,
+     "end_latency_ms_median": 620,
+     "end_latency_ms_p95": 726
+    },
+    "pink5": {
+     "ok": 0,
+     "clipped": 0,
+     "split": 0,
+     "merged": 0,
+     "missed": 40,
+     "false_alarms": 0,
+     "problems": {
+      "V1": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V2": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V3": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V4": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V5": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V6": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V7": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V8": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V9": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ],
+      "V10": [
+       [
+        0,
+        "missed"
+       ],
+       [
+        1,
+        "missed"
+       ],
+       [
+        2,
+        "missed"
+       ],
+       [
+        3,
+        "missed"
+       ]
+      ]
+     },
+     "start_lag_ms_median": null,
+     "start_lag_ms_p95": null,
+     "end_latency_ms_median": null,
+     "end_latency_ms_p95": null
+    },
+    "clicks": {
+     "ok": 29,
+     "clipped": 0,
+     "split": 0,
+     "merged": 11,
+     "missed": 0,
+     "false_alarms": 0,
+     "problems": {
+      "V3": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V4": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ]
+      ],
+      "V5": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V8": [
+       [
+        1,
+        "merged"
+       ],
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ],
+      "V9": [
+       [
+        2,
+        "merged"
+       ],
+       [
+        3,
+        "merged"
+       ]
+      ]
+     },
+     "start_lag_ms_median": 20,
+     "start_lag_ms_p95": 156,
+     "end_latency_ms_median": 780,
+     "end_latency_ms_p95": 1508
+    }
+   }
+  }
+ ]
+}
