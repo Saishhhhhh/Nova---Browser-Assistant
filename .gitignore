@@ -15,3 +15,7 @@ Thumbs.db
 .env
 *.log
 .playwright-mcp/
+
+# Voice recordings (personal audio, not for the public repo; remove this line to share them)
+03_Speech_To_Text/recordings/
+03_Speech_To_Text/data/

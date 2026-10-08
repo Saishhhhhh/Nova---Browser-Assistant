@@ -3,7 +3,7 @@
 ## Part 1: Architecture Plan
 
 ### Design principle
-Every component sits on a **local-first, fast path with an API escalation path**. The system should default to the cheapest/fastest thing that works, and only reach for a heavier model when the fast path signals low confidence or the task genuinely needs deeper reasoning (multi-step planning, ambiguous references, vision).
+Every component sits on a **local-first, fast path with an API escalation path**. The system should default to the cheapest/fastest thing that works, and only reach for a heavier model when the fast path signals low confidence or the task genuinely needs deeper reasoning (multi-step planning, ambiguous references).
 
 ### High-level pipeline
 
@@ -26,8 +26,7 @@ Mic input
                 │
                 ▼
         [Page Perception Layer]
-          ├─ DOM/accessibility-tree extraction (default, fast)
-          └─ Vision fallback (screenshot + VLM, only when DOM is insufficient)
+          └─ DOM/accessibility-tree extraction (DOM-only: no vision fallback)
                 │
                 ▼
         [Action Execution] ── browser automation layer (click/type/navigate/scroll)
@@ -57,10 +56,10 @@ A thin classification step (rule-based + a tiny local model) that decides fast-p
 A small local LLM operating purely on a pruned DOM/accessibility-tree text representation. Handles deterministic, single-step commands. This is the default path for speed.
 
 **API Reasoning Model**
-A larger hosted model, invoked only when: the local model has low confidence, the command is multi-step ("find the cheapest X and add it to cart"), or the command is ambiguous ("click the blue one" with multiple blue elements) and needs vision or deeper context.
+A larger hosted model, invoked only when: the local model has low confidence, the command is multi-step ("find the cheapest X and add it to cart"), or the command is ambiguous ("click the blue one" with multiple blue elements) and needs deeper context.
 
 **Page Perception Layer**
-DOM/accessibility-tree extraction is the default and should cover the large majority of actions. Vision (screenshot + VLM) is a fallback only — for canvas apps, custom widgets, or genuinely ambiguous visual references the DOM can't resolve. Keeping vision as the exception, not the default, is what keeps the loop fast and cheap.
+DOM/accessibility-tree extraction is the only perception path. There is deliberately **no vision fallback** (screenshot + VLM): pages the DOM can't describe, such as canvas apps or purely visual references ("the blue one" with no text to go on), are out of scope. Staying DOM-only keeps the loop fast and cheap, and the router refuses commands it can't ground in the page instead of guessing.
 
 **Action Execution**
 The actual browser driver layer — translates a structured action (click selector X, type text into Y, navigate to Z) into real browser events, headed (user-visible).
@@ -72,14 +71,14 @@ After each action, a lightweight check that the page state changed as expected (
 Short, natural confirmations/questions, generated from a template or the reasoning model's own output — kept short so TTS latency stays low. TTS must support interruption (barge-in) so the user can talk over it.
 
 ### Speed levers (why this shape is fast)
-- DOM-first perception avoids screenshot capture + vision inference on almost every step.
+- DOM-only perception avoids screenshot capture and vision inference entirely.
 - The router keeps most commands on the local model, reserving the API call for the minority of steps that actually need it.
 - Streaming STT + partial transcripts let downstream stages start early instead of waiting for a full utterance.
 - Verification is lightweight (diff-based), not another full LLM call, unless the diff itself is ambiguous.
 
 ### What "final selection" needs to satisfy, end to end
 - Simple single-action commands: under ~3s from end-of-speech to start-of-TTS-response.
-- Commands needing vision or API escalation: under ~5s.
+- Commands needing the API model step: under ~5s. Commands that fall through to the full browser agent take much longer (minutes on heavy sites in Exp 1), so they get an immediate spoken acknowledgement and spoken progress instead of a latency target.
 - No silent failures — every path ends in either a completed action, a clarifying question, or a spoken error.
 - Local-only operation should be functional for the common-case commands even if the API is unreachable; the API is a quality upgrade, not a hard dependency.
 
@@ -95,14 +94,15 @@ Philosophy: **experiment → evidence → decision → build.** Each experiment 
 |---|---|---|---|
 | 1 | Browser automation tool | none — foundational, gates everything downstream | **Done** — browser-use ([details](01_Browser%20Automation/README.md)) |
 | 2 | Reasoning LLM + command routing | needs Exp 1's DOM/action format | **Done** — rules → DeepInfra Gemma → browser-use agent ([details](02_Reasoning_and_Routing/README.md)) |
-| 3 | Vision / screenshot understanding | needs Exp 1's real pages/screenshots | Not started |
-| 4 | STT | none (independent, can run in parallel with 1-3) | Not started |
-| 5 | VAD | none (independent, can run in parallel with 1-3) | Not started |
-| 6 | TTS | none (independent, can run in parallel with 1-3) | Not started |
-| 7 | Turn-taking / conversation flow | needs winners from 4-6 | Not started |
-| 8 | End-to-end latency budget | needs winners from all above | Not started — scope note added after Exp 1 |
+| 3 | STT | none (independent of the browser work) | Done |
+| 4 | VAD | none (independent of the browser work) | Not started |
+| 5 | TTS | none (independent of the browser work) | Not started |
+| 6 | Turn-taking / conversation flow | needs winners from 3-5 | Not started |
+| 7 | End-to-end latency budget | needs winners from all above | Not started — scope notes added after Exp 1 and 2 |
 
-Rationale: browser automation is the highest-uncertainty, foundational piece — the reasoning-LLM experiment needs a working DOM/action format to test against, and vision can't run without real screenshots, so both are hard-blocked on it. The voice stack (STT/VAD/TTS/turn-taking) is independent of the browser stack and can be run in parallel if you want to keep pace, but front-loading the browser chain de-risks the novel/hard part of the project first and gives you a working "agent acting on a real page" checkpoint before touching a microphone. Everything converges in the final integration/latency test.
+*Dropped: vision / screenshot understanding. The project has no vision fallback (see "Page Perception Layer" above), so there is no experiment for it.*
+
+Rationale: browser automation was the highest-uncertainty, foundational piece, and the reasoning/routing experiment needed a working DOM/action format to test against, so those two went first and gave a working "agent acting on a real page" checkpoint before touching a microphone. The voice stack (STT/VAD/TTS/turn-taking) is independent of the browser stack. Everything converges in the final integration/latency test.
 
 ---
 
@@ -118,39 +118,33 @@ Rationale: browser automation is the highest-uncertainty, foundational piece —
 **Result:** models of about 30B and up got 10-11 of 13 right with 1 wrong click and refused all 4 vague commands. Everything at 8B or below, local or cloud, guessed on vague commands (1 to 4 wrong clicks) and was right 3-9 times of 13, so **no small local model is usable for this step**. Rules alone take ~1.4-2.8s per command with no model; the model step adds 0.4s (Cerebras) to 1.4s (Gemma).
 **Decision:** model step = **DeepInfra `gemma-4-31B-it-turbo`** (most accurate, never rate-limited) with a 10s time limit; Cerebras `gpt-oss-120b` is ~3x faster but rate-limited 7 of 17 back-to-back calls, so it is an optional switch, not the default. The agent keeps Cerebras `gpt-oss-120b`. Full write-up, tables and caveats: [02_Reasoning_and_Routing/README.md](02_Reasoning_and_Routing/README.md).
 
-### Exp 3 — Vision / screenshot understanding
-**Approaches:** pure DOM (baseline), screenshot+VLM, Set-of-Mark prompting, hybrid DOM+screenshot.
-**Models:** Gemini and Claude (via DeepInfra), Qwen3-VL (DeepInfra), Moondream (local). Cerebras has no vision models.
-**Test:** 10 real page screenshots (reuse from Exp 1), 5 questions each covering element location, page context, and referential commands ("click the blue one"); score accuracy, latency, cost per call.
-**Winner needs:** highest accuracy specifically on cases DOM extraction can't resolve — vision should only be justified where it clearly beats the DOM-only baseline.
+### Exp 3 — STT — ✅ Done
+**Tested:** cloud engines only (Groq Whisper, Deepgram, AssemblyAI, ElevenLabs Scribe, Sarvam), on my own 40 recorded commands (plus a silence file and 4 Hinglish lines), batch and streaming, with and without vocabulary hints, including each provider's newer model versions.
+**Result:** ElevenLabs `scribe_v2` and AssemblyAI were the most accurate (0.6% WER, 97% of commands understood); Sarvam `saaras:v4` was ~5x faster (143 ms vs 792 ms) at 1.7% WER; Deepgram `nova-3` was 2.3%. Streaming was not more accurate for any engine (Deepgram Flux 5.2%, ElevenLabs Realtime 4.6%, AssemblyAI streaming dropped 6 of 40 clips). Vocabulary hints changed nothing. Whisper `large-v3` invented "Thank you." on silence.
+**Decision:** **batch transcription of a clip cut by the VAD**: ElevenLabs `scribe_v2` primary, Sarvam `saaras:v4` as the fast / Hinglish option, Groq turbo as a free fallback. Streaming is left for Experiment 6 (interruption). Caveats: one speaker, 40 commands; Sarvam streaming untested. Full write-up: [03_Speech_To_Text/README.md](03_Speech_To_Text/README.md).
 
-### Exp 4 — STT
-**Candidates:** Faster-Whisper, whisper.cpp, Distil-Whisper (local); Whisper API, Deepgram, Google STT, AssemblyAI, Azure (cloud).
-**Test:** word-error-rate on ~20 short imperative voice commands (include accent variation), latency from end-of-speech to final transcript, streaming/partial-result support, local resource usage.
-**Winner needs:** low WER on command-style speech, sub-second latency, streaming support (needed for turn-taking).
-
-### Exp 5 — VAD
+### Exp 4 — VAD
 **Candidates:** Silero VAD, WebRTC VAD, custom energy/zero-crossing detector, Picovoice Cobra, STT-builtin endpointing.
 **Test:** detection latency for speech start/end against manually marked ground truth; false-positive rate under background noise; behavior during barge-in (speaking while TTS plays).
 **Winner needs:** detection latency under ~100-150ms, low false positives, reliable barge-in detection.
 
-### Exp 6 — TTS
+### Exp 5 — TTS
 **Candidates:** Kokoro, Piper (local); edge-tts, ElevenLabs, Google TTS, Azure TTS, OpenAI TTS (cloud).
 **Test:** time-to-first-audio, blind naturalness scoring (1-10) on ~10 response sentences, streaming support, cleanness of mid-sentence interruption.
 **Winner needs:** time-to-first-audio under ~300-500ms, naturalness ≥7/10, clean interruption for barge-in.
 
-### Exp 7 — Turn-taking & conversation flow
-Uses the Exp 4-6 winners in a bare voice loop (no browser). Tune endpointing delay (test ~300/500/800ms) for the best balance of "doesn't cut off" vs "doesn't feel laggy." Test barge-in behavior and decide on feedback cues (listening chime, processing indicator) and idle timeout.
+### Exp 6 — Turn-taking & conversation flow
+Uses the Exp 3-5 winners in a bare voice loop (no browser). Tune endpointing delay (test ~300/500/800ms) for the best balance of "doesn't cut off" vs "doesn't feel laggy." Test barge-in behavior and decide on feedback cues (listening chime, processing indicator) and idle timeout.
 **Winner needs:** an endpointing value with no mid-sentence cutoffs, working barge-in, a conversational feel you're satisfied with.
 
-### Exp 8 — End-to-end latency budget
-Wire together the winners from Exp 1-7 (browser tool → reasoning routing → vision fallback → STT → VAD → TTS → turn-taking) into the full loop and instrument every stage (VAD detection → STT → routing → reasoning → perception → action → verification → TTS). Run ~10 full commands (mix of simple and multi-step) and produce a latency waterfall. Identify the bottleneck stage and propose one concrete fix (parallelizing STT with DOM pre-fetch, caching the DOM tree between steps, streaming TTS on partial output, etc.).
-**Target:** under 3s end-of-speech → start-of-response for simple commands; under 5s for vision-requiring commands.
+### Exp 7 — End-to-end latency budget
+Wire together the winners from Exp 1-6 (browser tool → reasoning routing → STT → VAD → TTS → turn-taking) into the full loop and instrument every stage (VAD detection → STT → routing → reasoning → perception → action → verification → TTS). Run ~10 full commands (mix of simple and multi-step) and produce a latency waterfall. Identify the bottleneck stage and propose one concrete fix (parallelizing STT with DOM pre-fetch, caching the DOM tree between steps, streaming TTS on partial output, etc.).
+**Target:** under 3s end-of-speech → start-of-response for simple commands; under 5s for commands that need the API model step. Commands that fall through to the full browser agent are acknowledged immediately and given spoken progress instead.
 **Note from Exp 1 and 2:** the levers are the number of model calls per command and the fixed prompt each carries, not page size. Keep simple commands off the agent loop (the rules and one short model call take 1.4-3s; the agent took minutes on heavy sites in Exp 1), keep `flash_mode` on, and keep page extraction on a separate provider. Also budget for: a page-settle wait of up to 4s on pages that keep changing, the 10s model time limit, and Cerebras per-minute rate limits on back-to-back commands. Speak a short "on it" immediately so the user doesn't sit in silence while any of this runs.
 
 ---
 
 ## Synthesis — after all experiments
-1. Fill in one "final stack" table: Browser tool / STT / VAD / TTS / Local reasoning model / API reasoning model / Vision model / routing rule / endpointing value. Decided so far: **Browser tool = browser-use** with Cerebras `gpt-oss-120b` for the agent (Exp 1); **routing = rules → DeepInfra `gemma-4-31B-it-turbo` (10s limit) → agent** (Exp 2); **local reasoning model = none** (nothing at 8B or below was safe enough in Exp 2).
-2. Validate the *combination* in Exp 8, not just each piece in isolation — a component that wins its own experiment but breaks the end-to-end budget should be swapped, not tolerated.
+1. Fill in one "final stack" table: Browser tool / STT / VAD / TTS / Local reasoning model / API reasoning model / routing rule / endpointing value. Decided so far: **Browser tool = browser-use** with Cerebras `gpt-oss-120b` for the agent (Exp 1); **routing = rules → DeepInfra `gemma-4-31B-it-turbo` (10s limit) → agent** (Exp 2); **local reasoning model = none** (nothing at 8B or below was safe enough in Exp 2); **STT = batch ElevenLabs `scribe_v2`, Sarvam `saaras:v4` as the fast / Hinglish option** (Exp 3).
+2. Validate the *combination* in Exp 7, not just each piece in isolation — a component that wins its own experiment but breaks the end-to-end budget should be swapped, not tolerated.
 3. Only then move to the integration build.
