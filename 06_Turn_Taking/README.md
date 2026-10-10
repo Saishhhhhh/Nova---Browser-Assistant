@@ -68,7 +68,9 @@ Two live interruptions (both long replies, headphones):
 | Reply played before interruption | Speech needed | Playback silenced (software) | Sound card buffer |
 |---|---|---|---|
 | 5.0 s | 256 ms | 2.6 ms | about 100 ms |
-| 10.7 s | 256 ms | 12.4 ms | about 100 ms |
+| about 4 s (see note) | 256 ms | 12.4 ms | about 100 ms |
+
+**Correction:** the session log printed "10.7 s" for the second interruption, but that number was the audio played over the whole session, not that reply (the first reply had played 5.0 s and a short reply about 1.5 s before it, which leaves roughly 4 s). The code now counts per reply. The speech needed (256 ms) and the stop time (3 to 12 ms) were measured per event and are not affected.
 
 From the moment you start speaking to the moment the sound actually stops is therefore about **0.25 s (detection) + 0.01 s + 0.1 s = 0.37 s**. The 0.25 s is a setting: 0.15 s is faster but gives cough and click sounds more chances to interrupt; 0.4 s is safer and slower.
 

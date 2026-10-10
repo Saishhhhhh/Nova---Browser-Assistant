@@ -1,0 +1,9 @@
+# Same agent questions as commands_mixed.txt, to compare before and after the two fixes.
+go to books.toscrape.com
+click travel
+tell me the title of the first book on this page
+click mystery
+open the first book
+tell me its price
+go to quotes.toscrape.com
+find a quote by Albert Einstein and tell me what it says

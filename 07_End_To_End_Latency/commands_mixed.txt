@@ -1,0 +1,11 @@
+# A mix for the end-to-end waterfall: rules, the one-model-call step, and the full browser agent.
+go to books.toscrape.com
+click travel
+scroll down
+tell me the title of the first book on this page
+go back
+click mystery
+open the first book
+tell me its price
+go to quotes.toscrape.com
+find a quote by Albert Einstein and tell me what it says

@@ -1,0 +1,5 @@
+# Rules only: no model call, no agent. Just the browser, the router and the voice.
+go to books.toscrape.com
+click travel
+scroll down
+go back

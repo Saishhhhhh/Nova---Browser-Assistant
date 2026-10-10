@@ -1,0 +1,9 @@
+# Small talk and fragments: none of these should reach the model step or the agent.
+go to books.toscrape.com
+cool
+thanks
+okay
+hmm
+mystery
+click mystery
+nice

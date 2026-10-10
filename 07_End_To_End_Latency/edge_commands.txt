@@ -1,0 +1,9 @@
+# The cases from the first live run: a filler word, a bare verb then its object, a bare verb then a question.
+go to books.toscrape.com
+click travel
+um go back
+please scroll down
+click
+mystery
+open
+tell me the title of the first book on this page

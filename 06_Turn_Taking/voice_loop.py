@@ -157,6 +157,7 @@ class Loop:
             except Exception:
                 pass
         self.turn_no = 0
+        self.reply_base = 0               # player.played_bytes when the current reply began
         self.ping_lock = threading.Lock()   # held while a keep-alive ping is in flight
         try:   # the first speech request of a session is slower (~0.5 s); make a throwaway one now, audio discarded
             with self.http.stream("POST", f"https://api.deepgram.com/v1/speak?model={VOICE}&encoding=linear16&sample_rate={TTS_RATE}"
@@ -180,12 +181,19 @@ class Loop:
         """Deepgram closes idle connections after a few seconds; one tiny request every 2 s keeps ours open."""
         while True:
             time.sleep(2.0)
-            if not self.speaking and not self.busy:
+            if not self.speaking:     # also while a command is being worked on: a long agent run outlasts the idle limit
                 with self.ping_lock:
                     try:
                         self.http.head("https://api.deepgram.com/", headers={"Authorization": f"Token {os.getenv('DEEPGRAM_API_KEY')}"})
                     except Exception:
                         pass
+
+    def submit(self, job: dict) -> None:
+        self.jobs.put(job)
+
+    def barge_applies(self) -> bool:
+        """Does speech right now count as an interruption? Here: yes while a reply is prepared or spoken."""
+        return self.busy or self.player.pending_s() > 0
 
     def warm(self) -> None:
         """Open a fresh connection to Deepgram in the background. It drops idle connections after ~3-6 s and
@@ -203,7 +211,7 @@ class Loop:
 
     def interrupt(self, why: str, heard_ms: float) -> None:
         was_speaking = self.speaking or self.player.pending_s() > 0
-        played = self.player.played_bytes / (TTS_RATE * 2)
+        played = (self.player.played_bytes - self.reply_base) / (TTS_RATE * 2)   # this reply only, not the session
         self.epoch += 1
         self.player.stop()
         if was_speaking:
@@ -251,12 +259,24 @@ class Loop:
         self.turn_no += 1
         return self.turn_no
 
-    def _speak(self, reply: str, epoch: int, meta: dict) -> None:
+    def _speak(self, reply: str, epoch: int, meta: dict, on_first_audio=None) -> None:
+        """Speak `reply`. If the pooled connection turned out to be dead (the server closed it), try once more."""
+        for attempt in (1, 2):
+            self._fed = False
+            try:
+                return self._speak_once(reply, epoch, meta, on_first_audio)
+            except (httpx.RemoteProtocolError, httpx.ReadError, httpx.ConnectError, httpx.WriteError):
+                if attempt == 2 or self._fed:
+                    raise
+                time.sleep(0.05)
+
+    def _speak_once(self, reply: str, epoch: int, meta: dict, on_first_audio=None) -> None:
         with self.ping_lock:     # a ping in flight owns the open connection; wait for it (~0.1 s) instead of reconnecting
             pass
         t0 = time.perf_counter()
         first_ms, sent = None, 0
         self.speaking = True
+        self.reply_base = self.player.played_bytes + int(self.player.pending_s() * TTS_RATE * 2)
         with self.http.stream("POST", f"https://api.deepgram.com/v1/speak?model={VOICE}&encoding=linear16&sample_rate={TTS_RATE}"
                                       f"&container=none", headers={"Authorization": f"Token {os.getenv('DEEPGRAM_API_KEY')}"},
                               json={"text": reply}) as r:
@@ -268,20 +288,28 @@ class Loop:
                         meta["interrupted"] = True
                     return
                 self.player.feed(chunk)
+                self._fed = True
                 sent += len(chunk)
                 if first_ms is None and sent >= 4800:
-                    first_ms = (time.perf_counter() - t0) * 1000
+                    now = time.perf_counter()
+                    first_ms = (now - t0) * 1000
+                    if on_first_audio:
+                        on_first_audio(now, first_ms)
                     if meta:
                         meta["tts_first_audio_ms"] = round(first_ms)
-                        felt = meta["silence_wait_ms"] + meta["stt_ms"] + first_ms
+                        route_ms = meta.get("route_ms", 0)
+                        felt = (now - meta["t_speech_end"]) * 1000 if "t_speech_end" in meta \
+                            else meta["silence_wait_ms"] + meta["stt_ms"] + route_ms + first_ms
                         meta["felt_ms"] = round(felt)
                         self.turns.append(meta)
+                        route = f" + {route_ms / 1000:.2f} s browser step [{meta.get('tier', '')}]" if route_ms else ""
                         self.say(f"[turn {meta['turn']}] you said ({meta['speech_s']} s): \"{meta['text']}\"\n"
                                  f"          waited {meta['silence_wait_ms'] / 1000:.2f} s silence + {meta['stt_ms'] / 1000:.2f} s transcript"
-                                 f" + {first_ms / 1000:.2f} s voice  =  {felt / 1000:.2f} s until it started speaking\n"
+                                 f"{route} + {first_ms / 1000:.2f} s voice  =  {felt / 1000:.2f} s until it started speaking\n"
                                  f"          reply: \"{reply if len(reply) < 90 else reply[:87] + '...'}\"")
         while self.player.pending_s() > 0 and epoch == self.epoch:
             time.sleep(0.02)
+        self.speaking = False
         if meta and epoch != self.epoch:
             meta["interrupted"] = True
 
@@ -314,7 +342,7 @@ class Loop:
                 run_s = run_s + det.frame_s if speech else 0.0
                 if speech:
                     self.last_activity = time.perf_counter()
-                if speech and not barged and run_s >= min_speech and (self.busy or self.player.pending_s() > 0):
+                if speech and not barged and run_s >= min_speech and self.barge_applies():
                     barged = True
                     self.interrupt("you spoke over it" if self.speaking else "you spoke again", run_s * 1000)
                 ev = ep.push(t_audio, score)
@@ -337,8 +365,9 @@ class Loop:
                     tick = (np.sin(2 * np.pi * 1000 * k / TTS_RATE) * np.hanning(len(k)) * 5000).astype(np.int16)
                     self.player.feed(tick.tobytes())
                 self.busy = True
-                self.jobs.put({"kind": "turn", "clip": clip, "epoch": self.epoch, "speech_s": dur,
-                               "wait_ms": (trigger - speech_end) * 1000, "hangover": ep.hangover_s})
+                self.submit({"kind": "turn", "clip": clip, "epoch": self.epoch, "speech_s": dur,
+                               "wait_ms": (trigger - speech_end) * 1000, "hangover": ep.hangover_s,
+                               "t_trigger": time.perf_counter()})
             # keys and idle prompt
             while msvcrt and msvcrt.kbhit():
                 ch = msvcrt.getwch().lower()
