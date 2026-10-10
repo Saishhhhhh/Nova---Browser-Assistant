@@ -1,0 +1,1362 @@
+{
+ "el_flash": {
+  "summary": {
+   "label": "ElevenLabs Flash v2.5",
+   "requests": 24,
+   "errors": [],
+   "first_call_ttfa_ms": 277,
+   "ttfa_ms_median": 180,
+   "ttfa_ms_max": 277,
+   "total_ms_median": 338,
+   "rtf_median": 0.09,
+   "hinglish_ttfa_ms_median": 177,
+   "interrupt": {
+    "cancel_ms": 0.1,
+    "after_cancel_next_ttfa_ms": 264,
+    "bytes_when_stopped": 24135,
+    "stopped_at_ms": 182
+   }
+  },
+  "runs": [
+   {
+    "sid": "s1",
+    "ttfa_ms": 276.8000999931246,
+    "total_ms": 287.1989000122994,
+    "audio_s": 1.0216666666666667,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 161.71829996164888,
+    "total_ms": 197.25610001478344,
+    "audio_s": 0.97525,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 171.52239999268204,
+    "total_ms": 187.72899999748915,
+    "audio_s": 1.0216666666666667,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 182.18630005139858,
+    "total_ms": 268.20480008609593,
+    "audio_s": 2.786375,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 180.6000000797212,
+    "total_ms": 318.73800000175834,
+    "audio_s": 2.925708333333333,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 180.93189992941916,
+    "total_ms": 263.63119995221496,
+    "audio_s": 2.600625,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 176.22390005271882,
+    "total_ms": 298.00280008930713,
+    "audio_s": 5.665666666666667,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 178.43920004088432,
+    "total_ms": 396.5920000337064,
+    "audio_s": 5.108375,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 176.50729999877512,
+    "total_ms": 392.1024000737816,
+    "audio_s": 4.783291666666667,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 177.66990000382066,
+    "total_ms": 336.19189995806664,
+    "audio_s": 3.66875,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 175.833799992688,
+    "total_ms": 339.265999966301,
+    "audio_s": 3.29725,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 175.84020004142076,
+    "total_ms": 335.9501000959426,
+    "audio_s": 3.5294166666666666,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 175.19440001342446,
+    "total_ms": 357.41029994096607,
+    "audio_s": 3.8080833333333333,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 184.34459995478392,
+    "total_ms": 368.9788000192493,
+    "audio_s": 3.66875,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 180.58929999824613,
+    "total_ms": 351.20009991806,
+    "audio_s": 3.8080833333333333,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 183.63929993938655,
+    "total_ms": 513.0934999324381,
+    "audio_s": 8.823583333333334,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 190.26259996462613,
+    "total_ms": 514.6620000014082,
+    "audio_s": 8.777125,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 188.202099991031,
+    "total_ms": 543.0457000620663,
+    "audio_s": 8.870041666666667,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 177.70620004739612,
+    "total_ms": 274.6647000312805,
+    "audio_s": 2.461333333333333,
+    "sr": 24000,
+    "chars": 47
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 179.60709996987134,
+    "total_ms": 294.2306000040844,
+    "audio_s": 2.229125,
+    "sr": 24000,
+    "chars": 47
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 176.08530004508793,
+    "total_ms": 297.508200048469,
+    "audio_s": 2.3684166666666666,
+    "sr": 24000,
+    "chars": 47
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 162.31520008295774,
+    "total_ms": 243.36379999294877,
+    "audio_s": 1.9504583333333334,
+    "sr": 24000,
+    "chars": 35
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 179.0823999326676,
+    "total_ms": 261.99479994829744,
+    "audio_s": 1.9040416666666666,
+    "sr": 24000,
+    "chars": 35
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 168.24260004796088,
+    "total_ms": 268.74189998488873,
+    "audio_s": 1.7647083333333333,
+    "sr": 24000,
+    "chars": 35
+   }
+  ]
+ },
+ "el_multi": {
+  "summary": {
+   "label": "ElevenLabs Multilingual v2",
+   "requests": 24,
+   "errors": [],
+   "first_call_ttfa_ms": 595,
+   "ttfa_ms_median": 749,
+   "ttfa_ms_max": 1097,
+   "total_ms_median": 882,
+   "rtf_median": 0.22,
+   "hinglish_ttfa_ms_median": 687,
+   "interrupt": {
+    "cancel_ms": 0.1,
+    "after_cancel_next_ttfa_ms": 709,
+    "bytes_when_stopped": 25215,
+    "stopped_at_ms": 1137
+   }
+  },
+  "runs": [
+   {
+    "sid": "s1",
+    "ttfa_ms": 595.3445000341162,
+    "total_ms": 614.5363000687212,
+    "audio_s": 1.068125,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 608.8080999907106,
+    "total_ms": 647.9058000259101,
+    "audio_s": 1.068125,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 638.120700023137,
+    "total_ms": 657.514899969101,
+    "audio_s": 1.161,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 731.3155999872833,
+    "total_ms": 804.3487999821082,
+    "audio_s": 3.0185833333333334,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 739.9932000553235,
+    "total_ms": 876.4972999924794,
+    "audio_s": 2.8792916666666666,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 735.31920008827,
+    "total_ms": 886.2793000880629,
+    "audio_s": 3.5294166666666666,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 895.4996999818832,
+    "total_ms": 1009.8334999056533,
+    "audio_s": 5.340583333333333,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 869.699600036256,
+    "total_ms": 1038.0326000740752,
+    "audio_s": 5.619208333333333,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 834.6702000126243,
+    "total_ms": 993.8630999531597,
+    "audio_s": 5.619208333333333,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 741.8796999845654,
+    "total_ms": 900.7895999820903,
+    "audio_s": 3.8080833333333333,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 797.5166999967769,
+    "total_ms": 877.0153999794275,
+    "audio_s": 3.9938333333333333,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 746.1904999800026,
+    "total_ms": 875.9943000040948,
+    "audio_s": 3.8080833333333333,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 782.9918999923393,
+    "total_ms": 921.8452000059187,
+    "audio_s": 3.622333333333333,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 751.8646001117304,
+    "total_ms": 800.1289000967517,
+    "audio_s": 3.8080833333333333,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 743.2146000210196,
+    "total_ms": 829.4404000043869,
+    "audio_s": 3.8545,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 1097.1334000350907,
+    "total_ms": 1333.9967000065371,
+    "audio_s": 9.380875,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 1015.0902000023052,
+    "total_ms": 1069.8410999029875,
+    "audio_s": 8.4985,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 1049.5631999801844,
+    "total_ms": 1274.3129000300542,
+    "audio_s": 9.288,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 731.1328999930993,
+    "total_ms": 751.0437000310048,
+    "audio_s": 2.600625,
+    "sr": 24000,
+    "chars": 47
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 709.021299961023,
+    "total_ms": 798.5263000009581,
+    "audio_s": 2.8792916666666666,
+    "sr": 24000,
+    "chars": 47
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 683.734800084494,
+    "total_ms": 815.3134000021964,
+    "audio_s": 2.8792916666666666,
+    "sr": 24000,
+    "chars": 47
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 650.999499950558,
+    "total_ms": 687.5747999874875,
+    "audio_s": 2.043375,
+    "sr": 24000,
+    "chars": 35
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 689.5596000831574,
+    "total_ms": 763.8612000737339,
+    "audio_s": 1.9040416666666666,
+    "sr": 24000,
+    "chars": 35
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 657.0045999251306,
+    "total_ms": 702.074300032109,
+    "audio_s": 1.8575833333333334,
+    "sr": 24000,
+    "chars": 35
+   }
+  ]
+ },
+ "dg_aura2": {
+  "summary": {
+   "label": "Deepgram Aura-2 (Thalia)",
+   "requests": 18,
+   "errors": [],
+   "first_call_ttfa_ms": 1017,
+   "ttfa_ms_median": 397,
+   "ttfa_ms_max": 1017,
+   "total_ms_median": 1393,
+   "rtf_median": 0.35,
+   "interrupt": {
+    "cancel_ms": 0.1,
+    "server_confirmed_interrupt": false,
+    "after_cancel_next_ttfa_ms": 1016,
+    "bytes_when_stopped": 24960,
+    "stopped_at_ms": 671
+   }
+  },
+  "runs": [
+   {
+    "sid": "s1",
+    "ttfa_ms": 1016.6898000024958,
+    "total_ms": 1331.949400002486,
+    "audio_s": 1.16,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 344.044000012218,
+    "total_ms": 661.5842000028351,
+    "audio_s": 1.16,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 397.78699999442324,
+    "total_ms": 628.1458999874303,
+    "audio_s": 1.2,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 403.79050000046846,
+    "total_ms": 1254.0430999943055,
+    "audio_s": 3.52,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 401.76140000403393,
+    "total_ms": 1233.217600005446,
+    "audio_s": 3.4,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 356.557499995688,
+    "total_ms": 1172.3934999899939,
+    "audio_s": 3.16,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 444.4889000005787,
+    "total_ms": 1856.1698999983491,
+    "audio_s": 5.64,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 387.19270000001416,
+    "total_ms": 1803.1810999964364,
+    "audio_s": 5.48,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 393.689100004849,
+    "total_ms": 1801.7982000019401,
+    "audio_s": 5.32,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 403.12859999539796,
+    "total_ms": 1378.8081999955466,
+    "audio_s": 3.96,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 453.75610000337474,
+    "total_ms": 1407.3461999942083,
+    "audio_s": 4.04,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 367.8558000101475,
+    "total_ms": 1466.4002000063192,
+    "audio_s": 3.96,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 382.1217999939108,
+    "total_ms": 1538.6404000018956,
+    "audio_s": 4.52,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 416.01479999371804,
+    "total_ms": 1216.1570999887772,
+    "audio_s": 3.36,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 383.09440000739414,
+    "total_ms": 1296.8773000029614,
+    "audio_s": 3.64,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 396.6956999938702,
+    "total_ms": 2922.7818999934243,
+    "audio_s": 9.52,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 413.93919999245554,
+    "total_ms": 2826.006499992218,
+    "audio_s": 9.28,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 358.09470000094734,
+    "total_ms": 2721.2797999964096,
+    "audio_s": 8.72,
+    "sr": 24000,
+    "chars": 140
+   }
+  ]
+ },
+ "sarvam": {
+  "summary": {
+   "label": "Sarvam Bulbul v3 (full file)",
+   "requests": 24,
+   "errors": [],
+   "first_call_ttfa_ms": 370,
+   "ttfa_ms_median": 822,
+   "ttfa_ms_max": 1781,
+   "total_ms_median": 822,
+   "rtf_median": 0.22,
+   "hinglish_ttfa_ms_median": 590,
+   "interrupt": {
+    "cancel_ms": 0.0,
+    "after_cancel_next_ttfa_ms": 335,
+    "bytes_when_stopped": 387654,
+    "stopped_at_ms": 1774
+   }
+  },
+  "runs": [
+   {
+    "sid": "s1",
+    "ttfa_ms": 369.6731000673026,
+    "total_ms": 369.678599992767,
+    "audio_s": 1.1946485260770976,
+    "sr": 22050,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 343.3009000727907,
+    "total_ms": 343.31020002719015,
+    "audio_s": 1.1946485260770976,
+    "sr": 22050,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 313.3755000308156,
+    "total_ms": 313.38269996922463,
+    "audio_s": 1.1093424036281179,
+    "sr": 22050,
+    "chars": 15
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 647.173099918291,
+    "total_ms": 647.1801999723539,
+    "audio_s": 2.8160090702947844,
+    "sr": 22050,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 667.5793000031263,
+    "total_ms": 667.5870000617579,
+    "audio_s": 2.9013151927437644,
+    "sr": 22050,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 661.113900016062,
+    "total_ms": 661.1310000298545,
+    "audio_s": 2.9013151927437644,
+    "sr": 22050,
+    "chars": 51
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 1171.1534999776632,
+    "total_ms": 1171.1630000500008,
+    "audio_s": 5.461315192743764,
+    "sr": 22050,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 1152.8595000272617,
+    "total_ms": 1152.8688999824226,
+    "audio_s": 5.376009070294785,
+    "sr": 22050,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 1169.2865999648347,
+    "total_ms": 1169.295100029558,
+    "audio_s": 5.546666666666667,
+    "sr": 22050,
+    "chars": 94
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 823.6291999928653,
+    "total_ms": 823.6364999320358,
+    "audio_s": 3.669342403628118,
+    "sr": 22050,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 843.4855000814423,
+    "total_ms": 843.4971000533551,
+    "audio_s": 3.84,
+    "sr": 22050,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 819.8347999714315,
+    "total_ms": 819.8465999448672,
+    "audio_s": 3.7546485260770974,
+    "sr": 22050,
+    "chars": 63
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 759.454800048843,
+    "total_ms": 759.4639000017196,
+    "audio_s": 3.498684807256236,
+    "sr": 22050,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 803.3890000078827,
+    "total_ms": 803.3981000771746,
+    "audio_s": 3.669342403628118,
+    "sr": 22050,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 832.6109999325126,
+    "total_ms": 832.6218998990953,
+    "audio_s": 3.84,
+    "sr": 22050,
+    "chars": 73
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 1641.862399992533,
+    "total_ms": 1641.8835000367835,
+    "audio_s": 8.021315192743764,
+    "sr": 22050,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 1741.950499941595,
+    "total_ms": 1741.9650999363512,
+    "audio_s": 8.27732426303855,
+    "sr": 22050,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 1781.2525000190362,
+    "total_ms": 1781.2711999285966,
+    "audio_s": 8.789342403628117,
+    "sr": 22050,
+    "chars": 140
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 676.6647999174893,
+    "total_ms": 676.6787000233307,
+    "audio_s": 2.986666666666667,
+    "sr": 22050,
+    "chars": 47
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 674.7754999669269,
+    "total_ms": 674.7820000164211,
+    "audio_s": 2.986666666666667,
+    "sr": 22050,
+    "chars": 47
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 648.3612000010908,
+    "total_ms": 648.3715999638662,
+    "audio_s": 2.9013151927437644,
+    "sr": 22050,
+    "chars": 47
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 455.23449999745935,
+    "total_ms": 455.2457999670878,
+    "audio_s": 1.8773242630385487,
+    "sr": 22050,
+    "chars": 35
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 531.1299000168219,
+    "total_ms": 531.139999977313,
+    "audio_s": 2.3039909297052152,
+    "sr": 22050,
+    "chars": 35
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 510.76440000906587,
+    "total_ms": 510.7709000585601,
+    "audio_s": 2.1333333333333333,
+    "sr": 22050,
+    "chars": 35
+   }
+  ]
+ },
+ "sarvam_stream": {
+  "summary": {
+   "label": "Sarvam Bulbul v3 (streaming MP3)",
+   "requests": 24,
+   "errors": [],
+   "first_call_ttfa_ms": 179,
+   "ttfa_ms_median": 177,
+   "ttfa_ms_max": 190,
+   "total_ms_median": 772,
+   "rtf_median": null,
+   "hinglish_ttfa_ms_median": 171,
+   "interrupt": {
+    "cancel_ms": 0.1,
+    "after_cancel_next_ttfa_ms": 215,
+    "bytes_when_stopped": 12448,
+    "stopped_at_ms": 230
+   }
+  },
+  "runs": [
+   {
+    "sid": "s1",
+    "ttfa_ms": 179.01419999543577,
+    "total_ms": 334.1196998953819,
+    "audio_s": null,
+    "sr": null,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 174.2581999860704,
+    "total_ms": 319.3095000460744,
+    "audio_s": null,
+    "sr": null,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 184.57269994542003,
+    "total_ms": 313.62929998431355,
+    "audio_s": null,
+    "sr": null,
+    "chars": 15
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 170.7982000662014,
+    "total_ms": 586.5448000840843,
+    "audio_s": null,
+    "sr": null,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 174.4692000793293,
+    "total_ms": 557.359499973245,
+    "audio_s": null,
+    "sr": null,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 178.81740001030266,
+    "total_ms": 578.9879000512883,
+    "audio_s": null,
+    "sr": null,
+    "chars": 51
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 168.4049000032246,
+    "total_ms": 1006.5280999988317,
+    "audio_s": null,
+    "sr": null,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 170.26859999168664,
+    "total_ms": 1036.6651000222191,
+    "audio_s": null,
+    "sr": null,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 186.96249998174608,
+    "total_ms": 1054.212799994275,
+    "audio_s": null,
+    "sr": null,
+    "chars": 94
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 186.63519993424416,
+    "total_ms": 689.0487000346184,
+    "audio_s": null,
+    "sr": null,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 180.5959000485018,
+    "total_ms": 765.1860000332817,
+    "audio_s": null,
+    "sr": null,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 173.03169996012002,
+    "total_ms": 775.7244999520481,
+    "audio_s": null,
+    "sr": null,
+    "chars": 63
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 183.98939992766827,
+    "total_ms": 819.7252999525517,
+    "audio_s": null,
+    "sr": null,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 171.75989993847907,
+    "total_ms": 793.964899959974,
+    "audio_s": null,
+    "sr": null,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 181.22380005661398,
+    "total_ms": 767.9811000125483,
+    "audio_s": null,
+    "sr": null,
+    "chars": 73
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 167.77759999968112,
+    "total_ms": 1623.128900071606,
+    "audio_s": null,
+    "sr": null,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 190.1858999626711,
+    "total_ms": 1691.1136999260634,
+    "audio_s": null,
+    "sr": null,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 171.83250002563,
+    "total_ms": 1562.2849999926984,
+    "audio_s": null,
+    "sr": null,
+    "chars": 140
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 169.50850002467632,
+    "total_ms": 612.7735000336543,
+    "audio_s": null,
+    "sr": null,
+    "chars": 47
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 168.9972000895068,
+    "total_ms": 626.5585999935865,
+    "audio_s": null,
+    "sr": null,
+    "chars": 47
+   },
+   {
+    "sid": "h1",
+    "ttfa_ms": 172.08059993572533,
+    "total_ms": 596.9260999700055,
+    "audio_s": null,
+    "sr": null,
+    "chars": 47
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 180.92379998415709,
+    "total_ms": 386.30189991090447,
+    "audio_s": null,
+    "sr": null,
+    "chars": 35
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 177.77179996483028,
+    "total_ms": 413.9602999202907,
+    "audio_s": null,
+    "sr": null,
+    "chars": 35
+   },
+   {
+    "sid": "h2",
+    "ttfa_ms": 169.23940007109195,
+    "total_ms": 483.11800009105355,
+    "audio_s": null,
+    "sr": null,
+    "chars": 35
+   }
+  ]
+ },
+ "groq": {
+  "summary": {
+   "label": "Groq Orpheus (hannah)",
+   "requests": 0,
+   "errors": [
+    "s1: HTTP 400: {\"error\":{\"message\":\"The model `canopylabs/orpheus-v1-english` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-v1-english\",\"type\":\"invalid_request_error\",\"code\":\"",
+    "s2: HTTP 400: {\"error\":{\"message\":\"The model `canopylabs/orpheus-v1-english` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-v1-english\",\"type\":\"invalid_request_error\",\"code\":\"",
+    "s3: HTTP 400: {\"error\":{\"message\":\"The model `canopylabs/orpheus-v1-english` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-v1-english\",\"type\":\"invalid_request_error\",\"code\":\""
+   ],
+   "first_call_ttfa_ms": null
+  },
+  "runs": []
+ },
+ "dg_flux": {
+  "summary": {
+   "label": "Deepgram Flux TTS (Haley)",
+   "requests": 18,
+   "errors": [],
+   "first_call_ttfa_ms": 1815,
+   "ttfa_ms_median": 516,
+   "ttfa_ms_max": 1815,
+   "total_ms_median": 3825,
+   "rtf_median": 0.77,
+   "interrupt": {
+    "cancel_ms": 306.3,
+    "server_confirmed_interrupt": true,
+    "after_cancel_next_ttfa_ms": 676,
+    "bytes_when_stopped": 26592,
+    "stopped_at_ms": 675
+   }
+  },
+  "runs": [
+   {
+    "sid": "s1",
+    "ttfa_ms": 1815.0325000024168,
+    "total_ms": 2796.441700003925,
+    "audio_s": 1.52,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 630.5608999973629,
+    "total_ms": 2324.9477000063052,
+    "audio_s": 2.56,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 648.0214999901364,
+    "total_ms": 1496.727199992165,
+    "audio_s": 1.36,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 375.43810000352096,
+    "total_ms": 4022.594099995331,
+    "audio_s": 5.36,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 399.77610000642017,
+    "total_ms": 3819.0159000077983,
+    "audio_s": 5.04,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 402.8768999996828,
+    "total_ms": 3330.786300008185,
+    "audio_s": 4.32,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 665.3580999991391,
+    "total_ms": 4902.512400003616,
+    "audio_s": 6.32,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 629.911500000162,
+    "total_ms": 4866.015499996138,
+    "audio_s": 6.32,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 629.5225999929244,
+    "total_ms": 4813.498999996227,
+    "audio_s": 6.24,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 664.5992999983719,
+    "total_ms": 3426.414699992165,
+    "audio_s": 4.16,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 654.6971999923699,
+    "total_ms": 3795.427399993059,
+    "audio_s": 4.72,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 630.3270000062184,
+    "total_ms": 3831.10399999714,
+    "audio_s": 4.8,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 373.6540999962017,
+    "total_ms": 3780.0644999952056,
+    "audio_s": 5.04,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 375.02629999653436,
+    "total_ms": 3669.3983000004664,
+    "audio_s": 4.88,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 376.1384999961592,
+    "total_ms": 4166.625699988799,
+    "audio_s": 5.6,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 402.0837999996729,
+    "total_ms": 7089.452100000926,
+    "audio_s": 9.84,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 374.2934000038076,
+    "total_ms": 7049.973700006376,
+    "audio_s": 9.84,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 375.10540000221226,
+    "total_ms": 7052.644399998826,
+    "audio_s": 9.84,
+    "sr": 24000,
+    "chars": 140
+   }
+  ]
+ },
+ "dg_phoebe": {
+  "summary": {
+   "label": "Deepgram Aura-2 (Phoebe)",
+   "requests": 18,
+   "errors": [],
+   "first_call_ttfa_ms": 947,
+   "ttfa_ms_median": 458,
+   "ttfa_ms_max": 947,
+   "total_ms_median": 1869,
+   "rtf_median": 0.54,
+   "interrupt": {
+    "cancel_ms": 0.1,
+    "server_confirmed_interrupt": false,
+    "after_cancel_next_ttfa_ms": 940,
+    "bytes_when_stopped": 24960,
+    "stopped_at_ms": 757
+   }
+  },
+  "runs": [
+   {
+    "sid": "s1",
+    "ttfa_ms": 946.7908999940846,
+    "total_ms": 1327.6977999921655,
+    "audio_s": 1.04,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 441.8874999973923,
+    "total_ms": 899.6611999900779,
+    "audio_s": 1.12,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s1",
+    "ttfa_ms": 386.98600001225714,
+    "total_ms": 798.5793000116246,
+    "audio_s": 1.12,
+    "sr": 24000,
+    "chars": 15
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 503.9512000075774,
+    "total_ms": 1671.7420000059064,
+    "audio_s": 3.04,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 437.22589999379124,
+    "total_ms": 1750.699899988831,
+    "audio_s": 3.24,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s2",
+    "ttfa_ms": 456.7050999903586,
+    "total_ms": 1635.617199994158,
+    "audio_s": 3.0,
+    "sr": 24000,
+    "chars": 51
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 466.19349998945836,
+    "total_ms": 2426.969399995869,
+    "audio_s": 4.72,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 533.5223000001861,
+    "total_ms": 2429.458500002511,
+    "audio_s": 4.72,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s3",
+    "ttfa_ms": 459.13639999344014,
+    "total_ms": 2241.8398999870988,
+    "audio_s": 4.28,
+    "sr": 24000,
+    "chars": 94
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 397.9549999930896,
+    "total_ms": 1958.1528999988222,
+    "audio_s": 3.64,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 478.59840000455733,
+    "total_ms": 1852.5289000099292,
+    "audio_s": 3.44,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s4",
+    "ttfa_ms": 413.93280000193045,
+    "total_ms": 1884.8369999905117,
+    "audio_s": 3.52,
+    "sr": 24000,
+    "chars": 63
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 469.1441000031773,
+    "total_ms": 1850.0121000106446,
+    "audio_s": 3.44,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 421.9913999986602,
+    "total_ms": 1733.0930000025546,
+    "audio_s": 3.16,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s5",
+    "ttfa_ms": 472.3973000072874,
+    "total_ms": 1895.6701999995857,
+    "audio_s": 3.52,
+    "sr": 24000,
+    "chars": 73
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 427.57529999653343,
+    "total_ms": 3914.2405000020517,
+    "audio_s": 7.96,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 496.91440000606235,
+    "total_ms": 3471.978500005207,
+    "audio_s": 7.04,
+    "sr": 24000,
+    "chars": 140
+   },
+   {
+    "sid": "s6",
+    "ttfa_ms": 425.8417999953963,
+    "total_ms": 4265.37969999481,
+    "audio_s": 8.72,
+    "sr": 24000,
+    "chars": 140
+   }
+  ]
+ }
+}

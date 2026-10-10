@@ -95,8 +95,8 @@ Philosophy: **experiment → evidence → decision → build.** Each experiment 
 | 1 | Browser automation tool | none — foundational, gates everything downstream | **Done** — browser-use ([details](01_Browser%20Automation/README.md)) |
 | 2 | Reasoning LLM + command routing | needs Exp 1's DOM/action format | **Done** — rules → DeepInfra Gemma → browser-use agent ([details](02_Reasoning_and_Routing/README.md)) |
 | 3 | STT | none (independent of the browser work) | Done |
-| 4 | VAD | none (independent of the browser work) | Not started |
-| 5 | TTS | none (independent of the browser work) | Not started |
+| 4 | VAD | none (independent of the browser work) | Done |
+| 5 | TTS | none (independent of the browser work) | Done |
 | 6 | Turn-taking / conversation flow | needs winners from 3-5 | Not started |
 | 7 | End-to-end latency budget | needs winners from all above | Not started — scope notes added after Exp 1 and 2 |
 
@@ -123,15 +123,15 @@ Rationale: browser automation was the highest-uncertainty, foundational piece, a
 **Result:** ElevenLabs `scribe_v2` and AssemblyAI were the most accurate (0.6% WER, 97% of commands understood); Sarvam `saaras:v4` was ~5x faster (143 ms vs 792 ms) at 1.7% WER; Deepgram `nova-3` was 2.3%. Streaming was not more accurate for any engine (Deepgram Flux 5.2%, ElevenLabs Realtime 4.6%, AssemblyAI streaming dropped 6 of 40 clips). Vocabulary hints changed nothing. Whisper `large-v3` invented "Thank you." on silence.
 **Decision:** **batch transcription of a clip cut by the VAD**: ElevenLabs `scribe_v2` primary, Sarvam `saaras:v4` as the fast / Hinglish option, Groq turbo as a free fallback. Streaming is left for Experiment 6 (interruption). Caveats: one speaker, 40 commands; Sarvam streaming untested. Full write-up: [03_Speech_To_Text/README.md](03_Speech_To_Text/README.md).
 
-### Exp 4 — VAD
-**Candidates:** Silero VAD, WebRTC VAD, custom energy/zero-crossing detector, Picovoice Cobra, STT-builtin endpointing.
-**Test:** detection latency for speech start/end against manually marked ground truth; false-positive rate under background noise; behavior during barge-in (speaking while TTS plays).
-**Winner needs:** detection latency under ~100-150ms, low false positives, reliable barge-in detection.
+### Exp 4 — VAD — ✅ Done
+**Tested:** Silero VAD, WebRTC VAD (4 aggressiveness levels) and an energy-threshold baseline, each with 0.3 / 0.5 / 0.8 s of silence before "you finished", on my own 40 recorded commands played as a continuous stream, clean and with pink noise (3 levels) and keyboard-like clicks added. Then VAD-cut clips were sent to ElevenLabs, and everything was tried on my live microphone with `live_vad.py`.
+**Result:** Silero was the only detector with no false alarms and 39-40 of 40 commands in every condition (about 3% of one CPU core). WebRTC at looser settings fires on room noise and merges commands; its strictest setting loses 10 commands in loud noise and gives 6 false alarms with clicks; the energy baseline drops to 11 of 40 in loud noise. VAD-cut clips transcribe exactly like hand-cut ones (0.6% WER).
+**Decision:** **Silero, threshold 0.5, 0.5 s hangover, 0.3 s pre-roll** (the end is declared about 0.6 s after speech stops; tune by feel in Exp 6). Not tested: barge-in (needs Exp 5's speech output). One finding fixed along the way: Exp 3's clip splitter had merged a click into one command. Full write-up: [04_Voice_Activity_Detection/README.md](04_Voice_Activity_Detection/README.md).
 
-### Exp 5 — TTS
-**Candidates:** Kokoro, Piper (local); edge-tts, ElevenLabs, Google TTS, Azure TTS, OpenAI TTS (cloud).
-**Test:** time-to-first-audio, blind naturalness scoring (1-10) on ~10 response sentences, streaming support, cleanness of mid-sentence interruption.
-**Winner needs:** time-to-first-audio under ~300-500ms, naturalness ≥7/10, clean interruption for barge-in.
+### Exp 5 — TTS — ✅ Done
+**Tested:** speed, streaming and interruption on 8 assistant-style sentences (6 English, 2 Hinglish) for ElevenLabs (Flash v2.5, Multilingual v2), Sarvam Bulbul v3 (full file and streaming), Deepgram Aura-2 and Deepgram Flux TTS; the 41 English Aura-2 voices were auditioned by ear. Groq Orpheus was not tested (terms not accepted). Google, Azure, OpenAI and local engines were excluded by choice.
+**Result:** ElevenLabs Flash (180 ms) and Sarvam streaming (177 ms) start fastest; Aura-2 starts in about 0.4-0.5 s; Flux TTS did not reach its advertised 80 ms from my machine (about 0.5 s) but is the only one that reports how much audio was played when interrupted (about 0.3 s round trip). Deepgram has no Hindi voice.
+**Decision:** **Deepgram Aura-2, voice Phoebe** (picked by ear, no scored blind test), streamed raw over HTTP; Sarvam Bulbul v3 as the optional Hinglish voice; Flux TTS is the candidate to revisit for barge-in in Exp 6. Full write-up: [05_Text_To_Speech/README.md](05_Text_To_Speech/README.md).
 
 ### Exp 6 — Turn-taking & conversation flow
 Uses the Exp 3-5 winners in a bare voice loop (no browser). Tune endpointing delay (test ~300/500/800ms) for the best balance of "doesn't cut off" vs "doesn't feel laggy." Test barge-in behavior and decide on feedback cues (listening chime, processing indicator) and idle timeout.
@@ -145,6 +145,6 @@ Wire together the winners from Exp 1-6 (browser tool → reasoning routing → S
 ---
 
 ## Synthesis — after all experiments
-1. Fill in one "final stack" table: Browser tool / STT / VAD / TTS / Local reasoning model / API reasoning model / routing rule / endpointing value. Decided so far: **Browser tool = browser-use** with Cerebras `gpt-oss-120b` for the agent (Exp 1); **routing = rules → DeepInfra `gemma-4-31B-it-turbo` (10s limit) → agent** (Exp 2); **local reasoning model = none** (nothing at 8B or below was safe enough in Exp 2); **STT = batch ElevenLabs `scribe_v2`, Sarvam `saaras:v4` as the fast / Hinglish option** (Exp 3).
+1. Fill in one "final stack" table: Browser tool / STT / VAD / TTS / Local reasoning model / API reasoning model / routing rule / endpointing value. Decided so far: **Browser tool = browser-use** with Cerebras `gpt-oss-120b` for the agent (Exp 1); **routing = rules → DeepInfra `gemma-4-31B-it-turbo` (10s limit) → agent** (Exp 2); **local reasoning model = none** (nothing at 8B or below was safe enough in Exp 2); **STT = batch ElevenLabs `scribe_v2`, Sarvam `saaras:v4` as the fast / Hinglish option** (Exp 3); **VAD = Silero, 0.5 threshold, 0.5 s hangover** (Exp 4); **TTS = Deepgram Aura-2 Phoebe** (Exp 5).
 2. Validate the *combination* in Exp 7, not just each piece in isolation — a component that wins its own experiment but breaks the end-to-end budget should be swapped, not tolerated.
 3. Only then move to the integration build.
