@@ -1,0 +1,50 @@
+{
+ "turns": 3,
+ "interruptions": [],
+ "ignored_sounds": 1,
+ "median_ms": {
+  "silence_wait_ms": 512,
+  "stt_ms": 175,
+  "tts_first_audio_ms": 380,
+  "felt_ms": 1137
+ },
+ "settings": {
+  "hangover_s_start": 0.5,
+  "min_speech_s_start": 0.25
+ },
+ "turn_log": [
+  {
+   "speech_s": 0.93,
+   "text": "Scroll down.",
+   "reply": "Scrolling down.",
+   "stt_ms": 175,
+   "silence_wait_ms": 512,
+   "hangover_s": 0.5,
+   "turn": 1,
+   "tts_first_audio_ms": 861,
+   "felt_ms": 1548
+  },
+  {
+   "speech_s": 10.05,
+   "text": "Tell me about it. Do you adjust with clinging to the results, act with purpose but without attachment and never fall into idleness? Who wrote this?",
+   "reply": "Here is a longer answer, so you can practise interrupting me. The cheapest monitor on this page is the Acer Nitro, priced at twelve thousand four hundred and ninety-nine rupees. The next one is the MSI, at fourteen thousand, and the third is an LG UltraGear at eighteen thousand. Tell me if you want me to open any of them.",
+   "stt_ms": 245,
+   "silence_wait_ms": 512,
+   "hangover_s": 0.5,
+   "turn": 2,
+   "tts_first_audio_ms": 380,
+   "felt_ms": 1137
+  },
+  {
+   "speech_s": 4.74,
+   "text": "Search for lo-fi beats.",
+   "reply": "Searching for lo-fi beats.",
+   "stt_ms": 162,
+   "silence_wait_ms": 512,
+   "hangover_s": 0.5,
+   "turn": 3,
+   "tts_first_audio_ms": 353,
+   "felt_ms": 1027
+  }
+ ]
+}

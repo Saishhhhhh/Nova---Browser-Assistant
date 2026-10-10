@@ -1,0 +1,28 @@
+{
+ "turns": 1,
+ "interruptions": [],
+ "ignored_sounds": 0,
+ "median_ms": {
+  "silence_wait_ms": 320,
+  "stt_ms": 155,
+  "tts_first_audio_ms": 390,
+  "felt_ms": 865
+ },
+ "settings": {
+  "hangover_s_start": 0.5,
+  "min_speech_s_start": 0.25
+ },
+ "turn_log": [
+  {
+   "speech_s": 2.37,
+   "text": "Search for lo-fi beats.",
+   "reply": "Searching for lo-fi beats.",
+   "stt_ms": 155,
+   "silence_wait_ms": 320,
+   "hangover_s": 0.3,
+   "turn": 1,
+   "tts_first_audio_ms": 390,
+   "felt_ms": 865
+  }
+ ]
+}

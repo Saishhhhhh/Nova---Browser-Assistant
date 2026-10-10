@@ -97,7 +97,7 @@ Philosophy: **experiment → evidence → decision → build.** Each experiment 
 | 3 | STT | none (independent of the browser work) | Done |
 | 4 | VAD | none (independent of the browser work) | Done |
 | 5 | TTS | none (independent of the browser work) | Done |
-| 6 | Turn-taking / conversation flow | needs winners from 3-5 | Not started |
+| 6 | Turn-taking / conversation flow | needs winners from 3-5 | Done |
 | 7 | End-to-end latency budget | needs winners from all above | Not started — scope notes added after Exp 1 and 2 |
 
 *Dropped: vision / screenshot understanding. The project has no vision fallback (see "Page Perception Layer" above), so there is no experiment for it.*
@@ -133,9 +133,10 @@ Rationale: browser automation was the highest-uncertainty, foundational piece, a
 **Result:** ElevenLabs Flash (180 ms) and Sarvam streaming (177 ms) start fastest; Aura-2 starts in about 0.4-0.5 s; Flux TTS did not reach its advertised 80 ms from my machine (about 0.5 s) but is the only one that reports how much audio was played when interrupted (about 0.3 s round trip). Deepgram has no Hindi voice.
 **Decision:** **Deepgram Aura-2, voice Phoebe** (picked by ear, no scored blind test), streamed raw over HTTP; Sarvam Bulbul v3 as the optional Hinglish voice; Flux TTS is the candidate to revisit for barge-in in Exp 6. Full write-up: [05_Text_To_Speech/README.md](05_Text_To_Speech/README.md).
 
-### Exp 6 — Turn-taking & conversation flow
-Uses the Exp 3-5 winners in a bare voice loop (no browser). Tune endpointing delay (test ~300/500/800ms) for the best balance of "doesn't cut off" vs "doesn't feel laggy." Test barge-in behavior and decide on feedback cues (listening chime, processing indicator) and idle timeout.
-**Winner needs:** an endpointing value with no mid-sentence cutoffs, working barge-in, a conversational feel you're satisfied with.
+### Exp 6 — Turn-taking / conversation flow — ✅ Done
+**Built:** a bare voice loop with no browser: microphone → Silero → Sarvam STT → canned reply → Deepgram Aura-2 Phoebe, with interruption (barge-in), live hotkeys to change the silence wait and the speech needed to interrupt, and a logged summary per session. Tried live on headphones (3 sessions, 10 spoken replies, 2 interruptions), plus a simulated run on recordings.
+**Result:** end of speech to first sound is about **1.0 s** (0.5 s silence wait + 0.15 s transcript + 0.4 s voice; 0.87 s at the 0.3 s wait). Interruption needs 0.25 s of speech and playback is silenced within 3-12 ms in software plus about 100 ms in the sound card (about 0.37 s from the start of speech to silence). Engineering finding: Deepgram drops idle connections after 3-6 s, after interrupted streams and on the first request of a session, each costing about 0.5 s; fixed with a keep-alive ping, a warm-up request and not pinging while a reply is pending.
+**Decision:** silence wait 0.5 s default (0.3 s viable), interruption at 0.25 s of speech, tick cue optional and off. Not tested: false interruptions (cough, clicks), speakers/echo, the idle prompt. Full write-up: [06_Turn_Taking/README.md](06_Turn_Taking/README.md).
 
 ### Exp 7 — End-to-end latency budget
 Wire together the winners from Exp 1-6 (browser tool → reasoning routing → STT → VAD → TTS → turn-taking) into the full loop and instrument every stage (VAD detection → STT → routing → reasoning → perception → action → verification → TTS). Run ~10 full commands (mix of simple and multi-step) and produce a latency waterfall. Identify the bottleneck stage and propose one concrete fix (parallelizing STT with DOM pre-fetch, caching the DOM tree between steps, streaming TTS on partial output, etc.).
@@ -145,6 +146,6 @@ Wire together the winners from Exp 1-6 (browser tool → reasoning routing → S
 ---
 
 ## Synthesis — after all experiments
-1. Fill in one "final stack" table: Browser tool / STT / VAD / TTS / Local reasoning model / API reasoning model / routing rule / endpointing value. Decided so far: **Browser tool = browser-use** with Cerebras `gpt-oss-120b` for the agent (Exp 1); **routing = rules → DeepInfra `gemma-4-31B-it-turbo` (10s limit) → agent** (Exp 2); **local reasoning model = none** (nothing at 8B or below was safe enough in Exp 2); **STT = batch ElevenLabs `scribe_v2`, Sarvam `saaras:v4` as the fast / Hinglish option** (Exp 3); **VAD = Silero, 0.5 threshold, 0.5 s hangover** (Exp 4); **TTS = Deepgram Aura-2 Phoebe** (Exp 5).
+1. Fill in one "final stack" table: Browser tool / STT / VAD / TTS / Local reasoning model / API reasoning model / routing rule / endpointing value. Decided so far: **Browser tool = browser-use** with Cerebras `gpt-oss-120b` for the agent (Exp 1); **routing = rules → DeepInfra `gemma-4-31B-it-turbo` (10s limit) → agent** (Exp 2); **local reasoning model = none** (nothing at 8B or below was safe enough in Exp 2); **STT = batch ElevenLabs `scribe_v2`, Sarvam `saaras:v4` as the fast / Hinglish option** (Exp 3); **VAD = Silero, 0.5 threshold, 0.5 s hangover** (Exp 4); **TTS = Deepgram Aura-2 Phoebe** (Exp 5); **turn-taking = 0.5 s silence wait, 0.25 s of speech to interrupt** (Exp 6).
 2. Validate the *combination* in Exp 7, not just each piece in isolation — a component that wins its own experiment but breaks the end-to-end budget should be swapped, not tolerated.
 3. Only then move to the integration build.
