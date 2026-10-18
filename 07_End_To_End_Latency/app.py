@@ -190,6 +190,11 @@ class AppLoop(Loop):
 
     def _run_single(self, text: str, stt_ms: float, job: dict) -> None:
         t_end = job["t_trigger"] - job["wait_ms"] / 1000
+        # If this job sat behind a previous turn (it finished VAD+transcription, but the single worker thread was
+        # still busy with the last command), that queue wait is real time the user felt but the silence/transcript/
+        # browser/voice breakdown below doesn't otherwise show (found live: a 4.3 s breakdown printed next to a
+        # genuine 17 s wait, with nothing accounting for the other 13 s).
+        queued_ms = max(0.0, (time.perf_counter() - t_end) * 1000 - job["wait_ms"] - stt_ms)
         cur = {"epoch": job["epoch"], "t_speech_end": t_end, "ack_ms": None}
         self._cur = cur
         # Phase 2: a command that points at something outside itself ("the cheaper one", "go back to that") gets
@@ -236,13 +241,15 @@ class AppLoop(Loop):
         done_ms = (time.perf_counter() - t_end) * 1000
         first_sound = min(x for x in (cur["ack_ms"], meta.get("felt_ms")) if x is not None) if (cur["ack_ms"] or meta.get("felt_ms")) else None
         rec = {"turn": n, "command": text, "tier": res.tier, "ok": res.ok, "silence_wait_ms": meta["silence_wait_ms"],
-               "stt_ms": meta["stt_ms"], "fast_path_ms": round(res.fast_ms), "route_ms": meta["route_ms"],
+               "stt_ms": meta["stt_ms"], "queued_ms": round(queued_ms), "fast_path_ms": round(res.fast_ms),
+               "route_ms": meta["route_ms"],
                "agent_steps": res.agent_steps, "ack_first_sound_ms": round(cur["ack_ms"]) if cur["ack_ms"] else None,
                "answer_first_sound_ms": meta.get("felt_ms"), "first_sound_ms": round(first_sound) if first_sound else None,
                "finished_ms": round(done_ms), "reply": res.reply[:200], "detail": res.detail[:200]}
         self.records.append(rec)
         ack = f", \"On it.\" at {cur['ack_ms'] / 1000:.2f} s" if cur["ack_ms"] else ""
-        self.say(f"          waterfall: silence {rec['silence_wait_ms'] / 1000:.2f} | transcript {rec['stt_ms'] / 1000:.2f} | "
+        queued = f"queued {queued_ms / 1000:.2f} | " if queued_ms > 100 else ""  # only shown when it actually happened
+        self.say(f"          waterfall: {queued}silence {rec['silence_wait_ms'] / 1000:.2f} | transcript {rec['stt_ms'] / 1000:.2f} | "
                  f"browser step {rec['route_ms'] / 1000:.2f} [{rec['tier']}{', ' + str(rec['agent_steps']) + ' steps' if rec['agent_steps'] else ''}] | "
                  f"voice {meta.get('tts_first_audio_ms', 0) / 1000:.2f}   ->  first sound {((rec['first_sound_ms'] or 0) / 1000):.2f} s{ack}, "
                  f"answer {(rec['answer_first_sound_ms'] or 0) / 1000:.2f} s, finished {rec['finished_ms'] / 1000:.2f} s")
@@ -256,6 +263,7 @@ class AppLoop(Loop):
         names what it actually clicked.
         """
         t_end = job["t_trigger"] - job["wait_ms"] / 1000
+        queued_ms = max(0.0, (time.perf_counter() - t_end) * 1000 - job["wait_ms"] - stt_ms)  # see _run_single
         cur = {"epoch": job["epoch"], "t_speech_end": t_end, "ack_ms": None}
         self._cur = cur
         try:
@@ -326,13 +334,15 @@ class AppLoop(Loop):
             self.memory.add_turn(text, final_res.reply if final_res else "", ok)
             rec = {"turn": n, "command": text, "tier": "plan", "ok": ok, "replanned": replanned,
                    "silence_wait_ms": round(job["wait_ms"]), "stt_ms": round(stt_ms or 0.0),
-                   "fast_path_ms": round(plan_ms), "route_ms": round(route_ms), "agent_steps": agent_steps_total,
+                   "queued_ms": round(queued_ms), "fast_path_ms": round(plan_ms), "route_ms": round(route_ms),
+                   "agent_steps": agent_steps_total,
                    "ack_first_sound_ms": None, "answer_first_sound_ms": None, "first_sound_ms": None,
                    "finished_ms": round((time.perf_counter() - t_end) * 1000),
                    "reply": (final_res.reply[:200] if final_res else ""),
                    "detail": f"plan {n_done}/{len(steps)} steps: {steps}"[:200]}
             self.records.append(rec)
-            self.say(f"          waterfall: plan call {plan_ms / 1000:.2f} s, {n_done}/{len(steps)} steps run, "
+            queued = f"queued {queued_ms / 1000:.2f} s, " if queued_ms > 100 else ""
+            self.say(f"          waterfall: {queued}plan call {plan_ms / 1000:.2f} s, {n_done}/{len(steps)} steps run, "
                      f"finished {rec['finished_ms'] / 1000:.2f} s")
 
 
@@ -372,13 +382,13 @@ def waterfall(records: list, args) -> None:
     if not records:
         print("\nNo commands were completed.")
         return
-    print("\n" + "=" * 112)
-    print(f"{'#':>2} {'tier':<7} {'ok':<5} {'silence':>8} {'transcr.':>9} {'browser':>9} {'first sound':>12} {'answer':>8} {'finished':>9}  command")
+    print("\n" + "=" * 124)
+    print(f"{'#':>2} {'tier':<7} {'ok':<5} {'queued':>8} {'silence':>8} {'transcr.':>9} {'browser':>9} {'first sound':>12} {'answer':>8} {'finished':>9}  command")
     for r in records:
         f = lambda ms: f"{ms / 1000:6.2f} s" if ms is not None else "     -  "
-        print(f"{r['turn']:>2} {r['tier']:<7} {'yes' if r['ok'] else 'NO':<5} {f(r['silence_wait_ms']):>8} {f(r['stt_ms']):>9} "
+        print(f"{r['turn']:>2} {r['tier']:<7} {'yes' if r['ok'] else 'NO':<5} {f(r.get('queued_ms')):>8} {f(r['silence_wait_ms']):>8} {f(r['stt_ms']):>9} "
               f"{f(r['route_ms']):>9} {f(r['first_sound_ms']):>12} {f(r['answer_first_sound_ms']):>8} {f(r['finished_ms']):>9}  {r['command'][:46]}")
-    print("=" * 112)
+    print("=" * 124)
     by = {}
     for r in records:
         by.setdefault(r["tier"], []).append(r)

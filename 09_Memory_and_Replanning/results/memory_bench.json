@@ -2,43 +2,43 @@
  "with_memory": [
   {
    "name": "comparison (2 products, needs scratchpad)",
-   "ok": false,
-   "why": "did not clearly say the first book was cheaper: 'the first book is cheaper.'",
-   "ms": 26546,
+   "ok": true,
+   "why": "named the first (cheaper) book",
+   "ms": 25627,
    "replies": [
-    "The first book is cheaper."
+    "The first book, A Light in the Attic, is cheaper."
    ]
   },
   {
    "name": "follow-up after navigating away (needs conversation history)",
    "ok": true,
    "why": "recalled the first book's price (£51.77) after navigating away",
-   "ms": 29804,
+   "ms": 27595,
    "replies": [
     "Opened books.toscrape.com.",
     "Clicked a light in the attic.",
-    "The price of the book \"A Light in the Attic\" is £51.77.",
+    "The price of \"A Light in the Attic\" is £51.77.",
     "Went back.",
     "Opened quotes.toscrape.com.",
-    "The price of the book \"A Light in the Attic\" is £51.77."
+    "The price of \"A Light in the Attic\" is £51.77."
    ]
   },
   {
    "name": "advisory opinion question (control: should behave the same either way)",
    "ok": true,
-   "why": "(35 words): 'The page describes *A Light in the Attic* as a classic collection of Shel\\u202fSilverstein’s poetry and drawings, and it is listed as in‑stock (22 copies) with a pri'",
-   "ms": 35305,
+   "why": "(33 words): 'The page shows that *A Light in the Attic* by Shel Silverstein is listed for £51.77 and is in stock (22 copies available). However, this site (books.toscrape.co'",
+   "ms": 35174,
    "replies": [
     "Opened books.toscrape.com.",
     "Clicked a light in the attic.",
-    "The page describes *A Light in the Attic* as a classic collection of Shel Silverstein’s poetry and drawings, and it is listed as in‑stock (22 copies) with a price of £51.77. However, the site includes"
+    "The page shows that *A Light in the Attic* by Shel Silverstein is listed for £51.77 and is in stock (22 copies available). However, this site (books.toscrape.com) is a demo for web‑scraping purposes, "
    ]
   },
   {
    "name": "re-plan once after a step fails (a button that does not exist)",
    "ok": true,
-   "why": "replanned=True (expected True), ok=True",
-   "ms": 15796,
+   "why": "replanned=True (expected True), ok=False",
+   "ms": 17467,
    "replies": [
     "What happened?"
    ]
@@ -49,43 +49,43 @@
    "name": "comparison (2 products, needs scratchpad)",
    "ok": true,
    "why": "named the first (cheaper) book",
-   "ms": 35550,
+   "ms": 27909,
    "replies": [
-    "Which is cheaper, the first book (A Light in the Attic, £51.77) or the second book (Tipping the Velvet, £53.74)?"
+    "Which is cheaper, the first book (A Light in the Attic) or the second book (Tipping the Velvet)?"
    ]
   },
   {
    "name": "follow-up after navigating away (needs conversation history)",
    "ok": true,
    "why": "recalled the first book's price (£51.77) after navigating away",
-   "ms": 30570,
+   "ms": 28160,
    "replies": [
     "Opened books.toscrape.com.",
     "Clicked a light in the attic.",
-    "The price of \"A Light in the Attic\" is £51.77.",
+    "The price of the book \"A Light in the Attic\" is £51.77.",
     "Went back.",
     "Opened quotes.toscrape.com.",
-    "The first book, “A Light in the Attic”, is priced at £51.77."
+    "The first book’s price is £51.77."
    ]
   },
   {
    "name": "advisory opinion question (control: should behave the same either way)",
    "ok": true,
-   "why": "(34 words): 'The book \"A Light in the Attic\" is a classic collection of Shel Silverstein’s poetry and drawings, and it’s currently in stock. However, the listed price (£51.7'",
-   "ms": 35458,
+   "why": "(36 words): 'Based on the information shown on the page, the book \"A Light in the Attic\" by Shel Silverstein is a classic collection of poetry and drawings. It is currently '",
+   "ms": 32230,
    "replies": [
     "Opened books.toscrape.com.",
     "Clicked a light in the attic.",
-    "The book \"A Light in the Attic\" is a classic collection of Shel Silverstein’s poetry and drawings, and it’s currently in stock. However, the listed price (£51.77) is quite high for a paperback poetry "
+    "Based on the information shown on the page, the book \"A Light in the Attic\" by Shel Silverstein is a classic collection of poetry and drawings. It is currently in stock (22 copies available) and price"
    ]
   },
   {
    "name": "re-plan once after a step fails (a button that does not exist)",
    "ok": true,
    "why": "replanned=False (expected False), ok=False",
-   "ms": 16694,
+   "ms": 16655,
    "replies": [
-    "The requested \"zorblatt\" button was not found on the page, so it cannot be clicked."
+    "The requested \"zorblatt\" button does not exist on the page, so it cannot be clicked."
    ]
   }
  ]

@@ -1,0 +1,62 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "Scrape.com. Tell me the price of the first book, then tell me the price of the second book, and then tell me which is the cheaper one.",
+   "tier": "plan",
+   "ok": true,
+   "replanned": false,
+   "silence_wait_ms": 512,
+   "stt_ms": 311,
+   "fast_path_ms": 2087,
+   "route_ms": 26872,
+   "agent_steps": 4,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": null,
+   "first_sound_ms": null,
+   "finished_ms": 29783,
+   "reply": "The first book is cheaper.",
+   "detail": "plan 4/4 steps: ['go to scrape.com', 'ask the price of the first book', 'ask the price of the second book', 'ask which is cheaper, the first book or the second book']"
+  },
+  {
+   "turn": 2,
+   "command": "I said go to books.to scrape.com.",
+   "tier": "model",
+   "ok": true,
+   "silence_wait_ms": 512,
+   "stt_ms": 182,
+   "fast_path_ms": 3259,
+   "route_ms": 3259,
+   "agent_steps": 0,
+   "ack_first_sound_ms": 13887,
+   "answer_first_sound_ms": 17132,
+   "first_sound_ms": 13887,
+   "finished_ms": 18407,
+   "reply": "Clicked books to scrape.",
+   "detail": "model clicked [99] ['books to scrape']"
+  },
+  {
+   "turn": 3,
+   "command": "Should I buy this book?",
+   "tier": "agent",
+   "ok": false,
+   "silence_wait_ms": 512,
+   "stt_ms": 144,
+   "fast_path_ms": 0,
+   "route_ms": 1546,
+   "agent_steps": 1,
+   "ack_first_sound_ms": 1048,
+   "answer_first_sound_ms": 2594,
+   "first_sound_ms": 1048,
+   "finished_ms": 6768,
+   "reply": "Which book are you interested in? Please provide the title so I can give a recommendation.",
+   "detail": "question, fast path skipped | 1 steps"
+  }
+ ]
+}

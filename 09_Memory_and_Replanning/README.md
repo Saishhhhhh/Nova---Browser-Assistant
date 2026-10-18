@@ -1,13 +1,16 @@
 # Experiment 9 — Conversation memory, scratchpad comparison, and re-planning (Phase 2)
 
-**Status: complete, with an honest and not entirely flattering result.** Built and wired in: a scratchpad for facts
-found mid-plan, a short conversation history for follow-up questions, and one re-plan attempt after a failed
-step. Tested against the same app **with these turned off**, on 4 real scripted conversations.
+**Status: complete.** Built and wired in: a scratchpad for facts found mid-plan, a short conversation history for
+follow-up questions, and one re-plan attempt after a failed step. Tested against the same app **with these
+turned off**, on 4 real scripted conversations, then exercised live by voice, which found two real bugs that
+were fixed and re-confirmed (section 6).
 
-**Result: 3 of 4 cases passed identically whether memory was on or off; the 4th (the actual comparison answer)
-failed on the stricter check with memory on and passed without it.** The browser agent, given a normal step
-budget and the same open browser session, was already able to recover most of what the memory machinery was
-built to provide. This is not the result I expected going in, and it is reported as found.
+**Benchmark result: 3 of 4 cases passed identically whether memory was on or off; the 4th (the actual comparison
+answer) failed on the stricter check with memory on and passed without it, in the first run** — a result that is
+not the clean "memory wins" story I expected going in, and is reported as found rather than re-run until it
+looked better. After the two live-testing fixes (section 6), a repeat run passed 4/4 both ways, with the
+comparison answer now naming the book; the underlying finding — that the browser agent recovers more on its own
+than expected — still stands and is the one worth remembering from this round.
 
 ---
 
@@ -73,7 +76,30 @@ One concrete improvement worth making before trusting the scratchpad path for re
 should key and phrase facts with the actual item name, not the plan step's own wording, so `compare_from_scratchpad`
 can name what it's comparing instead of saying "the first one."
 
-## 6. Caveats
+## 6. Live voice test found two real bugs, both fixed
+
+The benchmark above only ever ran in text mode. A live voice session (the user, by microphone, not scripted)
+surfaced two real problems that no amount of text-mode testing would have caught, because they only show up
+once conversations run long enough and commands get queued behind a busy assistant:
+
+| Bug | What happened live | Fix |
+|---|---|---|
+| **Conversation-history context grew unbounded.** `max_turns=4` caps the *number* of turns kept, but not their *size* — each remembered reply was quoted in full. By turn 7 of one real session, the appended context was several full paragraphs long (every prior advisory answer, quoted verbatim), and some later agent calls visibly slowed down as a result (one took 31 s just to get "On it." out, mostly spent on a bloated prompt). | `memory.py`: every quoted command and reply is capped to 16 words (`_short()`), and the whole context block is capped again at 500 characters as a safety net, in case many scratchpad entries still add up. |
+| **The waterfall's time breakdown didn't account for queueing.** When a command was transcribed while the assistant was still busy with a previous turn (see `_while_busy` in `app.py`), it waited in the job queue until that turn finished. The printed "silence + transcript + browser + voice" breakdown didn't include that wait, so one real line printed components adding to 4.3 s next to a reported "17.13 s until it started speaking," with nothing accounting for the other ~13 s — confusing to read, even though the total was correct. | `app.py`: both `_run_single` and `_handle_plan` now compute `queued_ms` (time between the real end of speech and when the job actually started being handled) and show it as its own line item whenever it exceeds 100 ms. |
+
+Also observed live, not bugs, worth recording:
+- **The agent recovered gracefully from a mis-transcribed URL twice**, on its own: given "books.tostrap.com" (Sarvam mangled "books.toscrape.com" into something that doesn't resolve), it tried `https://`, then `http://`, then searched DuckDuckGo for the string, found the real site, and navigated there — all within its own step budget, with no help from anything built in this project.
+- **A nonsense fragment ("And yeah.") correctly triggered "Sorry, what should I do?"** rather than being guessed at.
+- **"Stop" correctly cancelled a plan mid-flight, live**, confirming the Phase 1 mechanism tested only in text mode before.
+- **The advisory-question answer, live, was genuinely context-aware**: asked "should I buy this book" on books.toscrape.com, the agent recognised it as a demo site with randomly generated prices and said so, rather than inventing confident real-world buying advice.
+- **A spoken correction ("I said go to books.to scrape.com") is not understood as a correction.** It doesn't start with a recognised navigation phrase, so it fell to the model-step, which tried to find something to click and picked the wrong thing. Not fixed — documented as a known gap; handling "no, I meant X" framing well would need the router to recognise correction language and extract the real command from inside it, which is a real piece of work, not a quick fix.
+
+The benchmark was re-run after the two fixes (not to chase a better number, but because the context-size fix
+changes what the model actually sees): 4/4 passed in both conditions, with the comparison answer this time
+naming the cheaper book by title. The underlying finding in section 4 is unchanged by this — small-model
+phrasing varies a little run to run regardless.
+
+## 7. Caveats
 
 - **4 cases, one run each, one session, one speaker's phrasing of each request.** Not a statistically powerful
   test; it is a check that the mechanisms work and a first honest look at whether they help.
@@ -82,11 +108,15 @@ can name what it's comparing instead of saying "the first one."
 - **The comparison scratchpad case's "failure" is a strict-checker artefact as much as a real defect** — the
   compare answer was factually correct, just under-specific. Both are worth fixing (the naming issue is cheap
   to fix; "is this check too strict" is a benchmark question, not an app one).
-- Everything was run in text mode, headless, no sound. Nothing here has been tried by voice.
+- The scored benchmark (section 3/4) ran in text mode only. It was tried live by voice separately (section 6),
+  which found real bugs text mode couldn't — so text-mode-only testing of any new mechanism should be treated
+  as provisional, not as the last word.
 - Re-planning was only tested on one kind of failure (an element that does not exist). A failure caused by a
   slow page or a wrong page was not tried.
+- A spoken correction ("I said X", "no, I meant Y") is not understood as a correction (section 6) — it is run
+  as a literal new command, which can go badly wrong (it was interpreted as a click target in the live test).
 
-## 7. Files
+## 8. Files
 
 | File | What it does |
 |---|---|
@@ -104,7 +134,7 @@ Also exercised ad hoc while building this, in `07_End_To_End_Latency/`: `test_me
 follow-up), `test_replan_commands.txt` (the re-plan path) — these are what actually found the one real bug fixed
 along the way (below), not the scored benchmark itself.
 
-## 8. One real bug found and fixed along the way
+## 9. One real bug found and fixed along the way (the planner/router integration)
 
 Planner-emitted steps use the literal word `"ask ..."` for a question step. The router's `QUESTION` detector
 (added in Phase 0/Experiment 7 to skip a wasted model-step call on natural questions like "tell me" or "what")
@@ -116,11 +146,13 @@ went from a garbled scratchpad to two correct prices once this was in. This is t
 only shows up once two separately-built pieces (the planner's own grammar, the router's question detector) are
 actually run together — exactly why this was tested end to end before being called done.
 
-## 9. What this hands on
+## 10. What this hands on
 
 - **The app** already has all three mechanisms wired in behind `args.memory` (default on; `--no-memory` to
   disable). No further wiring needed.
 - **A genuine memory-value test**, if ever wanted: a case where the correct answer requires a fact that no page
   currently reachable by the browser contains — the gap this round left open.
+- **Correction-language understanding** ("I said X", "no, I meant Y") — a real, observed gap (section 6), not
+  attempted here. Would need the router to recognise correction framing and pull the real command out of it.
 - **Phase 3+** (status display, one-command start, further site validation, synthesis) is next, per the plan
   discussed with the user; this experiment does not block any of it.

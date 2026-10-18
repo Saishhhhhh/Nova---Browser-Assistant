@@ -45,6 +45,17 @@ class Turn:
     ok: bool = True
 
 
+def _short(s: str, words: int = 16) -> str:
+    """Cap text to `words` words. Without this, context_block() grows every turn (found in a live session:
+    by turn 7 the appended context was several full paragraphs, each prior reply quoted in full, which made
+    later agent calls visibly slower). max_turns bounds the *count* of turns kept; this bounds their *size*."""
+    w = (s or "").split()
+    return s if len(w) <= words else " ".join(w[:words]) + "..."
+
+
+MAX_CONTEXT_CHARS = 500  # a hard cap on the whole block, in case many scratchpad entries still add up
+
+
 @dataclass
 class ConversationMemory:
     max_turns: int = 4
@@ -62,13 +73,16 @@ class ConversationMemory:
         self.scratchpad = {}
 
     def context_block(self) -> str:
-        """One line of recent turns and remembered facts, meant to be appended after the live command."""
+        """One line of recent turns and remembered facts, meant to be appended after the live command.
+        Each piece is capped (see `_short`) and the whole block is capped again as a safety net."""
         parts = []
         if self.turns:
-            parts.append("earlier: " + "; ".join(f'you said "{t.command}" and I said "{t.reply}"' for t in self.turns))
+            parts.append("earlier: " + "; ".join(
+                f'you said "{_short(t.command)}" and I said "{_short(t.reply)}"' for t in self.turns))
         if self.scratchpad:
-            parts.append("remembered: " + "; ".join(f"{k} -> {v}" for k, v in self.scratchpad.items()))
-        return " | ".join(parts)
+            parts.append("remembered: " + "; ".join(f"{_short(k, 10)} -> {_short(v)}" for k, v in self.scratchpad.items()))
+        block = " | ".join(parts)
+        return block if len(block) <= MAX_CONTEXT_CHARS else block[:MAX_CONTEXT_CHARS] + "..."
 
 
 async def compare_from_scratchpad(client: httpx.AsyncClient, question: str, scratchpad: dict) -> tuple:
