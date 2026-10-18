@@ -20,11 +20,14 @@ import re
 
 from dom_fastpath import FastPath, parse_command
 
-# Commands that ask for information from the page. The rules never match them and the one-model-call step only
-# answers "none" (Exp 7 measured 1.4-3.5 s wasted), so they go straight to the agent.
+# Commands that ask for information or an opinion about the page. The rules never match them and the one-model-call
+# step only answers "none" (Exp 7 measured 1.4-3.5 s wasted), so they go straight to the agent. Includes advisory /
+# opinion phrasing ("should I buy this", "is this worth it") alongside plain factual questions, found missing when
+# testing conversational questions like "should I buy this monitor" (it fell through the wasted model-step call).
 QUESTION = re.compile(
     r"^(?:tell me|what|what's|whats|which|who|how many|how much|how|where|when|why|find|read|summari[sz]e|list|count|"
-    r"compare|is there|are there|does|can you tell)\b", re.I)
+    r"compare|is there|are there|does|can you tell|should i|should we|should you|is it|is this|is that|are these|"
+    r"are those|would you|do you think|did you|can i|could i|recommend)\b", re.I)
 
 
 # Spoken filler and politeness in front of a command ("um go back", "please scroll down", "can you click travel")

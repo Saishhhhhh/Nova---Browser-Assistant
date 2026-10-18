@@ -1,11 +1,12 @@
 # Experiment 3 — Speech-to-text (STT)
 
-**Status: complete.** Result: **batch transcription of a finished clip, with ElevenLabs Scribe v2 as the primary engine and Sarvam Saaras V4 as the fast / Hinglish alternative.** Streaming transcription was tested and was not worth its complexity for short voice commands.
+**Status: complete.** Result: **batch transcription of a finished clip, with Sarvam Saaras V4 as the primary engine and ElevenLabs Scribe v2 as the accuracy fallback.**
+**Updated after Exp 6/7:** the original recommendation here was ElevenLabs primary, chosen purely for its 0.6% WER lead. Once the voice loop was actually built and run live (Exp 6), Sarvam's ~5x speed advantage (143 ms vs 792 ms) mattered more in practice than the 1.1-point WER gap, and it avoids burning ElevenLabs credits on every turn. The app has run on Sarvam since Exp 6. Streaming transcription was tested and was not worth its complexity for short voice commands.
 
 | Role | Engine and model | Why |
 |---|---|---|
-| **Primary** | **ElevenLabs `scribe_v2`**, batch | Most accurate (0.6% WER, 97% of commands understood), no errors, no invented words on silence, ~0.8 s per clip |
-| **Fast / Hinglish** | **Sarvam `saaras:v4`** (the API default), batch | Fastest by far (~0.14 s per clip), 1.7% WER, got all four Hinglish commands right (ElevenLabs misheard one) |
+| **Primary** | **Sarvam `saaras:v4`** (the API default), batch | Fastest by far (~0.14 s per clip), 1.7% WER, got all four Hinglish commands right (ElevenLabs misheard one); the app's actual engine since Exp 6 |
+| **Accuracy fallback** | **ElevenLabs `scribe_v2`**, batch | Most accurate (0.6% WER, 97% of commands understood), no errors, no invented words on silence, ~0.8 s per clip — switch to this if Sarvam's accuracy proves insufficient in real use |
 | **Live captions only, if wanted** | Deepgram `nova-3`, streaming | The only streaming engine that was both reliable and reasonably accurate (2.3% WER) |
 | **Free emergency fallback** | Groq `whisper-large-v3-turbo` | 1.2% WER at ~0.18 s, but 20 requests/minute on the free tier |
 
