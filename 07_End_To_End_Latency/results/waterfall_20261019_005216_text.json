@@ -1,0 +1,61 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "go to books.toscrape.com, open the travel category, and tell me how many books are on the page",
+   "tier": "plan",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "fast_path_ms": 1754,
+   "route_ms": 17343,
+   "agent_steps": 1,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": null,
+   "first_sound_ms": null,
+   "finished_ms": 19098,
+   "reply": "There are 11 books on the page.",
+   "detail": "plan 3/3 steps: ['go to books.toscrape.com', 'click travel', 'ask how many books are on the page']"
+  },
+  {
+   "turn": 2,
+   "command": "scroll down",
+   "tier": "rules",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "fast_path_ms": 574,
+   "route_ms": 574,
+   "agent_steps": 0,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": 946,
+   "first_sound_ms": 946,
+   "finished_ms": 1939,
+   "reply": "Scrolled down.",
+   "detail": "scrolled down (0 -> 597 px)"
+  },
+  {
+   "turn": 3,
+   "command": "go to books.toscrape.com, click the login button, and tell me what happened",
+   "tier": "plan",
+   "ok": false,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "fast_path_ms": 1737,
+   "route_ms": 85606,
+   "agent_steps": 7,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": null,
+   "first_sound_ms": null,
+   "finished_ms": 87344,
+   "reply": "I was unable to locate a login button on the site. The site appears to have no login functionality, and the guessed login URL returned a 404 page with no clickable elements. Consequently, I cannot cli",
+   "detail": "plan 2/3 steps: ['go to books.toscrape.com', 'click the login button', 'ask what happened']"
+  }
+ ]
+}

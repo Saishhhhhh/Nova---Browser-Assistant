@@ -1,0 +1,61 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "go to books.toscrape.com",
+   "tier": "rules",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "fast_path_ms": 2029,
+   "route_ms": 2029,
+   "agent_steps": 0,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": 2420,
+   "first_sound_ms": 2420,
+   "finished_ms": 4688,
+   "reply": "Opened books.toscrape.com.",
+   "detail": "navigated to https://books.toscrape.com"
+  },
+  {
+   "turn": 2,
+   "command": "click the first book",
+   "tier": "rules",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "fast_path_ms": 3155,
+   "route_ms": 3155,
+   "agent_steps": 0,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": 3530,
+   "first_sound_ms": 3530,
+   "finished_ms": 4923,
+   "reply": "Clicked a light in the attic.",
+   "detail": "clicked [582] ['a light in the attic'] by position (1 of 8 on screen)"
+  },
+  {
+   "turn": 3,
+   "command": "should I buy this book",
+   "tier": "agent",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "fast_path_ms": 0,
+   "route_ms": 3471,
+   "agent_steps": 1,
+   "ack_first_sound_ms": 385,
+   "answer_first_sound_ms": 3865,
+   "first_sound_ms": 385,
+   "finished_ms": 30129,
+   "reply": "Based on the information shown on the page, the book *A Light in the Attic* by Shel Silverstein is a classic collection of poetry and drawings, currently in stock (22 copies available) and priced at £",
+   "detail": "question, fast path skipped | 1 steps"
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+# The original motivating question from the session: does an advisory/opinion question reach the agent
+# directly (no wasted model-step call) and get a reasoned answer from the page?
+go to books.toscrape.com
+click the first book
+should I buy this book

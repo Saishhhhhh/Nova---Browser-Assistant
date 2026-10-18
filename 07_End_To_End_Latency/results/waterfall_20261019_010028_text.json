@@ -1,0 +1,44 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "go to books.toscrape.com, tell me the price of the first book, then tell me the price of the second book, and tell me which is cheaper",
+   "tier": "plan",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "fast_path_ms": 1991,
+   "route_ms": 28950,
+   "agent_steps": 2,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": null,
+   "first_sound_ms": null,
+   "finished_ms": 30942,
+   "reply": "I cannot answer that because the price of the first book is not provided.",
+   "detail": "plan 4/4 steps: ['go to books.toscrape.com', 'ask the price of the first book', 'ask the price of the second book', 'ask which is cheaper, the first book or the second book']"
+  },
+  {
+   "turn": 2,
+   "command": "which one did you say was cheaper",
+   "tier": "agent",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "fast_path_ms": 0,
+   "route_ms": 2228,
+   "agent_steps": 2,
+   "ack_first_sound_ms": 371,
+   "answer_first_sound_ms": 2592,
+   "first_sound_ms": 371,
+   "finished_ms": 12495,
+   "reply": "The first book (\"A Light in the Attic\") is cheaper at £51.77, compared to the second book (\"Tipping the Velvet\") at £53.74.",
+   "detail": "question, fast path skipped | 2 steps"
+  }
+ ]
+}

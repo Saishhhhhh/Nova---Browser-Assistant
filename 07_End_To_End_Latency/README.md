@@ -1,6 +1,6 @@
 # Experiment 7 — End-to-end latency (the first runnable version of the app)
 
-**Status: in progress.** The app is built, the 10-command waterfall has been measured in **text mode**, and one live voice run has been done (section 4.2), which exposed several real problems that are now fixed. **Another live run is needed** to confirm the fixes by voice (section 6).
+**Status: in progress.** The app is built, the 10-command waterfall has been measured in **text mode**, and one live voice run has been done (section 4.2), which exposed several real problems that are now fixed. Two harder-sites rounds (section 4.3/4.4) and the planner integration with informative replies (section 4.5) are also done, all in text mode. **A live voice run is needed** to confirm everything by voice (section 6).
 
 ---
 
@@ -180,6 +180,23 @@ What this does and does not show:
 - eBay was unreliable in other ways: "go to ebay.com" once landed on an eBay "Error Page", and the search needed the agent (23 to 26 s) in two of three runs because the rules did not find its search box. Not investigated.
 - The agent still stalls unpredictably (a 7 s question took 89 s in one run).
 
+### 4.5 Phase 1: the planner wired into the app, and informative replies
+
+Two things that were still missing after section 4.4: every reply said "Done." regardless of what happened, and a multi-step request ("go to Amazon, search for MSI monitors, and tell me the cheapest one") was still handed whole to the slow agent instead of using Experiment 8's planner.
+
+**Informative replies:** `dom_fastpath.Result` got a `spoken` field, set at every point the fast path succeeds, using the real target/label instead of a flat "Done.": `Opened books.toscrape.com.`, `Clicked travel.`, `Scrolled down.` (or `I tried to scroll down, but the page didn't move.` when the self-check says it didn't), `Searched for lofi music.`, `Typed into the search box.`. The router speaks `fast.spoken` when present, falling back to `"Done."` only if a path was missed. A position-hint click says the element it actually clicked ("Clicked tipping the velvet.") rather than the raw target ("the second book"), which is more informative exactly when position hints matter most.
+
+**The planner, wired in** ([planner.py](../02_Reasoning_and_Routing/planner.py), shared with Experiment 8's benchmark scripts so both run the identical prompt and model):
+- A request is only planned if it joins more than one action — `looks_multi_step()`, a regex checked against Exp 8's 18 test requests (15/15 multi-step matched, 3/3 single-step did not). A single command skips the planner entirely, matching Exp 8's finding that planning is not a speed-up for one action.
+- DeepInfra Gemma (the same model, same prompt Exp 8 measured at 18/18 exact plans) splits the request; each step runs through `router.run_command()` in order, and **every step's own reply is spoken** — because replies are now informative, no separate narration text was needed, the router's real answer for each step ("Clicked travel.", then eventually the agent's answer to the final "ask" step) is already the right thing to say.
+- **A failed step stops the plan there**, speaking how far it got ("I got to step 2 of 3, but then: ...") instead of guessing at the rest or silently wandering.
+- **"Stop" cancels a plan in progress**, not just the current step: `cancel_agent()` now checks a `plan_active` flag and, if set, marks the plan to end after whatever step is currently running (the agent step itself is also interrupted immediately, same as before) — tested in [test_cancel_plan.py](test_cancel_plan.py), which starts a 5-step plan and says "stop" 3 s in: the plan stopped after step 1 of 5, 1.8 s after "stop".
+- If the planner call itself fails (bad JSON, HTTP error), the request falls back to running as a single command through the normal path, so a planner outage degrades to the old (if slower for multi-step) behaviour rather than failing outright.
+
+**Tested in text mode** ([test_plan_commands.txt](test_plan_commands.txt)): a 3-step plan on the practice site (11 books counted correctly, 19.1 s total including a real agent call), a single command confirmed to skip the planner, and a plan with no matching button, which correctly stopped at step 2 and reported it (the agent spent about 85 s searching for a login button that does not exist before giving up — that long tail is the agent's own behaviour, unrelated to the planner).
+
+Not yet tested: the planner on a live voice run, or on the harder sites from section 4.3/4.4.
+
 ## 5. Caveats
 
 - **The agent answered in one step every time.** The practice sites are simple and the questions have the answer on the page. Experiment 1 measured 160 to 250 s for multi-step tasks on heavy sites, which this set does not represent. The agent times here are best cases, and the plan's "On it." plus spoken progress becomes more important with heavier pages.
@@ -208,12 +225,18 @@ Add the live numbers to section 3 as a "voice mode" column.
 
 | File | What it does |
 |---|---|
-| [app.py](app.py) | The app: voice or typed commands, router, spoken reply, per-command waterfall |
+| [app.py](app.py) | The app: voice or typed commands, planner for multi-step requests, router, informative spoken reply, per-command waterfall |
+| [../02_Reasoning_and_Routing/planner.py](../02_Reasoning_and_Routing/planner.py) | Splits a multi-action request into router steps (Gemma); shared with Experiment 8's benchmark |
 | [commands_mixed.txt](commands_mixed.txt) | The 10-command test set |
 | [smoke_commands.txt](smoke_commands.txt) | Four rules-only commands for a quick check (no model cost) |
+| [harder_sites.py](harder_sites.py) | The two harder-sites rounds (section 4.3/4.4), `--fresh` for the unseen-sites set |
+| [test_plan_commands.txt](test_plan_commands.txt) | Multi-step plan, single command, failing plan (text mode) |
+| [test_cancel.py](test_cancel.py) | "Stop" cancels a single slow agent command |
+| [test_cancel_plan.py](test_cancel_plan.py) | "Stop" cancels a multi-step plan partway through |
 | `results/waterfall_*.json` | One file per run: per-command stage timings |
 
 ## 8. What this hands on
 
-- **The app phase:** skip the model step for question-like commands, speak "On it." earlier, make replies informative, and add spoken progress for long agent runs.
-- **Experiment 8:** planning and position hints. The commands that cost the most here are the ones the rules refuse, so better understanding of what needs the agent (and splitting multi-step requests into fast-path steps) is where the remaining time is.
+- **Done (Phase 1):** skip the model step for question-like commands (now including advisory phrasing — "should I buy this", "is this worth it"), speak "On it." earlier, informative replies instead of "Done.", spoken progress for long agent runs, and the Experiment 8 planner wired in for multi-step requests with per-step narration and plan-aware cancellation.
+- **Done (Phase 2 — Experiment 9):** a scratchpad for facts found mid-plan, conversation history for referential follow-ups, and one re-plan attempt on a failed step, all wired in behind a `--no-memory` flag. Tested with vs without on 4 real conversations: 3 of 4 passed identically either way, meaning the browser agent on its own already recovers much of what this was built to provide — reported honestly, not oversold, in [09_Memory_and_Replanning/README.md](../09_Memory_and_Replanning/README.md). One real integration bug found and fixed along the way: planner-emitted "ask ..." steps weren't recognised by the router's question detector.
+- **Phase 3+:** a status display, one-command start, a further validation round on sites not yet tried with the planner, then the synthesis document.

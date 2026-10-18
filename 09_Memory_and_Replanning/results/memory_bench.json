@@ -1,0 +1,92 @@
+{
+ "with_memory": [
+  {
+   "name": "comparison (2 products, needs scratchpad)",
+   "ok": false,
+   "why": "did not clearly say the first book was cheaper: 'the first book is cheaper.'",
+   "ms": 26546,
+   "replies": [
+    "The first book is cheaper."
+   ]
+  },
+  {
+   "name": "follow-up after navigating away (needs conversation history)",
+   "ok": true,
+   "why": "recalled the first book's price (£51.77) after navigating away",
+   "ms": 29804,
+   "replies": [
+    "Opened books.toscrape.com.",
+    "Clicked a light in the attic.",
+    "The price of the book \"A Light in the Attic\" is £51.77.",
+    "Went back.",
+    "Opened quotes.toscrape.com.",
+    "The price of the book \"A Light in the Attic\" is £51.77."
+   ]
+  },
+  {
+   "name": "advisory opinion question (control: should behave the same either way)",
+   "ok": true,
+   "why": "(35 words): 'The page describes *A Light in the Attic* as a classic collection of Shel\\u202fSilverstein’s poetry and drawings, and it is listed as in‑stock (22 copies) with a pri'",
+   "ms": 35305,
+   "replies": [
+    "Opened books.toscrape.com.",
+    "Clicked a light in the attic.",
+    "The page describes *A Light in the Attic* as a classic collection of Shel Silverstein’s poetry and drawings, and it is listed as in‑stock (22 copies) with a price of £51.77. However, the site includes"
+   ]
+  },
+  {
+   "name": "re-plan once after a step fails (a button that does not exist)",
+   "ok": true,
+   "why": "replanned=True (expected True), ok=True",
+   "ms": 15796,
+   "replies": [
+    "What happened?"
+   ]
+  }
+ ],
+ "without_memory": [
+  {
+   "name": "comparison (2 products, needs scratchpad)",
+   "ok": true,
+   "why": "named the first (cheaper) book",
+   "ms": 35550,
+   "replies": [
+    "Which is cheaper, the first book (A Light in the Attic, £51.77) or the second book (Tipping the Velvet, £53.74)?"
+   ]
+  },
+  {
+   "name": "follow-up after navigating away (needs conversation history)",
+   "ok": true,
+   "why": "recalled the first book's price (£51.77) after navigating away",
+   "ms": 30570,
+   "replies": [
+    "Opened books.toscrape.com.",
+    "Clicked a light in the attic.",
+    "The price of \"A Light in the Attic\" is £51.77.",
+    "Went back.",
+    "Opened quotes.toscrape.com.",
+    "The first book, “A Light in the Attic”, is priced at £51.77."
+   ]
+  },
+  {
+   "name": "advisory opinion question (control: should behave the same either way)",
+   "ok": true,
+   "why": "(34 words): 'The book \"A Light in the Attic\" is a classic collection of Shel Silverstein’s poetry and drawings, and it’s currently in stock. However, the listed price (£51.7'",
+   "ms": 35458,
+   "replies": [
+    "Opened books.toscrape.com.",
+    "Clicked a light in the attic.",
+    "The book \"A Light in the Attic\" is a classic collection of Shel Silverstein’s poetry and drawings, and it’s currently in stock. However, the listed price (£51.77) is quite high for a paperback poetry "
+   ]
+  },
+  {
+   "name": "re-plan once after a step fails (a button that does not exist)",
+   "ok": true,
+   "why": "replanned=False (expected False), ok=False",
+   "ms": 16694,
+   "replies": [
+    "The requested \"zorblatt\" button was not found on the page, so it cannot be clicked."
+   ]
+  }
+ ]
+}

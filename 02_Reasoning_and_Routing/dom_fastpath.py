@@ -396,6 +396,15 @@ class Intent:
     amount: float = 1.0
 
 
+def _site_name(url: str) -> str:
+    """"https://www.books.toscrape.com/" -> "books.toscrape.com", for a short spoken reply."""
+    return re.sub(r"^https?://(www\.)?", "", url).rstrip("/") or url
+
+
+def _first_label(labels, fallback: str = "it") -> str:
+    return (labels[0] if labels else fallback).strip() or fallback
+
+
 def parse_command(command: str) -> Intent:
     t = command.strip().rstrip(".!?")
     m = re.match(r"^(?:go to|navigate to|visit|open)\s+(\S+)$", t, re.I)
@@ -436,6 +445,7 @@ class Result:
     read_ms: float = 0.0
     blocked: bool = False  # a popup covers the page and could not be closed
     total_ms: float = 0.0
+    spoken: str = ""  # a short natural-language reply for the voice layer ("Opened Travel."); "" falls back to "Done."
 
 
 class FastPath:
@@ -547,6 +557,7 @@ class FastPath:
                 await self._act({"navigate": {"url": intent.target, "new_tab": False}})
                 self._dirty = True
                 res.handled, res.detail = True, f"navigated to {intent.target}"
+                res.spoken = f"Opened {_site_name(intent.target)}."
                 title = await self._bot_check()
                 if title:
                     res.blocked, res.detail = True, f"bot check: the site is asking to verify the visitor ('{title}')"
@@ -557,6 +568,7 @@ class FastPath:
                 await self._act({"go_back": {}})
                 self._dirty = True
                 res.handled, res.detail = True, "went back"
+                res.spoken = "Went back."
             else:  # search / type / click, or an unknown command when a model is available
                 await self._settle_if_dirty(res)
                 title = await self._bot_check()
@@ -602,6 +614,7 @@ class FastPath:
             await self._act(payload)
             if before is None:
                 res.handled, res.detail = True, f"scrolled {intent.direction} (not verified)"
+                res.spoken = f"Scrolled {intent.direction}."
                 return
             await asyncio.sleep(0.3)
             after = await self._scroll_y()
@@ -613,6 +626,8 @@ class FastPath:
         res.verified = abs(after - before) > 1
         res.detail = (f"scrolled {intent.direction} ({before:.0f} -> {after:.0f} px)" if res.verified
                       else f"scroll ran twice but the page did not move (still {after:.0f} px)")
+        res.spoken = (f"Scrolled {intent.direction}." if res.verified
+                      else f"I tried to scroll {intent.direction}, but the page didn't move.")
 
     async def _ask_model(self, command: str, elements: list, res: Result) -> None:
         """Rules refused: one short model call picks the element. Anything unclear stays refused."""
@@ -639,9 +654,11 @@ class FastPath:
             await self._act({"click": {"index": target.index}})
             self._dirty = True
             res.handled, res.detail = True, f"model clicked [{target.index}] {label}"
+            res.spoken = f"Clicked {_first_label(label)}."
         elif pick.action == "type" and target and pick.text:
             await self._act({"input": {"index": target.index, "text": pick.text, "clear": True}})
             res.handled, res.detail = True, f"model typed into [{target.index}] {label}"
+            res.spoken = f"Typed into {_first_label(label)}."
         else:
             why = pick.note or "model chose an element that is not on the page"
             res.detail = f"{rules_note} | model declined ({why})"
@@ -665,6 +682,7 @@ class FastPath:
             await self._act({"send_keys": {"keys": "Enter"}})
             self._dirty = True
             res.handled, res.detail = True, f"typed '{intent.text}' into [{box.index}] and pressed Enter"
+            res.spoken = f"Searched for {intent.text}."
         elif intent.kind == "type":
             hit = find_field(elements, intent.target)
             if not hit:
@@ -672,6 +690,7 @@ class FastPath:
                 return
             await self._act({"input": {"index": hit[0].index, "text": intent.text, "clear": True}})
             res.handled, res.detail = True, f"typed into [{hit[0].index}] (score {hit[1]:.2f})"
+            res.spoken = f"Typed into {_first_label(hit[0].labels, intent.target)}."
         elif intent.kind == "click":
             ranked = rank_click_targets(elements, intent.target)
             top, score = ranked[0] if ranked else (None, 0.0)
@@ -702,6 +721,7 @@ class FastPath:
                         await self._act({"click": {"index": picked.index}})
                         self._dirty = True
                         res.handled, res.detail = True, f"clicked [{picked.index}] {picked.labels[:1]} by position ({note})"
+                        res.spoken = f"Clicked {_first_label(picked.labels, intent.target)}."
                         return
                     pos_note = f"position hint: {note}; "
             if top is None or score < MIN_SCORE:
@@ -711,3 +731,4 @@ class FastPath:
             await self._act({"click": {"index": top.index}})
             self._dirty = True
             res.handled, res.detail = True, f"clicked [{top.index}] {top.labels[:1]} (score {score:.2f})"
+            res.spoken = f"Clicked {_first_label(top.labels, intent.target)}."

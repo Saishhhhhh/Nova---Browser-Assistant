@@ -11,8 +11,18 @@ What happens to each command (the "waterfall"):
 If the router has to start the slow browser agent, "On it." is spoken at once so you are not left in silence.
 Everything is timed from the moment you stopped speaking. A JSON waterfall is written to results/.
 
-REAL API CALLS and a real browser: DeepInfra Gemma for the model step, Cerebras for the agent, Sarvam and Deepgram for speech.
-Voice mode needs HEADPHONES (see Experiment 6). Keys 1 2 3 / 4 5 6 / q work as in Experiment 6.
+A request that joins several actions ("go to Amazon, search for MSI monitors, and tell me the cheapest one") is
+split into steps by the planner (Experiment 8, Gemma) instead of being handed whole to the agent. Each step runs
+through the router and its own reply is spoken ("Opened amazon.com." -> "Searched for MSI monitors." -> the
+answer). A single command skips the planner entirely (Exp 8 found planning is not a speed-up for one action).
+Say "stop" at any point to cancel a plan or a slow agent step.
+
+Replies are informative, not "Done." for everything: "Opened Travel.", "Scrolled down.", "Clicked the second
+result." (dom_fastpath's own natural-language reply for whatever it actually did, Phase 1 of the plan).
+
+REAL API CALLS and a real browser: DeepInfra Gemma for the model step and the planner, Cerebras for the agent,
+Sarvam and Deepgram for speech. Voice mode needs HEADPHONES (see Experiment 6). Keys 1 2 3 / 4 5 6 / q work as
+in Experiment 6.
 """
 import argparse
 import asyncio
@@ -31,9 +41,13 @@ ROOT = HERE.parent
 for sub in ("06_Turn_Taking", "02_Reasoning_and_Routing", "01_Browser Automation"):
     sys.path.insert(0, str(ROOT / sub))
 
+import httpx  # noqa: E402
+
 import voice_loop as vl  # noqa: E402
 from dom_fastpath import parse_command  # noqa: E402
-from router import QUESTION, clean_command  # noqa: E402
+from memory import COMPARE_QUESTION, ConversationMemory, compare_from_scratchpad, needs_memory  # noqa: E402
+from planner import looks_multi_step, parse_step, plan, replan_after_failure  # noqa: E402
+from router import QUESTION, RouterResult, clean_command  # noqa: E402
 from voice_loop import Loop, mic_source, transcribe  # noqa: E402
 
 ACK = "On it."
@@ -65,6 +79,10 @@ class AppLoop(Loop):
         self.slow_running = False   # a command is going through the slow path (model step or agent)
         self.cancelled = False
         self.pending = None         # (verb, time) after "Click what?": the next words complete the command
+        self.plan_client = None     # httpx.AsyncClient for planner.plan(), set once the browser/router are up
+        self.plan_active = False    # a multi-step plan is currently running (set for its whole duration, not
+        self.plan_cancelled = False  # just the current step), so "stop" cancels the whole plan, not one step
+        self.memory = ConversationMemory()   # Phase 2: recent turns + scratchpad, carried across the session
 
     # --- turn-taking rules specific to the app
     def barge_applies(self) -> bool:
@@ -101,7 +119,16 @@ class AppLoop(Loop):
         self.jobs.put(job)
 
     def cancel_agent(self) -> None:
-        if not self.router.cancel():
+        stopped_agent = self.router.cancel()
+        if self.plan_active:
+            # the running agent step (if any) will stop now; a quick rules step cannot be interrupted mid-click,
+            # so plan_cancelled makes the loop break as soon as the current step finishes
+            self.plan_cancelled = True
+            self.cancelled = True
+            self.say("  >> stop: cancelling the plan" + ("" if stopped_agent else " (current step will finish first)"))
+            threading.Thread(target=self._speak, args=("Okay, stopping.", self.epoch, {}), daemon=True).start()
+            return
+        if not stopped_agent:
             self.say("  (nothing to stop)")
             return
         self.cancelled = True
@@ -156,12 +183,29 @@ class AppLoop(Loop):
                 text = f"{self.pending[0]} {cand}"
                 self.say(f"  (joined with \"{self.pending[0]}\": \"{text}\")")
         self.pending = None
+        if self.plan_client is not None and looks_multi_step(text):
+            self._handle_plan(text, stt_ms, job)
+            return
+        self._run_single(text, stt_ms, job)
+
+    def _run_single(self, text: str, stt_ms: float, job: dict) -> None:
         t_end = job["t_trigger"] - job["wait_ms"] / 1000
         cur = {"epoch": job["epoch"], "t_speech_end": t_end, "ack_ms": None}
         self._cur = cur
+        # Phase 2: a command that points at something outside itself ("the cheaper one", "go back to that") gets
+        # the recent conversation and any remembered facts appended, so the agent (which sees the whole string as
+        # its task) has something to resolve the reference against. Appended AFTER the real command, not before,
+        # so the rules and the QUESTION check (which only look at the start of the string) see it unchanged.
+        to_run = text
+        if self.args.memory and len(text.split()) > 2 and needs_memory(text):  # leave short fragments ("that")
+                                                             # to the router's own clarify/vague-command handling
+            ctx = self.memory.context_block()
+            if ctx:
+                to_run = f"{text} ({ctx})"
+                self.say(f"  (added memory: {ctx[:160]})")
         t_route = time.perf_counter()
         try:
-            res = self.runner.run(self.router.run_command(text))
+            res = self.runner.run(self.router.run_command(to_run))
         finally:
             cur["done"] = True
             self.slow_running = False
@@ -188,6 +232,7 @@ class AppLoop(Loop):
                 "stt_ms": round(stt_ms), "silence_wait_ms": round(job["wait_ms"]), "hangover_s": job["hangover"],
                 "route_ms": round(route_ms), "tier": res.tier, "t_speech_end": t_end}
         self._speak(res.reply, job["epoch"], meta)
+        self.memory.add_turn(text, res.reply, res.ok)
         done_ms = (time.perf_counter() - t_end) * 1000
         first_sound = min(x for x in (cur["ack_ms"], meta.get("felt_ms")) if x is not None) if (cur["ack_ms"] or meta.get("felt_ms")) else None
         rec = {"turn": n, "command": text, "tier": res.tier, "ok": res.ok, "silence_wait_ms": meta["silence_wait_ms"],
@@ -201,6 +246,94 @@ class AppLoop(Loop):
                  f"browser step {rec['route_ms'] / 1000:.2f} [{rec['tier']}{', ' + str(rec['agent_steps']) + ' steps' if rec['agent_steps'] else ''}] | "
                  f"voice {meta.get('tts_first_audio_ms', 0) / 1000:.2f}   ->  first sound {((rec['first_sound_ms'] or 0) / 1000):.2f} s{ack}, "
                  f"answer {(rec['answer_first_sound_ms'] or 0) / 1000:.2f} s, finished {rec['finished_ms'] / 1000:.2f} s")
+
+    def _handle_plan(self, text: str, stt_ms: float, job: dict) -> None:
+        """A request that joins several actions ("go to Amazon, search for X, tell me the cheapest"): split it
+        with the planner (Exp 8), then run each step through the router in turn, speaking its own reply after
+        each one. A failed step stops the plan there, saying how far it got, instead of guessing at the rest.
+        Every step's reply is already natural language (dom_fastpath's `spoken` field, wired in Phase 1), so no
+        separate narration text is needed here — the router's own reply for "clicked the second result" already
+        names what it actually clicked.
+        """
+        t_end = job["t_trigger"] - job["wait_ms"] / 1000
+        cur = {"epoch": job["epoch"], "t_speech_end": t_end, "ack_ms": None}
+        self._cur = cur
+        try:
+            steps, plan_ms, err = self.runner.run(plan(self.plan_client, text))
+        except Exception as e:
+            steps, plan_ms, err = None, 0.0, f"{type(e).__name__}: {e}"
+        if not steps:
+            cur["done"] = True
+            self.say(f"  (planning failed: {err}; running it as one command instead)")
+            self._run_single(text, stt_ms, job)
+            return
+        self.say(f"  (plan, {round(plan_ms)} ms, {len(steps)} steps: " + "  ->  ".join(steps) + ")")
+        self.slow_running = True
+        self.plan_active = True
+        self.plan_cancelled = False
+        steps = list(steps)             # a mutable copy: replan_after_failure can splice in a replacement tail
+        final_res, n_done, agent_steps_total, replanned = None, 0, 0, False
+        t_steps = time.perf_counter()
+        try:
+            i = 0
+            while i < len(steps):
+                step = steps[i]
+                i += 1
+                if job["epoch"] != self.epoch:
+                    self.say("  (you spoke again; plan dropped)")
+                    return
+                kind, _ = parse_step(step)
+                # a comparison/verdict question ("which is cheaper") is answered from facts earlier "ask" steps
+                # already found, not by reading whatever page the browser happens to be on now (Phase 2)
+                if self.args.memory and kind == "ask" and COMPARE_QUESTION.search(step) and self.memory.scratchpad:
+                    answer, cmp_ms = self.runner.run(compare_from_scratchpad(self.plan_client, step, self.memory.scratchpad))
+                    res = RouterResult(step, "compare", True, answer, detail="answered from remembered facts",
+                                       fast_ms=cmp_ms, total_ms=cmp_ms)
+                else:
+                    res = self.runner.run(self.router.run_command(step))
+                    if self.args.memory and kind == "ask" and res.ok:
+                        self.memory.remember(step, res.reply)
+                final_res, n_done = res, i
+                agent_steps_total += res.agent_steps
+                if self.plan_cancelled:
+                    self.say(f"  (plan stopped after step {i}/{len(steps)}: \"{step}\")")
+                    return
+                if not res.ok:
+                    self.say(f"  (plan step {i}/{len(steps)} failed: \"{step}\" -> {res.detail[:120]})")
+                    if self.args.memory and not replanned:
+                        replanned = True
+                        self.say("  (trying a replacement for the rest of the plan once)")
+                        new_tail, replan_ms, replan_err = self.runner.run(replan_after_failure(
+                            self.plan_client, text, steps[:i - 1], step, res.detail[:200], steps[i:]))
+                        if new_tail:
+                            self.say(f"  (replan, {round(replan_ms)} ms: " + "  ->  ".join(new_tail) + ")")
+                            steps[i:] = new_tail
+                            continue
+                        self.say(f"  (no usable replacement: {replan_err or 'the model suggested nothing'})")
+                    self._speak(f"I got to step {i} of {len(steps)}, but then: {res.reply}", job["epoch"], {})
+                    return
+                self.say(f"  (step {i}/{len(steps)} ok [{res.tier}]: \"{step}\" -> {res.reply[:150]!r})")
+                self._speak(res.reply, job["epoch"], {})
+        finally:
+            self.slow_running = False
+            self.plan_active = False
+            self.plan_cancelled = False
+            self.cancelled = False
+            cur["done"] = True
+            route_ms = (time.perf_counter() - t_steps) * 1000
+            n = self._next_turn()
+            ok = bool(final_res is not None and final_res.ok and n_done == len(steps))
+            self.memory.add_turn(text, final_res.reply if final_res else "", ok)
+            rec = {"turn": n, "command": text, "tier": "plan", "ok": ok, "replanned": replanned,
+                   "silence_wait_ms": round(job["wait_ms"]), "stt_ms": round(stt_ms or 0.0),
+                   "fast_path_ms": round(plan_ms), "route_ms": round(route_ms), "agent_steps": agent_steps_total,
+                   "ack_first_sound_ms": None, "answer_first_sound_ms": None, "first_sound_ms": None,
+                   "finished_ms": round((time.perf_counter() - t_end) * 1000),
+                   "reply": (final_res.reply[:200] if final_res else ""),
+                   "detail": f"plan {n_done}/{len(steps)} steps: {steps}"[:200]}
+            self.records.append(rec)
+            self.say(f"          waterfall: plan call {plan_ms / 1000:.2f} s, {n_done}/{len(steps)} steps run, "
+                     f"finished {rec['finished_ms'] / 1000:.2f} s")
 
 
 def make_router(loop: AppLoop, runner: AsyncRunner, args):
@@ -263,6 +396,11 @@ def waterfall(records: list, args) -> None:
     print(f"saved {path}")
 
 
+async def _make_async_client() -> httpx.AsyncClient:
+    """Created inside the runner's event loop so it is bound to the loop that will actually await it (planner.plan())."""
+    return httpx.AsyncClient(timeout=30)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--text", action="store_true", help="type commands instead of speaking")
@@ -279,13 +417,18 @@ def main() -> int:
     ap.add_argument("--start-url", default="", help="open this page before listening (so you need not speak an address)")
     ap.add_argument("--agent-steps", type=int, default=8)
     ap.add_argument("--agent-timeout", type=float, default=120.0)
+    ap.add_argument("--no-memory", action="store_true",
+                    help="Phase 2 off: no conversation-history augmentation, no scratchpad/comparison routing, "
+                         "no re-plan on failure (Experiment 9's 'without memory' condition)")
     args = ap.parse_args()
+    args.memory = not args.no_memory
     for key in ("input_device", "output_device"):
         v = getattr(args, key)
         if v is not None and v.isdigit():
             setattr(args, key, int(v))
     args.simulate = args.no_sound      # voice_loop's Player simulates the speakers when this is set
-    for need in ("DEEPGRAM_API_KEY", "CEREBRAS_API_KEY") + (() if (args.text or args.script) else ("SARVAM_API_KEY",)):
+    for need in ("DEEPGRAM_API_KEY", "CEREBRAS_API_KEY", "DEEPINFRA_API_KEY") + \
+            (() if (args.text or args.script) else ("SARVAM_API_KEY",)):
         if not os.getenv(need):
             raise SystemExit(f"{need} is not set in .env")
     try:
@@ -297,6 +440,7 @@ def main() -> int:
     loop = AppLoop(args, runner)
     print("starting the browser...", flush=True)
     browser, loop.router = make_router(loop, runner, args)
+    loop.plan_client = runner.run(_make_async_client())
     if args.start_url:
         res = runner.run(loop.router.run_command(f"go to {args.start_url}"))
         print(f"start page: {args.start_url} ({'ok' if res.ok else 'FAILED: ' + res.detail[:80]})", flush=True)
@@ -320,6 +464,11 @@ def main() -> int:
         pass
     finally:
         waterfall(loop.records, args)
+        try:
+            if loop.plan_client is not None:
+                runner.run(loop.plan_client.aclose(), timeout=5)
+        except Exception:
+            pass
         try:
             runner.run(browser.kill(), timeout=15)
         except Exception:

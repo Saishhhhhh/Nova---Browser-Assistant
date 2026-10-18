@@ -24,10 +24,13 @@ from dom_fastpath import FastPath, parse_command
 # step only answers "none" (Exp 7 measured 1.4-3.5 s wasted), so they go straight to the agent. Includes advisory /
 # opinion phrasing ("should I buy this", "is this worth it") alongside plain factual questions, found missing when
 # testing conversational questions like "should I buy this monitor" (it fell through the wasted model-step call).
+# Also "ask", the literal word planner.py's step grammar uses for its own question steps (Phase 1/2): without it,
+# a plan's "ask the price" step fell through to the model-step (whose job is picking what to click), which guessed
+# a click instead of refusing (found while testing Phase 2's comparison steps — it poisoned the scratchpad).
 QUESTION = re.compile(
-    r"^(?:tell me|what|what's|whats|which|who|how many|how much|how|where|when|why|find|read|summari[sz]e|list|count|"
-    r"compare|is there|are there|does|can you tell|should i|should we|should you|is it|is this|is that|are these|"
-    r"are those|would you|do you think|did you|can i|could i|recommend)\b", re.I)
+    r"^(?:tell me|ask|what|what's|whats|which|who|how many|how much|how|where|when|why|find|read|summari[sz]e|list|"
+    r"count|compare|is there|are there|does|can you tell|should i|should we|should you|is it|is this|is that|"
+    r"are these|are those|would you|do you think|did you|can i|could i|recommend)\b", re.I)
 
 
 # Spoken filler and politeness in front of a command ("um go back", "please scroll down", "can you click travel")
@@ -130,7 +133,7 @@ class CommandRouter:
                     "A popup is covering the page and I could not close it. Tell me what to click.")
             return RouterResult(command, "blocked", False, said, detail=fast.detail, total_ms=fast_ms, fast_ms=fast_ms)
         if fast.handled and not fast.error:
-            return RouterResult(command, "model" if fast.used_model else "rules", True, "Done.",
+            return RouterResult(command, "model" if fast.used_model else "rules", True, fast.spoken or "Done.",
                                 detail=fast.detail, total_ms=fast_ms, fast_ms=fast_ms)
         why = fast.error or fast.detail
         if self.agent_llm is None:

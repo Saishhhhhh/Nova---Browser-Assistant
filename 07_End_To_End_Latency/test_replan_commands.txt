@@ -1,0 +1,3 @@
+# A step that cannot succeed (no such button exists): checks the one-shot replan path and that it eventually
+# stops cleanly rather than looping.
+go to books.toscrape.com, click the nonexistent zorblatt button, and tell me what happened

@@ -13,7 +13,7 @@ import app
 def main() -> int:
     args = argparse.Namespace(text=True, script=None, no_sound=True, headless=True, input_device=None,
                               output_device=None, hangover=0.5, min_speech=0.25, cue="none", idle=0, hinglish=False,
-                              agent_steps=8, agent_timeout=120.0, start_url="", simulate=True)
+                              agent_steps=8, agent_timeout=120.0, start_url="", simulate=True, memory=True)
     runner = app.AsyncRunner()
     loop = app.AppLoop(args, runner)
     browser, loop.router = app.make_router(loop, runner, args)

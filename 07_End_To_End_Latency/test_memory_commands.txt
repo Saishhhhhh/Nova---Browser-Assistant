@@ -1,0 +1,4 @@
+# Tests Phase 2: a plan that ends with a comparison step answered from the scratchpad, then a follow-up that
+# needs the scratchpad as conversation memory.
+go to books.toscrape.com, tell me the price of the first book, then tell me the price of the second book, and tell me which is cheaper
+which one did you say was cheaper

@@ -1,0 +1,27 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "go to books.toscrape.com, click the nonexistent zorblatt button, and tell me what happened",
+   "tier": "plan",
+   "ok": false,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "fast_path_ms": 1520,
+   "route_ms": 92477,
+   "agent_steps": 7,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": null,
+   "first_sound_ms": null,
+   "finished_ms": 93998,
+   "reply": "I attempted to click the \"Add a comment\" link and look for a comment form, but no input field or textarea appeared on the page, even after scrolling and searching. Consequently, I was unable to ask \"W",
+   "detail": "plan 3/3 steps: ['go to books.toscrape.com', 'click the nonexistent zorblatt button', 'ask what happened']"
+  }
+ ]
+}

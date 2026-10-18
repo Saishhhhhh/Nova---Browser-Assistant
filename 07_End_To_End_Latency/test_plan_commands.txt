@@ -1,0 +1,4 @@
+# Tests the planner end to end: a multi-step request, a single command (must NOT be planned), a failing plan.
+go to books.toscrape.com, open the travel category, and tell me how many books are on the page
+scroll down
+go to books.toscrape.com, click the login button, and tell me what happened
