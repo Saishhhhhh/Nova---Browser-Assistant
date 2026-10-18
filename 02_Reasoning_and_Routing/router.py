@@ -49,6 +49,10 @@ CHAT = re.compile(
 THANKS = re.compile(r"^(?:thanks|thank you|cheers|good job|well done)[^a-z]*$", re.I)
 
 
+CLOSE_POPUP = re.compile(
+    r"^(?:close|dismiss|get rid of|remove)\s+(?:the |this |that )?(?:popup|pop up|pop-up|dialog|modal|banner|window|it)[^a-z]*$", re.I)
+
+
 def clean_command(text: str) -> str:
     t = FILLER.sub("", text.strip())
     t = TRAILING.sub("", t).strip()
@@ -90,6 +94,11 @@ class CommandRouter:
     async def run_command(self, command: str) -> RouterResult:
         start = time.perf_counter()
         command = clean_command(command)
+        if CLOSE_POPUP.match(command):
+            outcome = await self.fast.dismiss_popup()
+            ms = (time.perf_counter() - start) * 1000
+            said = {"closed": "Closed it.", "none": "There is no popup.", "stuck": "I could not close it."}[outcome]
+            return RouterResult(command, "rules", outcome != "stuck", said, detail=f"popup: {outcome}", total_ms=ms, fast_ms=ms)
         ask = vague_question(command)
         if ask:
             return RouterResult(command, "clarify", False, ask, detail="command has no target")
@@ -112,6 +121,11 @@ class CommandRouter:
                 return result
         fast = await self.fast.run(command)
         fast_ms = (time.perf_counter() - start) * 1000
+        if fast.blocked:   # a popup is in the way: say so, do not send the agent to flail at the page behind it
+            said = ("This site is asking to verify that I am not a robot, so I cannot continue here."
+                    if fast.detail.startswith("bot check") else
+                    "A popup is covering the page and I could not close it. Tell me what to click.")
+            return RouterResult(command, "blocked", False, said, detail=fast.detail, total_ms=fast_ms, fast_ms=fast_ms)
         if fast.handled and not fast.error:
             return RouterResult(command, "model" if fast.used_model else "rules", True, "Done.",
                                 detail=fast.detail, total_ms=fast_ms, fast_ms=fast_ms)

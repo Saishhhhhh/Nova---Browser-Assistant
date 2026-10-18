@@ -1,0 +1,50 @@
+[
+ {
+  "site": "amazon",
+  "command": "go to amazon.in",
+  "tier": "rules",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 8865,
+  "url": "https://www.amazon.in/",
+  "title": "amazon.in",
+  "answer": "Done.",
+  "detail": "navigated to https://amazon.in"
+ },
+ {
+  "site": "amazon",
+  "command": "search for MSI gaming monitor",
+  "tier": "rules",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 2078,
+  "url": "https://www.amazon.in/s?k=MSI+gaming+monitor&crid=19FRN71QN67QX&sprefix=msi+gaming+monitor%2Caps%2C257&ref=nb_sb_noss_2",
+  "title": "Amazon.in : MSI gaming monitor",
+  "answer": "Done.",
+  "detail": "typed 'MSI gaming monitor' into [44] and pressed Enter"
+ },
+ {
+  "site": "amazon",
+  "command": "click the second result",
+  "tier": "rules",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 5894,
+  "url": "https://www.amazon.in/MSI-MAG-276CXF-Curved-Monitor/dp/B0DTHQ5NYF/ref=sr_1_3?crid=19FRN71QN67QX&dib=eyJ2IjoiMSJ9.N1xqwh_jQLLXC_3yVVqLuUM-63P",
+  "title": "MSI MAG 276CXF 27 Inch FHD Curved Gaming Monitor - 1500R 1920 x 1080 Rapid VA Pa",
+  "answer": "Done.",
+  "detail": "clicked [7995] ['3 ratings'] by position (2 of 6 on screen)"
+ },
+ {
+  "site": "amazon",
+  "command": "tell me the price of this product",
+  "tier": "agent",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 7710,
+  "url": "https://www.amazon.in/MSI-MAG-276CXF-Curved-Monitor/dp/B0DTHQ5NYF/ref=sr_1_3?crid=19FRN71QN67QX&dib=eyJ2IjoiMSJ9.N1xqwh_jQLLXC_3yVVqLuUM-63P",
+  "title": "MSI MAG 276CXF 27 Inch FHD Curved Gaming Monitor - 1500R 1920 x 1080 Rapid VA Pa",
+  "answer": "The price listed for the MSI MAG 276CXF monitor is ₹23,999.00.",
+  "detail": "question, fast path skipped | 2 steps"
+ }
+]

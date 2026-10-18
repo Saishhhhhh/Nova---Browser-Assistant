@@ -1,0 +1,155 @@
+{
+ "correct": 19,
+ "total": 19,
+ "rows": [
+  {
+   "page": "https://books.toscrape.com",
+   "target": "the first book",
+   "ok": true,
+   "got": "a 'a light in the attic' gue/a-light-in-the-attic_1000/index.html",
+   "note": "1 of 4 on screen",
+   "expected": "href contains 'a-light-in-the-attic'"
+  },
+  {
+   "page": "https://books.toscrape.com",
+   "target": "the second book",
+   "ok": true,
+   "got": "a 'tipping the velvet' alogue/tipping-the-velvet_999/index.html",
+   "note": "2 of 4 on screen",
+   "expected": "href contains 'tipping-the-velvet'"
+  },
+  {
+   "page": "https://books.toscrape.com",
+   "target": "the last book",
+   "ok": true,
+   "got": "a 'sharp objects' catalogue/sharp-objects_997/index.html",
+   "note": "last of 4 on screen",
+   "expected": "href contains 'sharp-objects'"
+  },
+  {
+   "page": "https://books.toscrape.com",
+   "target": "the link at the top left",
+   "ok": true,
+   "got": "a 'books to scrape' index.html",
+   "note": "nearest to top left of 37 on screen",
+   "expected": "label contains 'books to scrape'"
+  },
+  {
+   "page": "https://books.toscrape.com",
+   "target": "the third result",
+   "ok": true,
+   "got": "a 'soumission' catalogue/soumission_998/index.html",
+   "note": "3 of 4 on screen",
+   "expected": "href contains 'soumission'"
+  },
+  {
+   "page": "https://quotes.toscrape.com",
+   "target": "the link at the top right",
+   "ok": true,
+   "got": "a 'login' /login",
+   "note": "nearest to top right of 31 on screen",
+   "expected": "label contains 'login'"
+  },
+  {
+   "page": "https://quotes.toscrape.com",
+   "target": "the top left link",
+   "ok": true,
+   "got": "a 'quotes to scrape' /",
+   "note": "nearest to top left of 31 on screen",
+   "expected": "label contains 'quotes to scrape'"
+  },
+  {
+   "page": "https://quotes.toscrape.com",
+   "target": "the third link",
+   "ok": true,
+   "got": "a 'love' /tag/love/",
+   "note": "3 of 31 on screen",
+   "expected": "label contains 'love'"
+  },
+  {
+   "page": "https://quotes.toscrape.com",
+   "target": "the login link at the top right",
+   "ok": true,
+   "got": "a 'login' /login",
+   "note": "nearest to top right of 1 on screen",
+   "expected": "label contains 'login'"
+  },
+  {
+   "page": "https://quotes.toscrape.com",
+   "target": "the last link",
+   "ok": true,
+   "got": "a 'humor' /tag/humor/page/1/",
+   "note": "last of 31 on screen",
+   "expected": "label contains 'humor'"
+  },
+  {
+   "page": "https://en.wikipedia.org/wiki/Alan_Turing",
+   "target": "the link at the top left",
+   "ok": true,
+   "got": "a 'wikipedia the free encyclopedi' /wiki/main_page",
+   "note": "nearest to top left of 57 on screen",
+   "expected": "href contains 'main_page'"
+  },
+  {
+   "page": "https://en.wikipedia.org/wiki/Alan_Turing",
+   "target": "the top right link",
+   "ok": true,
+   "got": "a 'log in' e=special:userlogin&returnto=alan+turing",
+   "note": "nearest to top right of 57 on screen",
+   "expected": "label contains 'log in'"
+  },
+  {
+   "page": "https://en.wikipedia.org/wiki/Alan_Turing",
+   "target": "the button at the top",
+   "ok": true,
+   "got": "button 'search' ",
+   "note": "nearest to top of 9 on screen",
+   "expected": "label contains 'search'"
+  },
+  {
+   "page": "https://en.wikipedia.org/wiki/Alan_Turing",
+   "target": "the field at the top",
+   "ok": true,
+   "got": "input 'search wikipedia' ",
+   "note": "nearest to top of 1 on screen",
+   "expected": "label contains 'search wikipedia'"
+  },
+  {
+   "page": "https://en.wikipedia.org/wiki/Alan_Turing",
+   "target": "the second link",
+   "ok": true,
+   "got": "a 'donate' wmf_campaign=en.wikipedia.org&uselang=en",
+   "note": "2 of 57 on screen",
+   "expected": "label contains 'donate'"
+  },
+  {
+   "page": "https://en.wikipedia.org/wiki/Alan_Turing",
+   "target": "the sign in link at the top right",
+   "ok": true,
+   "got": "(refused: no link on screen matching 'sign in')",
+   "note": "no link on screen matching 'sign in'"
+  },
+  {
+   "page": "https://books.toscrape.com",
+   "target": "the button at the bottom right",
+   "ok": true,
+   "got": "button 'add to basket' ",
+   "note": "nearest to bottom right of 4 on screen",
+   "expected": "label contains 'add to basket'"
+  },
+  {
+   "page": "https://quotes.toscrape.com",
+   "target": "the second button",
+   "ok": true,
+   "got": "(refused: no button on screen)",
+   "note": "no button on screen"
+  },
+  {
+   "page": "https://en.wikipedia.org/wiki/Alan_Turing",
+   "target": "the twelfth link on the left",
+   "ok": true,
+   "got": "(refused: no link on screen matching 'twelfth on')",
+   "note": "no link on screen matching 'twelfth on'"
+  }
+ ]
+}

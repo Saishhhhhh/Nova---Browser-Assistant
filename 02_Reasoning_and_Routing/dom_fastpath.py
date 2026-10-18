@@ -27,6 +27,8 @@ from dotenv import load_dotenv
 
 from browser_use.tools.service import Tools
 
+from position_hints import parse_position, resolve_position
+
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 MIN_SCORE = 0.6
@@ -57,6 +59,8 @@ class ElementInfo:
     attrs: dict
     labels: list = field(default_factory=list)       # visible text, accessible name, aria-label, ...
     weak_labels: list = field(default_factory=list)  # name / id attributes
+    box: Optional[tuple] = None                      # (x, y, width, height) in page coordinates
+    in_chrome: bool = False                          # inside a nav / aside / header / footer / sidebar / menu
 
     @property
     def is_text_input(self) -> bool:
@@ -71,6 +75,36 @@ class ElementInfo:
             or self.role in {"button", "link", "tab", "menuitem", "option"}
             or (self.tag == "input" and self.input_type in CLICKABLE_INPUT_TYPES)
         )
+
+
+CHROME_TAGS = {"nav", "aside", "header", "footer"}
+CHROME_WORDS = ("nav", "menu", "sidebar", "side-", "side_", "footer", "header", "breadcrumb", "toolbar")
+
+
+def _in_chrome(node) -> bool:
+    """True if the element sits inside page furniture (navigation, sidebar, header, footer)."""
+    cur, depth = node, 0
+    while cur is not None and depth < 12:
+        name = (getattr(cur, "node_name", "") or "").lower()
+        if name in CHROME_TAGS:
+            return True
+        a = getattr(cur, "attributes", None) or {}
+        marks = f"{a.get('class', '')} {a.get('id', '')} {a.get('role', '')}".lower()
+        if any(w in marks for w in CHROME_WORDS) or a.get("role") in {"navigation", "banner", "contentinfo", "complementary"}:
+            return True
+        cur = getattr(cur, "parent_node", None)
+        depth += 1
+    return False
+
+
+def _box(node) -> Optional[tuple]:
+    pos = getattr(node, "absolute_position", None)
+    if pos is None:
+        return None
+    try:
+        return (float(pos.x), float(pos.y), float(pos.width), float(pos.height))
+    except Exception:
+        return None
 
 
 def build_elements(selector_map: dict) -> list:
@@ -97,6 +131,8 @@ def build_elements(selector_map: dict) -> list:
             attrs=attrs,
             labels=labels,
             weak_labels=weak,
+            box=_box(node),
+            in_chrome=_in_chrome(node),
         ))
     return elements
 
@@ -177,6 +213,24 @@ DEFAULT_MODELS = {
     "deepinfra": "google/gemma-4-31B-it-turbo",
     "ollama": os.getenv("OLLAMA_MODEL", "qwen2.5:3b"),
 }
+POPUP_JS = """() => {
+  const vw = innerWidth, vh = innerHeight;
+  for (const el of document.querySelectorAll('body *')) {
+    const st = getComputedStyle(el);
+    const dlg = el.getAttribute('role') === 'dialog' || el.getAttribute('aria-modal') === 'true' || el.tagName === 'DIALOG';
+    if (st.position !== 'fixed' && !dlg) continue;
+    if (st.visibility === 'hidden' || st.display === 'none' || Number(st.opacity) === 0) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width >= 0.3 * vw && r.height >= 0.3 * vh && r.width * r.height >= 0.12 * vw * vh) {
+      return el.tagName + '.' + String(el.className || '').slice(0, 40);
+    }
+  }
+  return '';
+}"""
+BOT_TITLE = re.compile(
+    r"just a moment|attention required|access denied|verify (?:you are|that you are) (?:a )?human|are you a robot|"
+    r"captcha|security check|checking your browser|unusual traffic|robot check", re.I)
+CLOSE_WORDS = {"close", "dismiss", "skip", "not now", "no thanks", "maybe later", "later", "cancel", "got it", "x"}
 MAX_ELEMENTS = 250
 PICK_SYSTEM = (
     "You help a voice-controlled browser. You get a spoken command and a numbered list of the "
@@ -380,6 +434,7 @@ class Result:
     completion_tokens: int = 0
     settle_ms: float = 0.0
     read_ms: float = 0.0
+    blocked: bool = False  # a popup covers the page and could not be closed
     total_ms: float = 0.0
 
 
@@ -390,6 +445,7 @@ class FastPath:
         self.tools = Tools()
         self.action_model = self.tools.registry.create_action_model()
         self._dirty = False  # the previous command may have changed the page
+        self.viewport = None  # (scroll_x, scroll_y, width, height) of the last page read
 
     async def _scroll_y(self) -> float:
         page = await self.browser.get_current_page()
@@ -426,9 +482,54 @@ class FastPath:
             res.settle_ms = (time.perf_counter() - t) * 1000
             self._dirty = False
 
+    async def _bot_check(self) -> str:
+        """The page's title if it is a "verify you are human" / access-denied interstitial, else ''."""
+        try:
+            page = await self.browser.get_current_page()
+            title = str(await asyncio.wait_for(page.evaluate("() => document.title"), 3) or "")
+        except Exception:
+            return ""
+        return title if BOT_TITLE.search(title) else ""
+
+    async def _popup_present(self) -> str:
+        try:
+            page = await self.browser.get_current_page()
+            return str(await asyncio.wait_for(page.evaluate(POPUP_JS), 3) or "")
+        except Exception:
+            return ""
+
+    async def dismiss_popup(self) -> str:
+        """Close a popup/modal covering the page. Returns "none" (nothing there), "closed" or "stuck"."""
+        if not await self._popup_present():
+            return "none"
+        for _ in range(2):
+            try:
+                await self._act({"send_keys": {"keys": "Escape"}})
+            except Exception:
+                pass
+            await asyncio.sleep(0.6)
+            if not await self._popup_present():
+                self._dirty = True
+                return "closed"
+        # Escape did nothing: click something that says close / skip / no thanks
+        for e in await self._read_page():
+            if any(l in CLOSE_WORDS for l in e.labels) and e.is_actionable:
+                try:
+                    await self._act({"click": {"index": e.index}})
+                except Exception:
+                    continue
+                await asyncio.sleep(0.6)
+                if not await self._popup_present():
+                    self._dirty = True
+                    return "closed"
+        return "stuck"
+
     async def _read_page(self) -> list:
         for _ in range(3):
             state = await self.browser.get_browser_state_summary(include_screenshot=False)
+            pi = getattr(state, "page_info", None)
+            if pi is not None:
+                self.viewport = (float(pi.scroll_x), float(pi.scroll_y), float(pi.viewport_width), float(pi.viewport_height))
             elements = build_elements(state.dom_state.selector_map)
             if elements:
                 return elements
@@ -446,6 +547,9 @@ class FastPath:
                 await self._act({"navigate": {"url": intent.target, "new_tab": False}})
                 self._dirty = True
                 res.handled, res.detail = True, f"navigated to {intent.target}"
+                title = await self._bot_check()
+                if title:
+                    res.blocked, res.detail = True, f"bot check: the site is asking to verify the visitor ('{title}')"
             elif intent.kind == "scroll":
                 # no upfront settle: _run_scroll checks the page moved and only then waits and retries
                 await self._run_scroll(intent, res)
@@ -455,6 +559,11 @@ class FastPath:
                 res.handled, res.detail = True, "went back"
             else:  # search / type / click, or an unknown command when a model is available
                 await self._settle_if_dirty(res)
+                title = await self._bot_check()
+                if title:
+                    res.blocked, res.detail = True, f"bot check: the site is asking to verify the visitor ('{title}')"
+                    res.total_ms = (time.perf_counter() - start) * 1000
+                    return res
                 t_read = time.perf_counter()
                 elements = await self._read_page()
                 res.read_ms = (time.perf_counter() - t_read) * 1000
@@ -540,6 +649,14 @@ class FastPath:
     async def _run_dom_intent(self, intent: Intent, elements: list, res: Result) -> None:
         if intent.kind == "search":
             hit = find_search_box(elements)
+            if not hit and await self._popup_present():
+                outcome = await self.dismiss_popup()
+                if outcome == "stuck":
+                    res.blocked, res.detail = True, "a popup is covering the page and would not close"
+                    return
+                if outcome == "closed":
+                    elements = await self._read_page()
+                    hit = find_search_box(elements)
             if not hit:
                 res.detail = "no search box found"
                 return
@@ -558,9 +675,38 @@ class FastPath:
         elif intent.kind == "click":
             ranked = rank_click_targets(elements, intent.target)
             top, score = ranked[0] if ranked else (None, 0.0)
+            pos_note = ""
+            # a clear label match always wins ("Top Stories", "(Top)"); position words are only used when no label
+            # matches strongly ("the second result", "the link at the top left")
+            if score < 0.9:
+                hint = parse_position(intent.target)
+                if hint is not None:
+                    if res.settle_ms > 0:      # the page just changed: lists are often drawn a moment after it "settles"
+                        before = len(elements)
+                        for _ in range(3):
+                            await asyncio.sleep(0.8)
+                            again = await self._read_page()
+                            grew = len(again) > before * 1.1
+                            elements, before = again, len(again)
+                            if not grew:
+                                break
+                    if await self._popup_present():
+                        outcome = await self.dismiss_popup()
+                        if outcome == "stuck":
+                            res.blocked, res.detail = True, "a popup is covering the page and would not close"
+                            return
+                        if outcome == "closed":
+                            elements = await self._read_page()
+                    picked, note = resolve_position(elements, hint, self.viewport)
+                    if picked is not None:
+                        await self._act({"click": {"index": picked.index}})
+                        self._dirty = True
+                        res.handled, res.detail = True, f"clicked [{picked.index}] {picked.labels[:1]} by position ({note})"
+                        return
+                    pos_note = f"position hint: {note}; "
             if top is None or score < MIN_SCORE:
                 best = f"best was [{top.index}] {top.labels[:1]} at {score:.2f}" if top else "nothing on page"
-                res.detail = f"no confident match for '{intent.target}' ({best})"
+                res.detail = f"{pos_note}no confident match for '{intent.target}' ({best})"
                 return
             await self._act({"click": {"index": top.index}})
             self._dirty = True

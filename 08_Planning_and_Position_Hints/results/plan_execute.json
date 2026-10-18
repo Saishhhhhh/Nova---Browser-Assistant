@@ -1,0 +1,195 @@
+[
+ {
+  "request": "Go to books.toscrape.com, open the travel category, and tell me how many books are on the page",
+  "plan_ms": 1384,
+  "steps": [
+   "go to books.toscrape.com",
+   "click travel",
+   "ask how many books are on the page"
+  ],
+  "planned": {
+   "ms": 9285,
+   "answer": "There are 11 books on this page.",
+   "correct": true,
+   "steps": [
+    {
+     "step": "go to books.toscrape.com",
+     "tier": "rules",
+     "ok": true,
+     "ms": 2026
+    },
+    {
+     "step": "click travel",
+     "tier": "rules",
+     "ok": true,
+     "ms": 1895
+    },
+    {
+     "step": "ask how many books are on the page",
+     "tier": "agent",
+     "ok": true,
+     "ms": 3980
+    }
+   ]
+  },
+  "agent_only": {
+   "ms": 4597,
+   "answer": "There are 11 books on the Travel category page.",
+   "correct": true,
+   "agent_steps": 3
+  }
+ },
+ {
+  "request": "Open the mystery category on books.toscrape.com and tell me the title of the first book",
+  "plan_ms": 1899,
+  "steps": [
+   "go to books.toscrape.com",
+   "click mystery",
+   "ask the title of the first book"
+  ],
+  "planned": {
+   "ms": 6132,
+   "answer": "The title of the first book is \"Sharp Objects\".",
+   "correct": true,
+   "steps": [
+    {
+     "step": "go to books.toscrape.com",
+     "tier": "rules",
+     "ok": true,
+     "ms": 490
+    },
+    {
+     "step": "click mystery",
+     "tier": "rules",
+     "ok": true,
+     "ms": 1803
+    },
+    {
+     "step": "ask the title of the first book",
+     "tier": "agent",
+     "ok": true,
+     "ms": 1939
+    }
+   ]
+  },
+  "agent_only": {
+   "ms": 4990,
+   "answer": "The first book in the Mystery category is \"Sharp Objects\".",
+   "correct": true,
+   "agent_steps": 3
+  }
+ },
+ {
+  "request": "Go to quotes.toscrape.com and tell me the first quote",
+  "plan_ms": 1428,
+  "steps": [
+   "go to quotes.toscrape.com",
+   "ask the first quote"
+  ],
+  "planned": {
+   "ms": 54218,
+   "answer": "“The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking.” – Albert Einstein",
+   "correct": true,
+   "steps": [
+    {
+     "step": "go to quotes.toscrape.com",
+     "tier": "rules",
+     "ok": true,
+     "ms": 1067
+    },
+    {
+     "step": "ask the first quote",
+     "tier": "agent",
+     "ok": true,
+     "ms": 51723
+    }
+   ]
+  },
+  "agent_only": {
+   "ms": 2265,
+   "answer": "The first quote on quotes.toscrape.com is:\n\n“The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking.”\n— Albert Einstein",
+   "correct": true,
+   "agent_steps": 2
+  }
+ },
+ {
+  "request": "Go to quotes.toscrape.com, click the login link, and tell me what fields are on the page",
+  "plan_ms": 2331,
+  "steps": [
+   "go to quotes.toscrape.com",
+   "click the login link",
+   "ask what fields are on the page"
+  ],
+  "planned": {
+   "ms": 6131,
+   "answer": "The page includes the following fields:\n- Username (text input)\n- Password (password input)\n- Login (submit button)",
+   "correct": true,
+   "steps": [
+    {
+     "step": "go to quotes.toscrape.com",
+     "tier": "rules",
+     "ok": true,
+     "ms": 744
+    },
+    {
+     "step": "click the login link",
+     "tier": "rules",
+     "ok": true,
+     "ms": 1676
+    },
+    {
+     "step": "ask what fields are on the page",
+     "tier": "agent",
+     "ok": true,
+     "ms": 1380
+    }
+   ]
+  },
+  "agent_only": {
+   "ms": 4430,
+   "answer": "The login page contains two input fields:\n1. **Username** – a text input (id=\"username\").\n2. **Password** – a password input.\nThere is also a submit button labeled \"Login\", but the only data entry fie",
+   "correct": true,
+   "agent_steps": 3
+  }
+ },
+ {
+  "request": "On books.toscrape.com open the first book and tell me its price",
+  "plan_ms": 2680,
+  "steps": [
+   "go to books.toscrape.com",
+   "click the first book",
+   "ask what is the price"
+  ],
+  "planned": {
+   "ms": 6616,
+   "answer": "The price of the book is £51.77.",
+   "correct": true,
+   "steps": [
+    {
+     "step": "go to books.toscrape.com",
+     "tier": "rules",
+     "ok": true,
+     "ms": 545
+    },
+    {
+     "step": "click the first book",
+     "tier": "rules",
+     "ok": true,
+     "ms": 1817
+    },
+    {
+     "step": "ask what is the price",
+     "tier": "agent",
+     "ok": true,
+     "ms": 1574
+    }
+   ]
+  },
+  "agent_only": {
+   "ms": 54247,
+   "answer": "The price of the first book (A Light in the Attic) is £51.77.",
+   "correct": true,
+   "agent_steps": 3
+  }
+ }
+]

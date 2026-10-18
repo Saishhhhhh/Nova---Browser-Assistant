@@ -1,0 +1,98 @@
+[
+ {
+  "site": "hackernews",
+  "command": "go to news.ycombinator.com",
+  "tier": "rules",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 1646,
+  "url": "https://news.ycombinator.com/",
+  "title": "Hacker News",
+  "answer": "Done.",
+  "detail": "navigated to https://news.ycombinator.com"
+ },
+ {
+  "site": "hackernews",
+  "command": "click the first story",
+  "tier": "model",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 4773,
+  "url": "https://patkerr.co.uk/2d-vehicles/",
+  "title": "patkerr.co.uk/2d-vehicles/",
+  "answer": "Done.",
+  "detail": "model clicked [82] ['2d vehicles']"
+ },
+ {
+  "site": "hackernews",
+  "command": "go back",
+  "tier": "rules",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 514,
+  "url": "https://news.ycombinator.com/",
+  "title": "Hacker News",
+  "answer": "Done.",
+  "detail": "went back"
+ },
+ {
+  "site": "hackernews",
+  "command": "click new",
+  "tier": "rules",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 2172,
+  "url": "https://news.ycombinator.com/newest",
+  "title": "news.ycombinator.com/newest",
+  "answer": "Done.",
+  "detail": "clicked [56] ['new'] (score 1.03)"
+ },
+ {
+  "site": "ebay",
+  "command": "go to ebay.com",
+  "tier": "rules",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 1215,
+  "url": "https://www.ebay.com/",
+  "title": "Error Page | eBay",
+  "answer": "Done.",
+  "detail": "navigated to https://ebay.com"
+ },
+ {
+  "site": "ebay",
+  "command": "search for mechanical keyboard",
+  "tier": "agent",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 25722,
+  "url": "https://www.ebay.com/sch/i.html?_nkw=mechanical+keyboard&_sacat=0&_from=R40&_trksid=p4624852.m570.l1313",
+  "title": "Mechanical Keyboard for sale | eBay",
+  "answer": "Search completed. The eBay results page shows over 12,000 listings for \"mechanical keyboard\", including items like \"104 Key Gaming Keyboard, Wireless RGB, Alumi",
+  "detail": "fast path declined (no search box found | model declined (model answered none)) | 4 steps"
+ },
+ {
+  "site": "ebay",
+  "command": "click the third result",
+  "tier": "model",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 10301,
+  "url": "https://www.ebay.com/itm/920021185421?_skw=mechanical+keyboard&itmmeta=01M4M1Q0MEQHH82NF4TF0TDWJ6&hash=itemd63589338d:g:HJ8AAeSwusxqx7gc&itm",
+  "title": "ebay.com/itm/920021185421?_skw=mechanical+keyboard&itmmeta=01M4M1Q0MEQHH82NF4TF0",
+  "answer": "Done.",
+  "detail": "model clicked [28067] ['4 key mechanical keyboard keychain fidget clicker keycap toy image 1 of 4']"
+ },
+ {
+  "site": "ebay",
+  "command": "tell me the price",
+  "tier": "agent",
+  "router_ok": true,
+  "check_passed": true,
+  "ms": 2497,
+  "url": "https://www.ebay.com/itm/920021185421?_skw=mechanical+keyboard&itmmeta=01M4M1Q0MEQHH82NF4TF0TDWJ6&hash=itemd63589338d:g:HJ8AAeSwusxqx7gc&itm",
+  "title": "ebay.com/itm/920021185421?_skw=mechanical+keyboard&itmmeta=01M4M1Q0MEQHH82NF4TF0",
+  "answer": "The price of the item is US $14.00.",
+  "detail": "question, fast path skipped | 1 steps"
+ }
+]

@@ -132,6 +132,54 @@ Voice-mode numbers from the user's live run (silence 0.51 s + transcript 0.12 to
 
 So in voice mode: a scroll is about 1.5 s, a page load about 2.8 s, an acknowledgement about 1.0 s, a simple question's answer about 5 s.
 
+### 4.3 Harder sites round ([harder_sites.py](harder_sites.py))
+
+14 commands a person would say, on four heavy public sites (Amazon India, YouTube, GitHub, Flipkart), through the real router with a visible browser, no login. Each command has an automatic check (the URL it should end on, or a sane answer). A screenshot is saved on failure.
+
+**First round: 10 of 14 passed.** The four failures had four different causes:
+
+| Site | Command | What happened | Cause | Fix |
+|---|---|---|---|---|
+| YouTube | "click the first video" | opened a channel page | the first search result is a channel card; "first video" picked the first link | "video / product / post / issue / article" now prefer links whose address looks like that thing (`watch`, `/dp/`, `/p/`, `/issues/`). A general lexicon, not per-site code; ignored if nothing matches |
+| GitHub | "click the first issue" | clicked the "Issues" tab again | the issue list is drawn a moment after the page "settles", so it was not there when the page was read | when the page has just changed, re-read it (up to 3 times, 0.8 s apart) until the list stops growing |
+| Flipkart | "search for running shoes" | not found; the agent then wandered for 71 s and failed | a login popup covered the page | a popup/modal detector (a large fixed or dialog element): press Escape, then try its "close / skip / no thanks" button |
+| Flipkart | "click the second product" | clicked "Terms of Use" | it picked a link inside the same popup | same fix; and if the popup will not close, the router answers "A popup is covering the page and I could not close it" and does **not** send the agent, which would only flail behind it |
+
+Also added: the command "close the popup" (or "dismiss it", "close this").
+
+**After the fixes: 14 of 14 passed** (Amazon 4/4, YouTube 3/3, GitHub 4/4, Flipkart 3/3). Position tests (19/19, 4/4 clicks) and Experiment 2's rule tests (13/13 on a re-run) still pass.
+
+Things to know about this result:
+- **It is not an independent test.** The fixes were made after seeing these exact commands fail, so the 14/14 shows the failures are fixed, not that the next site will work. A fresh set of commands is the real check.
+- **The price question took 89 s the first time and 7.7 s on the re-run** (the same command, the same agent). The agent has long stalls; a median over many runs would be needed to say more. The rules path never stalled.
+- The check for "tell me the title of this issue" only requires a non-empty answer, so it is weak.
+- Typical times on these sites: page load 2 to 9 s, search 2 to 4 s, a position click 4 to 6 s.
+
+### 4.4 A fresh set: the honest generalisation number ([harder_sites.py](harder_sites.py) `--fresh`)
+
+15 commands on four sites that had not been used while building the fixes (Hacker News, BBC News, eBay, Stack Overflow). The checks were written before the run and not changed afterwards.
+
+**First contact: 9 of 15 passed (60%).** Compare with 14/14 on the commands the fixes were made for.
+
+| Root cause | Commands it broke | What happened |
+|---|---|---|
+| Icon links picked as "the first story" (Hacker News upvote arrow, no label) | 3 (the pick, then "go back" to a blank page, then "click new") | position hints must have a visible label |
+| A "verify you are human" page (Stack Overflow, Cloudflare) | 2 | the clicks landed on unrelated links |
+| A suggestion chip picked as "the third result" (eBay) | 1 | the chip looks like a result |
+
+**Fixes, all generic:**
+1. A result must have a visible label (icon-only links are not "the first story").
+2. A bot-check detector (titles such as "Just a moment...", "Access denied", "verify you are human"): the router says "This site is asking to verify that I am not a robot, so I cannot continue here" and does not click.
+3. On a dense page (15 or more look-alike links) the position resolver **refuses** unless the address pattern identifies the items, and the model step chooses from the labels. Two intermediate attempts, preferring long titles, still picked a domain link ("patkerr.co.uk") and a chip; a confident wrong pick is worse than handing the choice to the model.
+
+**After the fixes:** BBC 3/3 (it had passed), Hacker News 4/4, eBay 4/4 (position clicks now go through the model step: 4.8 s and 10.3 s), Stack Overflow 2/4. The Stack Overflow misses are the bot-check page, which the app now reports instead of clicking; the page cleared a few seconds later and a retry would work, so the check, which wanted a question page, still shows two "fails".
+
+What this does and does not show:
+- **The first-contact rate, about 60%, is the number to remember.** Fixing the failures I saw is not the same as being robust. Each new site has been exposing a new problem.
+- Position clicks on dense pages are now slower (a model call, 5 to 10 s) but right.
+- eBay was unreliable in other ways: "go to ebay.com" once landed on an eBay "Error Page", and the search needed the agent (23 to 26 s) in two of three runs because the rules did not find its search box. Not investigated.
+- The agent still stalls unpredictably (a 7 s question took 89 s in one run).
+
 ## 5. Caveats
 
 - **The agent answered in one step every time.** The practice sites are simple and the questions have the answer on the page. Experiment 1 measured 160 to 250 s for multi-step tasks on heavy sites, which this set does not represent. The agent times here are best cases, and the plan's "On it." plus spoken progress becomes more important with heavier pages.

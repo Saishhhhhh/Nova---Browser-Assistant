@@ -1,0 +1,122 @@
+[
+ {
+  "request": "Go to Wikipedia, search for Alan Turing, and tell me what year he was born",
+  "plan_ms": 1970,
+  "steps": [
+   "go to wikipedia.org",
+   "search for Alan Turing",
+   "ask what year he was born"
+  ],
+  "planned": {
+   "ms": 11319,
+   "answer": "Alan Turing was born in 1912.",
+   "correct": true,
+   "steps": [
+    {
+     "step": "go to wikipedia.org",
+     "tier": "rules",
+     "ok": true,
+     "ms": 1345
+    },
+    {
+     "step": "search for Alan Turing",
+     "tier": "rules",
+     "ok": true,
+     "ms": 1166
+    },
+    {
+     "step": "ask what year he was born",
+     "tier": "agent",
+     "ok": true,
+     "ms": 6838
+    }
+   ]
+  },
+  "agent_only": {
+   "ms": 10120,
+   "answer": "Alan Turing was born in 1912.",
+   "correct": true,
+   "agent_steps": 2
+  }
+ },
+ {
+  "request": "Go to Wikipedia, search for Python programming language, and tell me who created it",
+  "plan_ms": 4553,
+  "steps": [
+   "go to wikipedia.org",
+   "search for Python programming language",
+   "ask who created it"
+  ],
+  "planned": {
+   "ms": 18615,
+   "answer": "Python was created by Guido van Rossum.",
+   "correct": true,
+   "steps": [
+    {
+     "step": "go to wikipedia.org",
+     "tier": "rules",
+     "ok": true,
+     "ms": 1052
+    },
+    {
+     "step": "search for Python programming language",
+     "tier": "rules",
+     "ok": true,
+     "ms": 1311
+    },
+    {
+     "step": "ask who created it",
+     "tier": "agent",
+     "ok": true,
+     "ms": 11699
+    }
+   ]
+  },
+  "agent_only": {
+   "ms": 70699,
+   "answer": "The Python programming language was created by Guido van Rossum.",
+   "correct": true,
+   "agent_steps": 3
+  }
+ },
+ {
+  "request": "Go to Wikipedia, search for Marie Curie, and tell me in which year she won her first Nobel Prize",
+  "plan_ms": 2041,
+  "steps": [
+   "go to wikipedia.org",
+   "search for Marie Curie",
+   "ask in which year she won her first Nobel Prize"
+  ],
+  "planned": {
+   "ms": 15820,
+   "answer": "Marie Curie won her first Nobel Prize in 1903.",
+   "correct": true,
+   "steps": [
+    {
+     "step": "go to wikipedia.org",
+     "tier": "rules",
+     "ok": true,
+     "ms": 905
+    },
+    {
+     "step": "search for Marie Curie",
+     "tier": "rules",
+     "ok": true,
+     "ms": 1130
+    },
+    {
+     "step": "ask in which year she won her first Nobel Prize",
+     "tier": "agent",
+     "ok": true,
+     "ms": 11744
+    }
+   ]
+  },
+  "agent_only": {
+   "ms": 17496,
+   "answer": "Marie Curie won her first Nobel Prize in 1903 (Nobel Prize in Physics).",
+   "correct": true,
+   "agent_steps": 4
+  }
+ }
+]

@@ -1,0 +1,1582 @@
+{
+ "gemma": {
+  "summary": {
+   "model": "google/gemma-4-31B-it-turbo",
+   "requests": 18,
+   "invalid_json": 0,
+   "exact_plans": 18,
+   "steps_right": 48,
+   "steps_gold": 48,
+   "invented_steps": 0,
+   "missing_steps": 0,
+   "ms_median": 970,
+   "ms_max": 2962
+  },
+  "rows": [
+   {
+    "request": "Go to books.toscrape.com, open the travel category, and tell me how many books are on the page",
+    "gold": [
+     [
+      "go",
+      "books.toscrape.com"
+     ],
+     [
+      "click",
+      "travel"
+     ],
+     [
+      "ask",
+      "how many books are on the page"
+     ]
+    ],
+    "ms": 2962,
+    "steps": [
+     "go to books.toscrape.com",
+     "click travel",
+     "ask how many books are on the page"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Open the mystery category on books.toscrape.com and tell me the title of the first book",
+    "gold": [
+     [
+      "go",
+      "books.toscrape.com"
+     ],
+     [
+      "click",
+      "mystery"
+     ],
+     [
+      "ask",
+      "the title of the first book"
+     ]
+    ],
+    "ms": 2134,
+    "steps": [
+     "go to books.toscrape.com",
+     "click mystery",
+     "ask the title of the first book"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Go to quotes.toscrape.com and tell me the first quote",
+    "gold": [
+     [
+      "go",
+      "quotes.toscrape.com"
+     ],
+     [
+      "ask",
+      "the first quote"
+     ]
+    ],
+    "ms": 1021,
+    "steps": [
+     "go to quotes.toscrape.com",
+     "ask the first quote"
+    ],
+    "steps_gold": 2,
+    "steps_got": 2,
+    "steps_right": 2,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Go to quotes.toscrape.com, click the login link, and tell me what fields are on the page",
+    "gold": [
+     [
+      "go",
+      "quotes.toscrape.com"
+     ],
+     [
+      "click",
+      "login link"
+     ],
+     [
+      "ask",
+      "what fields are on the page"
+     ]
+    ],
+    "ms": 978,
+    "steps": [
+     "go to quotes.toscrape.com",
+     "click the login link",
+     "ask what fields are on the page"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "On books.toscrape.com open the first book and tell me its price",
+    "gold": [
+     [
+      "go",
+      "books.toscrape.com"
+     ],
+     [
+      "click",
+      "the first book"
+     ],
+     [
+      "ask",
+      "its price"
+     ]
+    ],
+    "ms": 959,
+    "steps": [
+     "go to books.toscrape.com",
+     "click the first book",
+     "ask what is the price"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Go to Amazon, search for MSI gaming monitors, and tell me the cheapest one",
+    "gold": [
+     [
+      "go",
+      "amazon"
+     ],
+     [
+      "search",
+      "MSI gaming monitors"
+     ],
+     [
+      "ask",
+      "the cheapest one"
+     ]
+    ],
+    "ms": 1130,
+    "steps": [
+     "go to amazon.com",
+     "search for MSI gaming monitors",
+     "ask the cheapest one"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Open YouTube, search for lofi hip hop beats and play the first video",
+    "gold": [
+     [
+      "go",
+      "youtube"
+     ],
+     [
+      "search",
+      "lofi hip hop beats"
+     ],
+     [
+      "click",
+      "the first video"
+     ]
+    ],
+    "ms": 1929,
+    "steps": [
+     "go to youtube.com",
+     "search for lofi hip hop beats",
+     "click the first video"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "3/3"
+   },
+   {
+    "request": "Go to Wikipedia, search for Alan Turing, and tell me when he was born",
+    "gold": [
+     [
+      "go",
+      "wikipedia"
+     ],
+     [
+      "search",
+      "Alan Turing"
+     ],
+     [
+      "ask",
+      "when he was born"
+     ]
+    ],
+    "ms": 1436,
+    "steps": [
+     "go to wikipedia.org",
+     "search for Alan Turing",
+     "ask when he was born"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Open GitHub, go to trending, and tell me the top repository",
+    "gold": [
+     [
+      "go",
+      "github"
+     ],
+     [
+      "click",
+      "trending"
+     ],
+     [
+      "ask",
+      "the top repository"
+     ]
+    ],
+    "ms": 820,
+    "steps": [
+     "go to github.com",
+     "click trending",
+     "ask the top repository"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Search for quantum computing, scroll down, and open the third result",
+    "gold": [
+     [
+      "search",
+      "quantum computing"
+     ],
+     [
+      "scroll",
+      "down"
+     ],
+     [
+      "click",
+      "the third result"
+     ]
+    ],
+    "ms": 819,
+    "steps": [
+     "search for quantum computing",
+     "scroll down",
+     "click the third result"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "3/3"
+   },
+   {
+    "request": "Go to Flipkart, search for running shoes, scroll down twice, and click the second product",
+    "gold": [
+     [
+      "go",
+      "flipkart"
+     ],
+     [
+      "search",
+      "running shoes"
+     ],
+     [
+      "scroll",
+      "down"
+     ],
+     [
+      "scroll",
+      "down"
+     ],
+     [
+      "click",
+      "the second product"
+     ]
+    ],
+    "ms": 1943,
+    "steps": [
+     "go to flipkart.com",
+     "search for running shoes",
+     "scroll down",
+     "scroll down",
+     "click the second product"
+    ],
+    "steps_gold": 5,
+    "steps_got": 5,
+    "steps_right": 5,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "5/5"
+   },
+   {
+    "request": "Open Gmail and tell me how many unread emails I have",
+    "gold": [
+     [
+      "go",
+      "gmail"
+     ],
+     [
+      "ask",
+      "how many unread emails"
+     ]
+    ],
+    "ms": 693,
+    "steps": [
+     "go to gmail.com",
+     "ask how many unread emails I have"
+    ],
+    "steps_gold": 2,
+    "steps_got": 2,
+    "steps_right": 2,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Go to Hacker News, open the top story, then go back and open the second one",
+    "gold": [
+     [
+      "go",
+      "hacker news"
+     ],
+     [
+      "click",
+      "the top story"
+     ],
+     [
+      "back",
+      ""
+     ],
+     [
+      "click",
+      "the second story"
+     ]
+    ],
+    "ms": 962,
+    "steps": [
+     "go to news.ycombinator.com",
+     "click the first story",
+     "go back",
+     "click the second story"
+    ],
+    "steps_gold": 4,
+    "steps_got": 4,
+    "steps_right": 4,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "4/4"
+   },
+   {
+    "request": "Search for Python tutorials, open the first result, and scroll down",
+    "gold": [
+     [
+      "search",
+      "python tutorials"
+     ],
+     [
+      "click",
+      "the first result"
+     ],
+     [
+      "scroll",
+      "down"
+     ]
+    ],
+    "ms": 1408,
+    "steps": [
+     "search for Python tutorials",
+     "click the first result",
+     "scroll down"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "3/3"
+   },
+   {
+    "request": "Go to Reddit and tell me the title of the top post",
+    "gold": [
+     [
+      "go",
+      "reddit"
+     ],
+     [
+      "ask",
+      "the title of the top post"
+     ]
+    ],
+    "ms": 765,
+    "steps": [
+     "go to reddit.com",
+     "ask the title of the top post"
+    ],
+    "steps_gold": 2,
+    "steps_got": 2,
+    "steps_right": 2,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Scroll down",
+    "gold": [
+     [
+      "scroll",
+      "down"
+     ]
+    ],
+    "ms": 912,
+    "steps": [
+     "scroll down"
+    ],
+    "steps_gold": 1,
+    "steps_got": 1,
+    "steps_right": 1,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Search for lofi music",
+    "gold": [
+     [
+      "search",
+      "lofi music"
+     ]
+    ],
+    "ms": 611,
+    "steps": [
+     "search for lofi music"
+    ],
+    "steps_gold": 1,
+    "steps_got": 1,
+    "steps_right": 1,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Click the login button",
+    "gold": [
+     [
+      "click",
+      "login button"
+     ]
+    ],
+    "ms": 603,
+    "steps": [
+     "click the login button"
+    ],
+    "steps_gold": 1,
+    "steps_got": 1,
+    "steps_right": 1,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   }
+  ]
+ },
+ "gpt-oss": {
+  "summary": {
+   "model": "gpt-oss-120b",
+   "requests": 18,
+   "invalid_json": 0,
+   "exact_plans": 18,
+   "steps_right": 48,
+   "steps_gold": 48,
+   "invented_steps": 0,
+   "missing_steps": 0,
+   "ms_median": 396,
+   "ms_max": 24919
+  },
+  "rows": [
+   {
+    "request": "Go to books.toscrape.com, open the travel category, and tell me how many books are on the page",
+    "gold": [
+     [
+      "go",
+      "books.toscrape.com"
+     ],
+     [
+      "click",
+      "travel"
+     ],
+     [
+      "ask",
+      "how many books are on the page"
+     ]
+    ],
+    "ms": 390,
+    "steps": [
+     "go to books.toscrape.com",
+     "click travel",
+     "ask how many books are on the page"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Open the mystery category on books.toscrape.com and tell me the title of the first book",
+    "gold": [
+     [
+      "go",
+      "books.toscrape.com"
+     ],
+     [
+      "click",
+      "mystery"
+     ],
+     [
+      "ask",
+      "the title of the first book"
+     ]
+    ],
+    "ms": 343,
+    "steps": [
+     "go to books.toscrape.com",
+     "click Mystery",
+     "ask what is the title of the first book"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Go to quotes.toscrape.com and tell me the first quote",
+    "gold": [
+     [
+      "go",
+      "quotes.toscrape.com"
+     ],
+     [
+      "ask",
+      "the first quote"
+     ]
+    ],
+    "ms": 329,
+    "steps": [
+     "go to quotes.toscrape.com",
+     "ask what is the first quote"
+    ],
+    "steps_gold": 2,
+    "steps_got": 2,
+    "steps_right": 2,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Go to quotes.toscrape.com, click the login link, and tell me what fields are on the page",
+    "gold": [
+     [
+      "go",
+      "quotes.toscrape.com"
+     ],
+     [
+      "click",
+      "login link"
+     ],
+     [
+      "ask",
+      "what fields are on the page"
+     ]
+    ],
+    "ms": 311,
+    "steps": [
+     "go to quotes.toscrape.com",
+     "click login link",
+     "ask what fields are on the page"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "On books.toscrape.com open the first book and tell me its price",
+    "gold": [
+     [
+      "go",
+      "books.toscrape.com"
+     ],
+     [
+      "click",
+      "the first book"
+     ],
+     [
+      "ask",
+      "its price"
+     ]
+    ],
+    "ms": 307,
+    "steps": [
+     "go to books.toscrape.com",
+     "click the first book",
+     "ask what is the price of the book on the current page"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Go to Amazon, search for MSI gaming monitors, and tell me the cheapest one",
+    "gold": [
+     [
+      "go",
+      "amazon"
+     ],
+     [
+      "search",
+      "MSI gaming monitors"
+     ],
+     [
+      "ask",
+      "the cheapest one"
+     ]
+    ],
+    "ms": 8598,
+    "steps": [
+     "go to amazon.com",
+     "search for MSI gaming monitors",
+     "ask what is the cheapest one on the current page"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Open YouTube, search for lofi hip hop beats and play the first video",
+    "gold": [
+     [
+      "go",
+      "youtube"
+     ],
+     [
+      "search",
+      "lofi hip hop beats"
+     ],
+     [
+      "click",
+      "the first video"
+     ]
+    ],
+    "ms": 24884,
+    "steps": [
+     "go to youtube.com",
+     "search for lofi hip hop beats",
+     "click the first result"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "3/3"
+   },
+   {
+    "request": "Go to Wikipedia, search for Alan Turing, and tell me when he was born",
+    "gold": [
+     [
+      "go",
+      "wikipedia"
+     ],
+     [
+      "search",
+      "Alan Turing"
+     ],
+     [
+      "ask",
+      "when he was born"
+     ]
+    ],
+    "ms": 401,
+    "steps": [
+     "go to wikipedia.org",
+     "search for Alan Turing",
+     "ask when he was born"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Open GitHub, go to trending, and tell me the top repository",
+    "gold": [
+     [
+      "go",
+      "github"
+     ],
+     [
+      "click",
+      "trending"
+     ],
+     [
+      "ask",
+      "the top repository"
+     ]
+    ],
+    "ms": 24844,
+    "steps": [
+     "go to github.com",
+     "click trending",
+     "ask what is the top repository on the page"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Search for quantum computing, scroll down, and open the third result",
+    "gold": [
+     [
+      "search",
+      "quantum computing"
+     ],
+     [
+      "scroll",
+      "down"
+     ],
+     [
+      "click",
+      "the third result"
+     ]
+    ],
+    "ms": 418,
+    "steps": [
+     "search for quantum computing",
+     "scroll down",
+     "click the third result"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "3/3"
+   },
+   {
+    "request": "Go to Flipkart, search for running shoes, scroll down twice, and click the second product",
+    "gold": [
+     [
+      "go",
+      "flipkart"
+     ],
+     [
+      "search",
+      "running shoes"
+     ],
+     [
+      "scroll",
+      "down"
+     ],
+     [
+      "scroll",
+      "down"
+     ],
+     [
+      "click",
+      "the second product"
+     ]
+    ],
+    "ms": 24841,
+    "steps": [
+     "go to flipkart.com",
+     "search for running shoes",
+     "scroll down",
+     "scroll down",
+     "click the second product"
+    ],
+    "steps_gold": 5,
+    "steps_got": 5,
+    "steps_right": 5,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "5/5"
+   },
+   {
+    "request": "Open Gmail and tell me how many unread emails I have",
+    "gold": [
+     [
+      "go",
+      "gmail"
+     ],
+     [
+      "ask",
+      "how many unread emails"
+     ]
+    ],
+    "ms": 380,
+    "steps": [
+     "go to gmail.com",
+     "ask how many unread emails I have"
+    ],
+    "steps_gold": 2,
+    "steps_got": 2,
+    "steps_right": 2,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Go to Hacker News, open the top story, then go back and open the second one",
+    "gold": [
+     [
+      "go",
+      "hacker news"
+     ],
+     [
+      "click",
+      "the top story"
+     ],
+     [
+      "back",
+      ""
+     ],
+     [
+      "click",
+      "the second story"
+     ]
+    ],
+    "ms": 24919,
+    "steps": [
+     "go to news.ycombinator.com",
+     "click the top story",
+     "go back",
+     "click the second story"
+    ],
+    "steps_gold": 4,
+    "steps_got": 4,
+    "steps_right": 4,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "4/4"
+   },
+   {
+    "request": "Search for Python tutorials, open the first result, and scroll down",
+    "gold": [
+     [
+      "search",
+      "python tutorials"
+     ],
+     [
+      "click",
+      "the first result"
+     ],
+     [
+      "scroll",
+      "down"
+     ]
+    ],
+    "ms": 334,
+    "steps": [
+     "search for Python tutorials",
+     "click the first result",
+     "scroll down"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "3/3"
+   },
+   {
+    "request": "Go to Reddit and tell me the title of the top post",
+    "gold": [
+     [
+      "go",
+      "reddit"
+     ],
+     [
+      "ask",
+      "the title of the top post"
+     ]
+    ],
+    "ms": 24914,
+    "steps": [
+     "go to reddit.com",
+     "ask what is the title of the top post"
+    ],
+    "steps_gold": 2,
+    "steps_got": 2,
+    "steps_right": 2,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Scroll down",
+    "gold": [
+     [
+      "scroll",
+      "down"
+     ]
+    ],
+    "ms": 322,
+    "steps": [
+     "scroll down"
+    ],
+    "steps_gold": 1,
+    "steps_got": 1,
+    "steps_right": 1,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Search for lofi music",
+    "gold": [
+     [
+      "search",
+      "lofi music"
+     ]
+    ],
+    "ms": 24903,
+    "steps": [
+     "search for lofi music"
+    ],
+    "steps_gold": 1,
+    "steps_got": 1,
+    "steps_right": 1,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Click the login button",
+    "gold": [
+     [
+      "click",
+      "login button"
+     ]
+    ],
+    "ms": 307,
+    "steps": [
+     "click the login button"
+    ],
+    "steps_gold": 1,
+    "steps_got": 1,
+    "steps_right": 1,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   }
+  ]
+ },
+ "llama-8b": {
+  "summary": {
+   "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+   "requests": 18,
+   "invalid_json": 0,
+   "exact_plans": 16,
+   "steps_right": 47,
+   "steps_gold": 48,
+   "invented_steps": 2,
+   "missing_steps": 0,
+   "ms_median": 1280,
+   "ms_max": 1910
+  },
+  "rows": [
+   {
+    "request": "Go to books.toscrape.com, open the travel category, and tell me how many books are on the page",
+    "gold": [
+     [
+      "go",
+      "books.toscrape.com"
+     ],
+     [
+      "click",
+      "travel"
+     ],
+     [
+      "ask",
+      "how many books are on the page"
+     ]
+    ],
+    "ms": 1852,
+    "steps": [
+     "go to books.toscrape.com",
+     "click the link for the travel category",
+     "ask how many books are on the page"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Open the mystery category on books.toscrape.com and tell me the title of the first book",
+    "gold": [
+     [
+      "go",
+      "books.toscrape.com"
+     ],
+     [
+      "click",
+      "mystery"
+     ],
+     [
+      "ask",
+      "the title of the first book"
+     ]
+    ],
+    "ms": 1169,
+    "steps": [
+     "go to books.toscrape.com",
+     "click the mystery category",
+     "scroll down",
+     "ask what is the title of the first book"
+    ],
+    "steps_gold": 3,
+    "steps_got": 4,
+    "steps_right": 2,
+    "exact": false,
+    "invented": 1,
+    "missing": 0,
+    "rules_can_run": "3/3"
+   },
+   {
+    "request": "Go to quotes.toscrape.com and tell me the first quote",
+    "gold": [
+     [
+      "go",
+      "quotes.toscrape.com"
+     ],
+     [
+      "ask",
+      "the first quote"
+     ]
+    ],
+    "ms": 1281,
+    "steps": [
+     "go to quotes.toscrape.com",
+     "ask what the first quote is"
+    ],
+    "steps_gold": 2,
+    "steps_got": 2,
+    "steps_right": 2,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Go to quotes.toscrape.com, click the login link, and tell me what fields are on the page",
+    "gold": [
+     [
+      "go",
+      "quotes.toscrape.com"
+     ],
+     [
+      "click",
+      "login link"
+     ],
+     [
+      "ask",
+      "what fields are on the page"
+     ]
+    ],
+    "ms": 1623,
+    "steps": [
+     "go to quotes.toscrape.com",
+     "click the login link",
+     "ask what fields are on the page"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "On books.toscrape.com open the first book and tell me its price",
+    "gold": [
+     [
+      "go",
+      "books.toscrape.com"
+     ],
+     [
+      "click",
+      "the first book"
+     ],
+     [
+      "ask",
+      "its price"
+     ]
+    ],
+    "ms": 1684,
+    "steps": [
+     "go to books.toscrape.com",
+     "click the first result",
+     "ask what is the price"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Go to Amazon, search for MSI gaming monitors, and tell me the cheapest one",
+    "gold": [
+     [
+      "go",
+      "amazon"
+     ],
+     [
+      "search",
+      "MSI gaming monitors"
+     ],
+     [
+      "ask",
+      "the cheapest one"
+     ]
+    ],
+    "ms": 1175,
+    "steps": [
+     "go to amazon.com",
+     "search for msi gaming monitors",
+     "ask what is the cheapest one"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Open YouTube, search for lofi hip hop beats and play the first video",
+    "gold": [
+     [
+      "go",
+      "youtube"
+     ],
+     [
+      "search",
+      "lofi hip hop beats"
+     ],
+     [
+      "click",
+      "the first video"
+     ]
+    ],
+    "ms": 1351,
+    "steps": [
+     "go to youtube.com",
+     "search for lofi hip hop beats",
+     "click the first result",
+     "click the play button"
+    ],
+    "steps_gold": 3,
+    "steps_got": 4,
+    "steps_right": 3,
+    "exact": false,
+    "invented": 1,
+    "missing": 0,
+    "rules_can_run": "4/4"
+   },
+   {
+    "request": "Go to Wikipedia, search for Alan Turing, and tell me when he was born",
+    "gold": [
+     [
+      "go",
+      "wikipedia"
+     ],
+     [
+      "search",
+      "Alan Turing"
+     ],
+     [
+      "ask",
+      "when he was born"
+     ]
+    ],
+    "ms": 1564,
+    "steps": [
+     "go to wikipedia.com",
+     "search for Alan Turing",
+     "ask when was he born"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Open GitHub, go to trending, and tell me the top repository",
+    "gold": [
+     [
+      "go",
+      "github"
+     ],
+     [
+      "click",
+      "trending"
+     ],
+     [
+      "ask",
+      "the top repository"
+     ]
+    ],
+    "ms": 1494,
+    "steps": [
+     "go to github.com",
+     "click the trending tab",
+     "ask what the top repository is"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "2/2"
+   },
+   {
+    "request": "Search for quantum computing, scroll down, and open the third result",
+    "gold": [
+     [
+      "search",
+      "quantum computing"
+     ],
+     [
+      "scroll",
+      "down"
+     ],
+     [
+      "click",
+      "the third result"
+     ]
+    ],
+    "ms": 1279,
+    "steps": [
+     "search for quantum computing",
+     "scroll down",
+     "click the third result"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "3/3"
+   },
+   {
+    "request": "Go to Flipkart, search for running shoes, scroll down twice, and click the second product",
+    "gold": [
+     [
+      "go",
+      "flipkart"
+     ],
+     [
+      "search",
+      "running shoes"
+     ],
+     [
+      "scroll",
+      "down"
+     ],
+     [
+      "scroll",
+      "down"
+     ],
+     [
+      "click",
+      "the second product"
+     ]
+    ],
+    "ms": 1910,
+    "steps": [
+     "go to flipkart.com",
+     "search for running shoes",
+     "scroll down",
+     "scroll down",
+     "click the second product"
+    ],
+    "steps_gold": 5,
+    "steps_got": 5,
+    "steps_right": 5,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "5/5"
+   },
+   {
+    "request": "Open Gmail and tell me how many unread emails I have",
+    "gold": [
+     [
+      "go",
+      "gmail"
+     ],
+     [
+      "ask",
+      "how many unread emails"
+     ]
+    ],
+    "ms": 948,
+    "steps": [
+     "go to gmail.com",
+     "ask how many unread emails I have"
+    ],
+    "steps_gold": 2,
+    "steps_got": 2,
+    "steps_right": 2,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Go to Hacker News, open the top story, then go back and open the second one",
+    "gold": [
+     [
+      "go",
+      "hacker news"
+     ],
+     [
+      "click",
+      "the top story"
+     ],
+     [
+      "back",
+      ""
+     ],
+     [
+      "click",
+      "the second story"
+     ]
+    ],
+    "ms": 1349,
+    "steps": [
+     "go to news.ycombinator.com",
+     "click the top story",
+     "go back",
+     "click the second result"
+    ],
+    "steps_gold": 4,
+    "steps_got": 4,
+    "steps_right": 4,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "4/4"
+   },
+   {
+    "request": "Search for Python tutorials, open the first result, and scroll down",
+    "gold": [
+     [
+      "search",
+      "python tutorials"
+     ],
+     [
+      "click",
+      "the first result"
+     ],
+     [
+      "scroll",
+      "down"
+     ]
+    ],
+    "ms": 917,
+    "steps": [
+     "search for Python tutorials",
+     "click the first result",
+     "scroll down"
+    ],
+    "steps_gold": 3,
+    "steps_got": 3,
+    "steps_right": 3,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "3/3"
+   },
+   {
+    "request": "Go to Reddit and tell me the title of the top post",
+    "gold": [
+     [
+      "go",
+      "reddit"
+     ],
+     [
+      "ask",
+      "the title of the top post"
+     ]
+    ],
+    "ms": 844,
+    "steps": [
+     "go to reddit.com",
+     "ask the title of the top post"
+    ],
+    "steps_gold": 2,
+    "steps_got": 2,
+    "steps_right": 2,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Scroll down",
+    "gold": [
+     [
+      "scroll",
+      "down"
+     ]
+    ],
+    "ms": 580,
+    "steps": [
+     "scroll down"
+    ],
+    "steps_gold": 1,
+    "steps_got": 1,
+    "steps_right": 1,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Search for lofi music",
+    "gold": [
+     [
+      "search",
+      "lofi music"
+     ]
+    ],
+    "ms": 683,
+    "steps": [
+     "search for lofi music"
+    ],
+    "steps_gold": 1,
+    "steps_got": 1,
+    "steps_right": 1,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   },
+   {
+    "request": "Click the login button",
+    "gold": [
+     [
+      "click",
+      "login button"
+     ]
+    ],
+    "ms": 940,
+    "steps": [
+     "click the login button"
+    ],
+    "steps_gold": 1,
+    "steps_got": 1,
+    "steps_right": 1,
+    "exact": true,
+    "invented": 0,
+    "missing": 0,
+    "rules_can_run": "1/1"
+   }
+  ]
+ }
+}
