@@ -12,6 +12,7 @@ import sys
 from browser_use import Browser
 from ash.dom_fastpath import make_picker_from_env
 from ash.router import CommandRouter
+from ash.wakeword import strip_wake_word
 
 
 async def check(name: str, cond: bool, detail: str) -> bool:
@@ -24,6 +25,24 @@ async def main() -> int:
     await b.start()
     router = CommandRouter(b, picker=make_picker_from_env())
     ok = True
+
+    print("== the wake word is recognised anywhere in the sentence, not just as the first word")
+    addressed, remainder = strip_wake_word("Can you scroll down, Ash?")
+    ok &= await check('"Can you scroll down, Ash?" (name at the end) is addressed to Ash',
+                       addressed and remainder == "Can you scroll down?", f"addressed={addressed} remainder={remainder!r}")
+    addressed, remainder = strip_wake_word("open github")
+    ok &= await check('"open github" (no name at all) is not addressed to Ash', not addressed, "")
+    addressed, remainder = strip_wake_word("Ashley said hi")
+    ok &= await check('"Ashley said hi" does not false-match on the name "Ash"', not addressed, "")
+
+    print("== a named keyboard key is pressed literally, not clicked as a UI button")
+    r = await router.run_command("go to youtube.com")
+    r = await router.run_command("hit M")
+    ok &= await check('"hit M" -> tier rules, a real keystroke, not a search for a clickable "M"',
+                       r.tier == "rules" and r.ok and "m" in r.reply.lower(), f"tier={r.tier} reply={r.reply!r}")
+    r = await router.run_command("hit a button on keyboard")
+    ok &= await check('"hit a button on keyboard" (no specific key named) is NOT treated as pressing the letter A',
+                       r.detail != "sent key 'a'", r.detail)
 
     print("== search must actually submit, not just type (GitHub has no visible search box until a button opens it)")
     await router.run_command("go to github.com")

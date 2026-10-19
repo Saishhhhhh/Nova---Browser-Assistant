@@ -7,18 +7,27 @@ existing VAD+STT pipeline keeps deciding when you've finished speaking (unchange
 after transcription, whether what you said was actually addressed to Ash. A real offline wake-word engine
 would react faster and run with the mic always analysed locally; this reacts only after a full utterance is
 already transcribed - a deliberate, documented trade-off, not an oversight (see WRITEUP.md).
+
+Found live: anchoring the match to the very start of the sentence rejected perfectly natural phrasing -
+"Can you scroll down, Ash?" (name at the end) and "Uh, hi Ash, can you open X" (name after a greeting) both
+got ignored, even though they were clearly addressed to Ash. The name can now appear anywhere in the
+sentence; only the matched word (plus an immediate greeting before it) is removed, not the whole prefix.
 """
 import re
 
 from .config import ASSISTANT_NAME
 
-_WAKE = re.compile(rf"^(?:hey|hi|okay|ok)?\s*{re.escape(ASSISTANT_NAME)}\b[\s,.:]*", re.I)
+_WAKE = re.compile(rf"\b(?:hey|hi|okay|ok)?\s*{re.escape(ASSISTANT_NAME)}\b[\s,.:]*", re.I)
 
 
 def strip_wake_word(text: str) -> tuple:
     """Returns (addressed, remainder). addressed=False means: this wasn't said to Ash - show it was heard,
     but don't act on it."""
-    m = _WAKE.match(text.strip())
+    t = text.strip()
+    m = _WAKE.search(t)
     if not m:
         return False, text
-    return True, text[m.end():].strip()
+    remainder = (t[:m.start()] + " " + t[m.end():]).strip()
+    remainder = re.sub(r"\s+", " ", remainder)
+    remainder = re.sub(r"\s*,\s*([.?!]|$)", r"\1", remainder).strip(" ,")
+    return True, remainder

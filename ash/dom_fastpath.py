@@ -494,6 +494,19 @@ KNOWN_SITES = {"wikipedia": "en.wikipedia.org", "amazon": "amazon.com", "youtube
                "reddit": "reddit.com", "twitter": "twitter.com", "x": "x.com", "facebook": "facebook.com",
                "instagram": "instagram.com", "linkedin": "linkedin.com", "gmail": "mail.google.com"}
 
+# Named keys a site's own keyboard shortcuts actually use (YouTube: F fullscreen, T theatre mode, M mute,
+# K/space play-pause, arrows seek/volume...). Found live: "press S the button, the screen will be full
+# screen" (meant as a literal keystroke) was parsed as a CLICK ("hit"/"press" are also click verbs below),
+# found no element literally labelled with that letter, and fell all the way to the full agent - which then
+# spent 8 steps and over a minute digging through a video player's shadow DOM trying to find a clickable
+# "Fullscreen" button, and still failed. A named key is sent as a real keystroke, not a thing to click.
+NAMED_KEYS = {"enter": "Enter", "return": "Enter", "space": "Space", "spacebar": "Space", "escape": "Escape",
+              "esc": "Escape", "tab": "Tab", "backspace": "Backspace", "delete": "Delete",
+              "up": "ArrowUp", "down": "ArrowDown", "left": "ArrowLeft", "right": "ArrowRight"}
+KEYPRESS = re.compile(
+    r"^(?:hit|press|type)\s+(?:the\s+)?([a-z]|enter|return|space(?:bar)?|escape|esc|tab|backspace|delete|"
+    r"up|down|left|right)(?:\s+key)?(?:\s+button)?(?:\s+on\s+(?:the\s+)?keyboard)?$", re.I)
+
 
 def parse_command(command: str) -> Intent:
     t = LOCATION_PREFIX.sub("", command.strip()).rstrip(".!?")
@@ -524,6 +537,13 @@ def parse_command(command: str) -> Intent:
         return Intent("scroll", direction=m.group(1).lower(), amount=float(m.group(2) or 1))
     if re.match(r"^(?:go back|back|previous page)$", t, re.I):
         return Intent("back")
+    m = KEYPRESS.match(t)
+    if m:
+        word = m.group(1).lower()
+        # "a"/"i" are also ordinary English words ("hit a button" means some unspecified button, not the
+        # letter A) - only treat them as a key when the command says "key" explicitly ("hit the A key").
+        if word not in ("a", "i") or re.search(r"\bkey\b", t, re.I):
+            return Intent("keypress", target=NAMED_KEYS.get(word, word))
     m = re.match(r"^(?:click|press|tap|select|choose|open|hit)\s+(?:on\s+)?(?:the\s+)?(.+)$", t, re.I)
     if m:
         return Intent("click", target=strip_quotes(m.group(1)))
@@ -722,6 +742,11 @@ class FastPath:
                 self._dirty = True
                 res.handled, res.detail = True, "pressed Enter (no retyping)"
                 res.spoken = "Done."
+            elif intent.kind == "keypress":
+                await self._act({"send_keys": {"keys": intent.target}})
+                self._dirty = True
+                res.handled, res.detail = True, f"sent key '{intent.target}'"
+                res.spoken = f"Pressed {intent.target}."
             else:  # search / type / click, or an unknown command when a model is available
                 await self._settle_if_dirty(res)
                 title = await self._bot_check()
