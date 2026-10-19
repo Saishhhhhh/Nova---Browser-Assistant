@@ -1,0 +1,46 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "go to books.toscrape.com",
+   "tier": "rules",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "queued_ms": 0,
+   "fast_path_ms": 2305,
+   "route_ms": 2306,
+   "agent_steps": 0,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": 2610,
+   "first_sound_ms": 2610,
+   "finished_ms": 4916,
+   "reply": "Opened books.toscrape.com.",
+   "detail": "navigated to https://books.toscrape.com"
+  },
+  {
+   "turn": 2,
+   "command": "I said click travel",
+   "tier": "rules",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "queued_ms": 0,
+   "fast_path_ms": 2025,
+   "route_ms": 2026,
+   "agent_steps": 0,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": 2316,
+   "first_sound_ms": 2316,
+   "finished_ms": 3312,
+   "reply": "Clicked travel.",
+   "detail": "clicked [183] ['travel'] (score 1.03)"
+  }
+ ]
+}

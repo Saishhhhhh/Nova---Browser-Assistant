@@ -1,0 +1,3 @@
+# Tests the correction fix: a retry phrased as "I said X" should be understood as the command, not a click target.
+go to books.toscrape.com
+I said click travel

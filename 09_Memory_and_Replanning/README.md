@@ -92,12 +92,38 @@ Also observed live, not bugs, worth recording:
 - **A nonsense fragment ("And yeah.") correctly triggered "Sorry, what should I do?"** rather than being guessed at.
 - **"Stop" correctly cancelled a plan mid-flight, live**, confirming the Phase 1 mechanism tested only in text mode before.
 - **The advisory-question answer, live, was genuinely context-aware**: asked "should I buy this book" on books.toscrape.com, the agent recognised it as a demo site with randomly generated prices and said so, rather than inventing confident real-world buying advice.
-- **A spoken correction ("I said go to books.to scrape.com") is not understood as a correction.** It doesn't start with a recognised navigation phrase, so it fell to the model-step, which tried to find something to click and picked the wrong thing. Not fixed — documented as a known gap; handling "no, I meant X" framing well would need the router to recognise correction language and extract the real command from inside it, which is a real piece of work, not a quick fix.
+- **A spoken correction ("I said go to books.to scrape.com") was not understood as a correction.** It didn't start with a recognised navigation phrase, so it fell to the model-step, which tried to find something to click and picked the wrong thing. Left as a documented gap at the time; **since fixed** — see section 6a.
 
 The benchmark was re-run after the two fixes (not to chase a better number, but because the context-size fix
 changes what the model actually sees): 4/4 passed in both conditions, with the comparison answer this time
 naming the cheaper book by title. The underlying finding in section 4 is unchanged by this — small-model
 phrasing varies a little run to run regardless.
+
+## 6a. The correction gap above, closed
+
+Added a `CORRECTION` regex in `router.py` (same mechanism as the existing `FILLER` regex: a repeating prefix
+strip, in `clean_command()`), recognising "no", "wait", "actually", "sorry", "i said", "i meant", "i mean" as
+correction/retry markers. Once stripped, the real command underneath reaches the normal rules/`QUESTION`/
+`needs_memory` checks unchanged — "no, I meant the second one" becomes "the second one", which Phase 2's own
+referential-word handling already covers, so this mostly *unlocks* machinery that already existed rather than
+adding new machinery.
+
+Deliberately kept safe: a bare "No." or "no, thanks" is **not** treated as a correction (`is_correction()`
+checks that something non-reaction is actually left after stripping), so those still fall through to `CHAT`
+exactly as before — confirmed with a small test matrix (11 phrasings, including the two safety cases and the
+exact live bug). Also extended: a correction said *while the assistant is busy* now cancels the in-flight step
+(via the existing `cancel_agent()`) instead of only queuing the correction to run after it — tested end to end
+([`test_cancel_correction.py`](../07_End_To_End_Latency/test_cancel_correction.py)): a long agent call was
+confirmed genuinely in flight (`router._agent is not None`), the correction cancelled it (no record written,
+the same "stopped, no answer spoken" behaviour as a plain "stop"), and the corrected "scroll down" then ran as
+its own turn, successfully. All existing regressions (Exp 2 rules 13/13, handoff, `test_cancel.py`) still pass.
+
+**Not attempted:** the deeper case of resolving *what* was wrong without the user re-stating it ("no, I meant
+the search box" when nothing before made "the search box" obvious) relies entirely on Phase 2's existing
+referential/memory handling, which was itself only lightly tested (Experiment 9, section 4). And the URL
+space-splitting artefact from the original live bug (Sarvam's "books.to scrape.com") is untouched — a separate,
+STT-side issue, not a router one; the agent's own search-and-recover behaviour (section 6) is still what
+handles that case in practice.
 
 ## 7. Caveats
 
@@ -113,8 +139,8 @@ phrasing varies a little run to run regardless.
   as provisional, not as the last word.
 - Re-planning was only tested on one kind of failure (an element that does not exist). A failure caused by a
   slow page or a wrong page was not tried.
-- A spoken correction ("I said X", "no, I meant Y") is not understood as a correction (section 6) — it is run
-  as a literal new command, which can go badly wrong (it was interpreted as a click target in the live test).
+- The correction fix (section 6a) was itself only tested in text mode plus one scripted end-to-end check; not
+  yet tried live by voice, which is exactly the kind of thing that previously surfaced real bugs here.
 
 ## 8. Files
 
@@ -152,7 +178,7 @@ actually run together — exactly why this was tested end to end before being ca
   disable). No further wiring needed.
 - **A genuine memory-value test**, if ever wanted: a case where the correct answer requires a fact that no page
   currently reachable by the browser contains — the gap this round left open.
-- **Correction-language understanding** ("I said X", "no, I meant Y") — a real, observed gap (section 6), not
-  attempted here. Would need the router to recognise correction framing and pull the real command out of it.
+- **Correction-language understanding** ("I said X", "no, I meant Y") — a real, observed gap (section 6), fixed
+  and tested in section 6a. A live voice check of it specifically is the one thing still outstanding.
 - **Phase 3+** (status display, one-command start, further site validation, synthesis) is next, per the plan
   discussed with the user; this experiment does not block any of it.

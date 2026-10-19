@@ -39,6 +39,14 @@ FILLER = re.compile(
     r"i want you to|i would like you to|i'd like you to|go ahead and)\b[\s,.]*)+", re.I)
 TRAILING = re.compile(r"[\s,.]*\b(?:please|thanks|thank you)\W*$", re.I)
 
+# A correction or retry ("I said go to X", "no, I meant the second one", "actually, scroll down"). Stripped the
+# same way FILLER is, so the real command underneath still reaches the rules/QUESTION/needs_memory checks
+# unchanged — a stripped "the second one" is already covered by Phase 2's referential-word handling. "no" alone
+# is safe to strip: clean_command() falls back to the original text when stripping leaves nothing, so bare "No."
+# still reaches CHAT. Found live: "I said go to books.to scrape.com" (a retry after mis-transcription) was run
+# as a literal command and the model-step tried to find something to click matching the whole sentence.
+CORRECTION = re.compile(r"^(?:(?:no|wait|actually|sorry|i said|i meant|i mean)\b[\s,.]*)+", re.I)
+
 # A verb with no object. These must never reach the agent, which would guess and click around (seen in Exp 7).
 VAGUE = {
     "click": "Click what?", "press": "Press what?", "tap": "Tap what?", "select": "Select what?",
@@ -60,9 +68,28 @@ CLOSE_POPUP = re.compile(
 
 
 def clean_command(text: str) -> str:
-    t = FILLER.sub("", text.strip())
+    t = text.strip()
+    for _ in range(3):   # FILLER and CORRECTION can interleave ("no, um, I meant..."); a few passes catches it
+        new = FILLER.sub("", CORRECTION.sub("", t))
+        if new == t:
+            break
+        t = new
     t = TRAILING.sub("", t).strip()
     return t[:1].upper() + t[1:] if t else text.strip()
+
+
+def is_correction(text: str) -> bool:
+    """True if `text` opens with a correction/retry phrase AND has real content after it ("no, I meant go
+    back", "actually, scroll down") — used to cancel an in-flight command instead of just queuing the
+    correction to run after it. A bare "No." or a plain decline ("no, thanks") is NOT a correction: stripping
+    would leave nothing, or leave only another reaction, so cancelling would be the wrong call — that stays
+    CHAT's job. Strips FILLER only (not CORRECTION) first, so "um, no, I meant..." is still recognised; call
+    this on the raw heard text, before clean_command() has already removed the very marker being checked for."""
+    t = FILLER.sub("", text.strip())
+    if not CORRECTION.match(t):
+        return False
+    remainder = CORRECTION.sub("", t).strip()
+    return bool(remainder) and not CHAT.match(remainder)
 
 
 def vague_question(text: str) -> str:

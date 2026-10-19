@@ -47,7 +47,7 @@ import voice_loop as vl  # noqa: E402
 from dom_fastpath import parse_command  # noqa: E402
 from memory import COMPARE_QUESTION, ConversationMemory, compare_from_scratchpad, needs_memory  # noqa: E402
 from planner import looks_multi_step, parse_step, plan, replan_after_failure  # noqa: E402
-from router import QUESTION, RouterResult, clean_command  # noqa: E402
+from router import QUESTION, RouterResult, clean_command, is_correction  # noqa: E402
 from voice_loop import Loop, mic_source, transcribe  # noqa: E402
 
 ACK = "On it."
@@ -102,7 +102,9 @@ class AppLoop(Loop):
             self.jobs.put(job)
 
     def _while_busy(self, job: dict) -> None:
-        """You spoke while the browser is working: if it is "stop", cancel; otherwise queue it as the next command."""
+        """You spoke while the browser is working: "stop" cancels outright; a correction ("no, I meant...",
+        "actually...") also cancels the in-flight step — rather than letting a possibly wrong-direction task
+        run to completion first — and then queues the corrected command to run next; anything else just queues."""
         try:
             text, ms = transcribe(self.http, job["clip"], self.args.hinglish)
         except Exception as e:
@@ -114,6 +116,9 @@ class AppLoop(Loop):
             return
         if not text.strip():
             return
+        if is_correction(text):
+            self.say(f"  (heard a correction: \"{text.strip()}\"; cancelling the current step)")
+            self.cancel_agent()
         job["text"], job["stt_ms"] = text, ms
         self.say(f"  (heard \"{text.strip()}\" while working; it will run next)")
         self.jobs.put(job)
