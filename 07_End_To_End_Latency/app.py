@@ -84,6 +84,22 @@ class AppLoop(Loop):
         self.plan_active = False    # a multi-step plan is currently running (set for its whole duration, not
         self.plan_cancelled = False  # just the current step), so "stop" cancels the whole plan, not one step
         self.memory = ConversationMemory()   # Phase 2: recent turns + scratchpad, carried across the session
+        self._clip_no = 0
+        self.clip_dir = HERE / "results" / f"clips_{datetime.datetime.now():%Y%m%d_%H%M%S}"
+
+    def _save_turn_clip(self, job: dict, text: str, ms: float) -> None:
+        """Saves this turn's raw audio plus what it transcribed to, so a failing transcript (wrong word,
+        dropped letters) can be replayed later against any engine instead of re-testing live by voice."""
+        clip = job.get("clip")
+        if clip is None or not getattr(self.args, "save_clips", True):
+            return
+        self._clip_no += 1
+        try:
+            vl.save_clip(clip, self._clip_no, self.clip_dir)
+            (self.clip_dir / f"turn_{self._clip_no:03d}.json").write_text(
+                json.dumps({"text": text, "stt_ms": round(ms), "engine": self.args.stt}, ensure_ascii=False), encoding="utf-8")
+        except Exception:
+            pass
 
     # --- turn-taking rules specific to the app
     def barge_applies(self) -> bool:
@@ -107,10 +123,11 @@ class AppLoop(Loop):
         "actually...") also cancels the in-flight step — rather than letting a possibly wrong-direction task
         run to completion first — and then queues the corrected command to run next; anything else just queues."""
         try:
-            text, ms = transcribe(self.http, job["clip"], self.args.hinglish)
+            text, ms = transcribe(self.http, job["clip"], self.args.hinglish, engine=self.args.stt)
         except Exception as e:
             self.say(f"  !! {type(e).__name__}: {str(e)[:150]}")
             return
+        self._save_turn_clip(job, text, ms)
         heard = clean_command(text)
         if CANCEL.match(heard):
             self.say(f"  (heard \"{text.strip()}\" -> stop)")   # otherwise a cancel leaves no trace of what triggered it
@@ -192,7 +209,8 @@ class AppLoop(Loop):
         if job.get("text") is not None:            # typed command, or one transcribed while the browser was busy
             text, stt_ms = job["text"], float(job.get("stt_ms", 0.0))
         else:
-            text, stt_ms = transcribe(self.http, job["clip"], self.args.hinglish)
+            text, stt_ms = transcribe(self.http, job["clip"], self.args.hinglish, engine=self.args.stt)
+            self._save_turn_clip(job, text, stt_ms)
         if job["epoch"] != self.epoch:
             self.say(f"  (you spoke again; dropped \"{text}\")")
             return
@@ -453,15 +471,21 @@ def main() -> int:
     ap.add_argument("--no-memory", action="store_true",
                     help="Phase 2 off: no conversation-history augmentation, no scratchpad/comparison routing, "
                          "no re-plan on failure (Experiment 9's 'without memory' condition)")
+    ap.add_argument("--stt", choices=["elevenlabs", "sarvam"], default="elevenlabs",
+                    help="elevenlabs (default): most accurate, ~0.8s, knows this app's own vocabulary "
+                         "(voice_loop.PERSONAL_VOCAB). sarvam: ~5x faster, better for Hinglish.")
+    ap.add_argument("--no-save-clips", action="store_true", help="don't save each turn's audio to results/clips_*/")
     args = ap.parse_args()
     args.memory = not args.no_memory
+    args.save_clips = not args.no_save_clips
     for key in ("input_device", "output_device"):
         v = getattr(args, key)
         if v is not None and v.isdigit():
             setattr(args, key, int(v))
     args.simulate = args.no_sound      # voice_loop's Player simulates the speakers when this is set
     for need in ("DEEPGRAM_API_KEY", "CEREBRAS_API_KEY", "DEEPINFRA_API_KEY") + \
-            (() if (args.text or args.script) else ("SARVAM_API_KEY",)):
+            (() if (args.text or args.script) else
+             (("SARVAM_API_KEY",) if args.stt == "sarvam" else ("ELEVENLABS_API_KEY",))):
         if not os.getenv(need):
             raise SystemExit(f"{need} is not set in .env")
     try:

@@ -131,14 +131,37 @@ def wav_bytes(pcm: np.ndarray) -> bytes:
     return buf.getvalue()
 
 
-def transcribe(http: httpx.Client, pcm: np.ndarray, hinglish: bool) -> tuple:
+# Words this app's own commands/names need right, that generic speech models have no reason to know. Sent to
+# ElevenLabs as `keyterms`. Found live: "Saish" (the user's own name, spelled out letter by letter as a search
+# query) was consistently misheard as "size" on Sarvam; Experiment 3 found keyterms gave no measurable accuracy
+# gain on its own hard-name list, but that list never included this word, so this is re-measured on real use.
+PERSONAL_VOCAB = ["Saish", "saishhhhhh", "GitHub", "github.com", "Wikipedia", "Flipkart", "books.toscrape.com"]
+
+
+def transcribe(http: httpx.Client, pcm: np.ndarray, hinglish: bool, engine: str = "elevenlabs") -> tuple:
+    """engine: "elevenlabs" (default, most accurate, ~0.8 s) or "sarvam" (fastest, ~0.14 s, better for Hinglish)."""
     t = time.perf_counter()
-    r = http.post("https://api.sarvam.ai/speech-to-text", headers={"api-subscription-key": os.getenv("SARVAM_API_KEY")},
-                  data={"language_code": "unknown" if hinglish else "en-IN"},
-                  files={"file": ("clip.wav", wav_bytes(pcm), "audio/wav")})
+    if engine == "sarvam":
+        r = http.post("https://api.sarvam.ai/speech-to-text", headers={"api-subscription-key": os.getenv("SARVAM_API_KEY")},
+                      data={"language_code": "unknown" if hinglish else "en-IN"},
+                      files={"file": ("clip.wav", wav_bytes(pcm), "audio/wav")})
+        if r.status_code >= 400:
+            raise RuntimeError(f"Sarvam HTTP {r.status_code}: {r.text[:150]}")
+        return r.json()["transcript"], (time.perf_counter() - t) * 1000
+    data = {"model_id": "scribe_v2", "tag_audio_events": "false", "diarize": "false", "language_code": "en",
+             "keyterms": PERSONAL_VOCAB}
+    r = http.post("https://api.elevenlabs.io/v1/speech-to-text", headers={"xi-api-key": os.getenv("ELEVENLABS_API_KEY")},
+                  data=data, files={"file": ("clip.wav", wav_bytes(pcm), "audio/wav")})
     if r.status_code >= 400:
-        raise RuntimeError(f"Sarvam HTTP {r.status_code}: {r.text[:150]}")
-    return r.json()["transcript"], (time.perf_counter() - t) * 1000
+        raise RuntimeError(f"ElevenLabs HTTP {r.status_code}: {r.text[:150]}")
+    return r.json()["text"], (time.perf_counter() - t) * 1000
+
+
+def save_clip(pcm: np.ndarray, turn_no: int, out_dir) -> None:
+    """Saves the raw audio of a turn, so any failing transcript can be replayed exactly against any engine
+    instead of re-testing live. Called for every turn, not just failures, since "failing" is only known later."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / f"turn_{turn_no:03d}.wav").write_bytes(wav_bytes(pcm))
 
 
 # ----------------------------------------------------------------------------- the loop
