@@ -53,6 +53,16 @@ from voice_loop import Loop, mic_source, transcribe  # noqa: E402
 
 ACK = "On it."
 STILL = "Still working on it."
+SPOKEN_LIMIT = 220   # characters; past this, speech takes longer than it's worth (found live: a 10-item
+                     # repo list was read out loud for 30+ seconds after a plain search). The console/log/
+                     # memory still get the FULL reply - only what's actually spoken is shortened.
+
+
+def _speakable(text: str) -> str:
+    if len(text) <= SPOKEN_LIMIT:
+        return text
+    cut = text[:SPOKEN_LIMIT].rsplit(" ", 1)[0]
+    return f"{cut}... there's more in the log."
 HEARTBEAT_FIRST_S, HEARTBEAT_EVERY_S = 12.0, 15.0
 CANCEL = re.compile(r"^(?:stop|cancel|never mind|nevermind|forget it|abort|halt|enough)(?![a-z])", re.I)
 
@@ -264,7 +274,7 @@ class AppLoop(Loop):
             return
         if res.tier == "chat":
             if res.reply:
-                self._speak(res.reply, job["epoch"], {})
+                self._speak(_speakable(res.reply), job["epoch"], {})
             else:
                 self.say(f"  (small talk: \"{text.strip()}\"; nothing to do)")
             return
@@ -277,7 +287,7 @@ class AppLoop(Loop):
         meta = {"turn": n, "speech_s": round(job["speech_s"], 2), "text": text, "reply": res.reply,
                 "stt_ms": round(stt_ms), "silence_wait_ms": round(job["wait_ms"]), "hangover_s": job["hangover"],
                 "route_ms": round(route_ms), "tier": res.tier, "t_speech_end": t_end}
-        self._speak(res.reply, job["epoch"], meta)
+        self._speak(_speakable(res.reply), job["epoch"], meta)
         self.memory.add_turn(text, res.reply, res.ok)
         done_ms = (time.perf_counter() - t_end) * 1000
         first_sound = min(x for x in (cur["ack_ms"], meta.get("felt_ms")) if x is not None) if (cur["ack_ms"] or meta.get("felt_ms")) else None
@@ -359,10 +369,10 @@ class AppLoop(Loop):
                             steps[i:] = new_tail
                             continue
                         self.say(f"  (no usable replacement: {replan_err or 'the model suggested nothing'})")
-                    self._speak(f"I got to step {i} of {len(steps)}, but then: {res.reply}", job["epoch"], {})
+                    self._speak(_speakable(f"I got to step {i} of {len(steps)}, but then: {res.reply}"), job["epoch"], {})
                     return
                 self.say(f"  (step {i}/{len(steps)} ok [{res.tier}]: \"{step}\" -> {res.reply[:150]!r})")
-                self._speak(res.reply, job["epoch"], {})
+                self._speak(_speakable(res.reply), job["epoch"], {})
         finally:
             self.slow_running = False
             self.plan_active = False
