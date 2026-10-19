@@ -203,6 +203,30 @@ def find_search_box(elements: list):
     return best
 
 
+def _looks_like_search_box(e) -> bool:
+    if e.input_type == "search" or e.role == "searchbox":
+        return True
+    hints = [e.attrs.get(k, "") for k in ("name", "id", "aria-label", "placeholder", "title")] + e.labels + e.weak_labels
+    return any("search" in h.lower() for h in hints if h)
+
+
+def find_search_opener(elements: list):
+    """A clickable control that *opens* a search box rather than being one (GitHub's "Search or jump to"
+    button, which reveals its real input only after a click). Found live: "search for X" on GitHub typed
+    into nothing, because find_search_box alone never finds an input that doesn't exist yet."""
+    best = None
+    for e in elements:
+        if e.is_text_input or e.role not in {"button", "link", "tab"}:
+            continue
+        labels = [l.lower() for l in (e.labels + e.weak_labels)]
+        hints = [e.attrs.get(k, "").lower() for k in ("aria-label", "title", "name", "id")]
+        if any("search" in l for l in labels + hints):
+            score = 2 if any(l.strip() == "search" for l in labels) else 1
+            if best is None or score > best[1]:
+                best = (e, score)
+    return best
+
+
 PROVIDERS = {
     "cerebras": ("https://api.cerebras.ai/v1", "CEREBRAS_API_KEY"),
     "deepinfra": ("https://api.deepinfra.com/v1/openai", "DEEPINFRA_API_KEY"),
@@ -432,6 +456,13 @@ def _strip_submit_tail(text: str) -> str:
 # assembles spelled-out words; this is the one place it happens deterministically, with no model guessing involved.
 SPELLED_LETTERS = re.compile(r"^(?:[A-Za-z][\s,.\-]+){2,}[A-Za-z][\s,.\-]*$")
 
+# A locational preamble before the real instruction ("In the top right search box, search for X.", "In the
+# search bar, type Y."). Found live: this alone made "search for X" never match the search rule below (it
+# doesn't start with "search"), so it always fell to the slow model-step even though the command was
+# otherwise a plain, well-formed search.
+LOCATION_PREFIX = re.compile(
+    r"^in\s+the\s+(?:top|bottom)?\s*(?:left|right)?\s*(?:corner\s+)?(?:search\s+)?(?:box|bar|field)\s*,\s*", re.I)
+
 
 def _collapse_spelled_letters(text: str) -> str:
     if SPELLED_LETTERS.match(text.strip()):
@@ -442,7 +473,7 @@ def _collapse_spelled_letters(text: str) -> str:
 
 
 def parse_command(command: str) -> Intent:
-    t = command.strip().rstrip(".!?")
+    t = LOCATION_PREFIX.sub("", command.strip()).rstrip(".!?")
     m = re.match(r"^(?:go to|navigate to|visit|open)\s+(\S+)$", t, re.I)
     if m and URLISH.match(m.group(1)):
         url = m.group(1)
@@ -720,8 +751,17 @@ class FastPath:
         elif pick.action == "type" and target and pick.text:
             pick.text = _collapse_spelled_letters(pick.text)
             await self._act({"input": {"index": target.index, "text": pick.text, "clear": True}})
-            res.handled, res.detail = True, f"model typed into [{target.index}] {label}"
-            res.spoken = f"Typed into {_first_label(label)}."
+            # Found live: the model-step was only ever asked to do ONE action, so it typed a search query and
+            # stopped - "Search for Google." typed "Google" and never pressed Enter, so nothing was actually
+            # searched. If the target it typed into is clearly a search box, submit it the same way the rules
+            # path already does for its own "search" intent.
+            if _looks_like_search_box(target):
+                await self._act({"send_keys": {"keys": "Enter"}})
+                res.handled, res.detail = True, f"model typed '{pick.text}' into [{target.index}] {label} and pressed Enter"
+                res.spoken = f"Searched for {pick.text}."
+            else:
+                res.handled, res.detail = True, f"model typed into [{target.index}] {label}"
+                res.spoken = f"Typed into {_first_label(label)}."
         else:
             why = pick.note or "model chose an element that is not on the page"
             res.detail = f"{rules_note} | model declined ({why})"
@@ -735,6 +775,15 @@ class FastPath:
                     res.blocked, res.detail = True, "a popup is covering the page and would not close"
                     return
                 if outcome == "closed":
+                    elements = await self._read_page()
+                    hit = find_search_box(elements)
+            if not hit:
+                # No visible search box yet - some sites (GitHub) only reveal one after a click on a
+                # "Search" button/icon. Open it deterministically, no model guessing, then look again.
+                opener = find_search_opener(elements)
+                if opener:
+                    await self._act({"click": {"index": opener[0].index}})
+                    await asyncio.sleep(0.4)
                     elements = await self._read_page()
                     hit = find_search_box(elements)
             if not hit:

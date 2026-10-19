@@ -67,6 +67,13 @@ CLOSE_POPUP = re.compile(
     r"^(?:close|dismiss|get rid of|remove)\s+(?:the |this |that )?(?:popup|pop up|pop-up|dialog|modal|banner|window|it)[^a-z]*$", re.I)
 
 
+# "Stop" (or "cancel", "never mind") said with nothing running. By the time run_command() executes, the single
+# worker thread has nothing else in flight, so there's nothing to cancel - but a bare "Stop." is one word, which
+# previously fell into the generic "too short to be a command" clarify path and asked "Sorry, what should I do?"
+# in response to someone trying to stop something. Found live: this happened twice in a row in the same session.
+STANDALONE_CANCEL = re.compile(r"^(?:stop|cancel|never mind|nevermind|forget it|abort|halt|enough)[^a-z]*$", re.I)
+
+
 def _safe_strip(regex: re.Pattern, t: str) -> str:
     """Apply `regex`'s strip, but never let it reduce the text to nothing — if it would, keep the input
     unchanged instead. Without this, "No thanks." (CORRECTION strips "No " -> "thanks.", then TRAILING strips
@@ -141,6 +148,8 @@ class CommandRouter:
             ms = (time.perf_counter() - start) * 1000
             said = {"closed": "Closed it.", "none": "There is no popup.", "stuck": "I could not close it."}[outcome]
             return RouterResult(command, "rules", outcome != "stuck", said, detail=f"popup: {outcome}", total_ms=ms, fast_ms=ms)
+        if STANDALONE_CANCEL.match(command):
+            return RouterResult(command, "chat", True, "", detail="nothing running to stop")
         ask = vague_question(command)
         if ask:
             return RouterResult(command, "clarify", False, ask, detail="command has no target")
