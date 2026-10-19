@@ -8,6 +8,9 @@ feature here; browser automation is the hands.
 python run_ash.py
 ```
 
+Or just double-click **`Start Ash.bat`** (works from the desktop too - make a shortcut to it). The terminal
+window stays open so you still see the live transcript and waterfall log, same as running it by hand.
+
 Say "Ash" before a command - for example, "Ash, search for lofi music." Say "Ash, stop" to cancel anything
 in progress. A small floating widget shows whether she's listening, thinking, or speaking; click its gear
 icon to pick your microphone and speakers.
