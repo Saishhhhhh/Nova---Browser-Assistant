@@ -125,6 +125,42 @@ space-splitting artefact from the original live bug (Sarvam's "books.to scrape.c
 STT-side issue, not a router one; the agent's own search-and-recover behaviour (section 6) is still what
 handles that case in practice.
 
+## 6b. Live voice test of the fix itself: one regression found and fixed, one real gap confirmed
+
+The user ran the fix live (headphones, the real app, not scripted). Most of it worked exactly as intended:
+
+| Said | Result |
+|---|---|
+| "Click travel." then "I said click travel." | both clicked Travel correctly — the exact original bug, fixed |
+| "Go back." then "No, I meant scroll down." | scrolled down, not confused by "no" |
+| "No." (alone) | correctly silent, no action — not treated as a correction |
+| A long "tell me about every book in detail" task, interrupted mid-reply by "No, I meant scroll up" | the reply was audibly cut off (confirmed: "26.3 s of the reply had been played" when it stopped), and "scroll up" ran next, correctly |
+
+**One real regression, found and fixed on the spot:** "No thanks." got "Sorry, what should I do?" instead of
+being treated as a decline. Cause: `CORRECTION` stripped "No " first, leaving "thanks.", which `TRAILING` then
+stripped *completely* (its own pattern matches "thanks" with nothing required in front), leaving an empty
+string — `clean_command`'s empty-fallback returns the *original, unstripped* text, and "No thanks." as a whole
+doesn't match `CHAT` (which only recognises single-phrase reactions), so it fell through to the 2-word-fragment
+clarify path. Fixed with `_safe_strip()`: each strip (`TRAILING`, then `CORRECTION`/`FILLER`) now backs out and
+keeps its *input* unchanged if applying it would leave nothing, rather than falling all the way back past every
+intermediate step to the raw original text. Re-verified against a 14-case matrix (including this exact phrase,
+with and without a comma, and everything from section 6a) and the full Exp 2 regression suite (13/13) — no
+regressions from the fix-to-the-fix.
+
+**One real, confirmed gap — the thing flagged as uncertain going in:** "click the first book" then "no, I meant
+the second one" did **not** pick the second book. Once "no, I meant" is stripped, "the second one" has no verb
+("click") in front of it, so it never reaches `position_hints.py` (Experiment 8's ordinal resolver), which only
+activates for a parsed *click* intent. Instead it fell to the router's own model-step, which tried to guess an
+element from the bare phrase "the second one" and picked something unrelated. This is a real, separate gap from
+the "No thanks." one: **a correction that replaces only the object, not the verb, needs the verb carried over
+from the previous command** — conceptually the mirror image of the existing `pending` mechanism (which joins a
+bare verb like "Click." with the object said next). Not fixed here; would need the router to remember the last
+command's verb and re-attach it when a correction's remainder has none.
+
+Also observed, not a bug: "click the first book" after an earlier "scroll down" picked a book further down the
+page (position hints resolve against what's currently on screen, by design, from Experiment 8) — expected given
+the page had scrolled, not something introduced by this change.
+
 ## 7. Caveats
 
 - **4 cases, one run each, one session, one speaker's phrasing of each request.** Not a statistically powerful
@@ -136,11 +172,13 @@ handles that case in practice.
   to fix; "is this check too strict" is a benchmark question, not an app one).
 - The scored benchmark (section 3/4) ran in text mode only. It was tried live by voice separately (section 6),
   which found real bugs text mode couldn't — so text-mode-only testing of any new mechanism should be treated
-  as provisional, not as the last word.
+  as provisional, not as the last word. Confirmed again in section 6b: the correction fix itself, after passing
+  text-mode and scripted tests, still had a real regression ("No thanks.") that only showed up once tried live.
 - Re-planning was only tested on one kind of failure (an element that does not exist). A failure caused by a
   slow page or a wrong page was not tried.
-- The correction fix (section 6a) was itself only tested in text mode plus one scripted end-to-end check; not
-  yet tried live by voice, which is exactly the kind of thing that previously surfaced real bugs here.
+- **A correction that replaces only the object, not the verb** ("click the first book" / "no, the second one")
+  picks the wrong thing — confirmed live, section 6b. The verb needs to carry over from the previous command;
+  it currently doesn't.
 
 ## 8. Files
 
@@ -179,6 +217,10 @@ actually run together — exactly why this was tested end to end before being ca
 - **A genuine memory-value test**, if ever wanted: a case where the correct answer requires a fact that no page
   currently reachable by the browser contains — the gap this round left open.
 - **Correction-language understanding** ("I said X", "no, I meant Y") — a real, observed gap (section 6), fixed
-  and tested in section 6a. A live voice check of it specifically is the one thing still outstanding.
+  and live-tested (sections 6a/6b), including one regression found and fixed live ("No thanks.").
+- **Verb-carryover for object-only corrections** ("no, the second one" after "click the first book") — the one
+  confirmed, still-open gap from the live test (section 6b). Needs the router to remember the previous
+  command's verb and re-attach it when a correction's remainder is a bare object/position phrase with no verb
+  of its own.
 - **Phase 3+** (status display, one-command start, further site validation, synthesis) is next, per the plan
   discussed with the user; this experiment does not block any of it.

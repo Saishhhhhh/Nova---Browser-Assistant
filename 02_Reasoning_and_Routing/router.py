@@ -67,14 +67,23 @@ CLOSE_POPUP = re.compile(
     r"^(?:close|dismiss|get rid of|remove)\s+(?:the |this |that )?(?:popup|pop up|pop-up|dialog|modal|banner|window|it)[^a-z]*$", re.I)
 
 
+def _safe_strip(regex: re.Pattern, t: str) -> str:
+    """Apply `regex`'s strip, but never let it reduce the text to nothing — if it would, keep the input
+    unchanged instead. Without this, "No thanks." (CORRECTION strips "No " -> "thanks.", then TRAILING strips
+    "thanks." entirely -> "") fell all the way back to clean_command's own empty-fallback, which returns the
+    ORIGINAL unstripped text ("No thanks.") rather than the partially-stripped "No" that CHAT can recognise —
+    found live: it was treated as a 2-word fragment ("Sorry, what should I do?") instead of a plain decline."""
+    new = regex.sub("", t).strip()
+    return new if new else t
+
+
 def clean_command(text: str) -> str:
-    t = text.strip()
+    t = _safe_strip(TRAILING, text.strip())   # trailing politeness first, so "No thanks." -> "No", not "" -> original
     for _ in range(3):   # FILLER and CORRECTION can interleave ("no, um, I meant..."); a few passes catches it
-        new = FILLER.sub("", CORRECTION.sub("", t))
+        new = _safe_strip(FILLER, _safe_strip(CORRECTION, t))
         if new == t:
             break
         t = new
-    t = TRAILING.sub("", t).strip()
     return t[:1].upper() + t[1:] if t else text.strip()
 
 
