@@ -17,11 +17,15 @@ Thumbs.db
 .playwright-mcp/
 
 # Voice recordings (personal audio, not for the public repo; remove this line to share them)
-03_Speech_To_Text/recordings/
-03_Speech_To_Text/data/
+experiments/03_Speech_To_Text/recordings/
+experiments/03_Speech_To_Text/data/
 
 # Live microphone captures from Experiment 4 (personal audio)
-04_Voice_Activity_Detection/live_out/
+experiments/04_Voice_Activity_Detection/live_out/
 
 # Generated speech clips for the listening test (Experiment 5)
-05_Text_To_Speech/data/
+experiments/05_Text_To_Speech/data/
+
+# Ash's own live-session audio (personal; same reasoning as above) and remembered device choice
+ash/results/clips_*/
+ash/.device_config.json
