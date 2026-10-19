@@ -464,7 +464,21 @@ LOCATION_PREFIX = re.compile(
     r"^in\s+the\s+(?:top|bottom)?\s*(?:left|right)?\s*(?:corner\s+)?(?:search\s+)?(?:box|bar|field)\s*,\s*", re.I)
 
 
+# A spelling clarification tacked onto a sentence ("search for Saish, but the spelling is S-A-I-S-H-H-H-H-H.")
+# rather than being the whole command. Found live: without this, the entire clause - including "but the
+# spelling is" - got typed into the search box verbatim, because the base-word-plus-letters mix doesn't match
+# SPELLED_LETTERS (which requires the WHOLE string to be nothing but letters), so nothing collapsed it.
+SPELLING_CLARIFICATION = re.compile(
+    r"^(.*?)[,.]?\s*(?:but\s+)?(?:the\s+spelling\s+is|it'?s\s+spelled|spelled|spell\s+it)\s*:?\s*"
+    r"((?:[A-Za-z][\s,.\-]+){2,}[A-Za-z][\s,.\-]*)$", re.I)
+
+
 def _collapse_spelled_letters(text: str) -> str:
+    m = SPELLING_CLARIFICATION.match(text.strip())
+    if m:
+        letters = re.findall(r"[A-Za-z]", m.group(2))
+        if len(letters) >= 3:
+            return "".join(letters).lower()
     if SPELLED_LETTERS.match(text.strip()):
         letters = re.findall(r"[A-Za-z]", text)
         if len(letters) >= 3:
@@ -554,6 +568,36 @@ class FastPath:
         if result.error:
             raise RuntimeError(result.error)
         return result
+
+    async def _live_input_value(self) -> str:
+        """Reads back whatever the element that was just typed into - document.activeElement, since typing
+        focuses it first - currently holds. Used right after typing, before trusting it, because typing can
+        race a site's own JS (GitHub's search box: reproduced live and in a direct 5-attempt test, 4/5 came
+        out wrong - "saishhhhhh" became "aishhhhhh", "h", or nothing typed at all - while the action itself
+        reported success every time with no way to tell anything was wrong). A page-wide scan of every input
+        was tried first and discarded: it can grab an unrelated element's value (seen live: caught a stray
+        "[" from something else on the page, reporting a false mismatch on a search that actually worked)."""
+        try:
+            page = await self.browser.get_current_page()
+            val = await asyncio.wait_for(
+                page.evaluate("() => { const el = document.activeElement; return (el && 'value' in el) ? el.value : ''; }"), 2)
+            return val or ""
+        except Exception:
+            return ""
+
+    async def _type_and_verify(self, index: int, text: str) -> tuple:
+        """Types `text`, reads back what actually landed, and retries once (clear + retype) if it doesn't
+        match - rather than pressing Enter on whatever a race condition left behind and reporting success
+        regardless. Returns (verified, actual_value)."""
+        for attempt in (1, 2):
+            await self._act({"input": {"index": index, "text": text, "clear": True}})
+            await asyncio.sleep(0.25)
+            actual = await self._live_input_value()
+            if actual.strip().lower() == text.strip().lower():
+                return True, actual
+            if attempt == 1:
+                await asyncio.sleep(0.3)   # give a JS-controlled box a moment to finish mounting before retrying
+        return False, actual
 
     async def _settle(self, timeout: float = 4.0) -> None:
         """Wait until the page stops changing (single-page apps update the URL before content renders)."""
@@ -766,16 +810,23 @@ class FastPath:
             res.spoken = f"Clicked {_first_label(label)}."
         elif pick.action == "type" and target and pick.text:
             pick.text = _collapse_spelled_letters(pick.text)
-            await self._act({"input": {"index": target.index, "text": pick.text, "clear": True}})
             # Found live: the model-step was only ever asked to do ONE action, so it typed a search query and
             # stopped - "Search for Google." typed "Google" and never pressed Enter, so nothing was actually
             # searched. If the target it typed into is clearly a search box, submit it the same way the rules
-            # path already does for its own "search" intent.
+            # path already does for its own "search" intent - and verify what actually landed first (typing
+            # into GitHub's box was reproduced dropping characters 4 times out of 5 in a direct test, with the
+            # action still reporting success every time).
             if _looks_like_search_box(target):
+                verified, actual = await self._type_and_verify(target.index, pick.text)
                 await self._act({"send_keys": {"keys": "Enter"}})
-                res.handled, res.detail = True, f"model typed '{pick.text}' into [{target.index}] {label} and pressed Enter"
-                res.spoken = f"Searched for {pick.text}."
+                if verified:
+                    res.handled, res.detail = True, f"model typed '{pick.text}' into [{target.index}] {label} (verified) and pressed Enter"
+                    res.spoken = f"Searched for {pick.text}."
+                else:
+                    res.handled, res.detail = True, f"model tried to type '{pick.text}' into [{target.index}] but the box showed {actual!r}; pressed Enter anyway"
+                    res.spoken = f"I tried to search for {pick.text}, but the box may not have the full text - it showed \"{actual}\"."
             else:
+                await self._act({"input": {"index": target.index, "text": pick.text, "clear": True}})
                 res.handled, res.detail = True, f"model typed into [{target.index}] {label}"
                 res.spoken = f"Typed into {_first_label(label)}."
         else:
@@ -806,11 +857,15 @@ class FastPath:
                 res.detail = "no search box found"
                 return
             box = hit[0]
-            await self._act({"input": {"index": box.index, "text": intent.text, "clear": True}})
+            verified, actual = await self._type_and_verify(box.index, intent.text)
             await self._act({"send_keys": {"keys": "Enter"}})
             self._dirty = True
-            res.handled, res.detail = True, f"typed '{intent.text}' into [{box.index}] and pressed Enter"
-            res.spoken = f"Searched for {intent.text}."
+            if verified:
+                res.handled, res.detail = True, f"typed '{intent.text}' into [{box.index}] (verified) and pressed Enter"
+                res.spoken = f"Searched for {intent.text}."
+            else:
+                res.handled, res.detail = True, f"tried to type '{intent.text}' into [{box.index}] but the box showed {actual!r}; pressed Enter anyway"
+                res.spoken = f"I tried to search for {intent.text}, but the box may not have the full text - it showed \"{actual}\"."
         elif intent.kind == "type":
             hit = find_field(elements, intent.target)
             if not hit:
