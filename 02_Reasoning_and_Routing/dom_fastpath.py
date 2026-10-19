@@ -425,6 +425,22 @@ def _strip_submit_tail(text: str) -> str:
     return t
 
 
+# A word spelled out one letter at a time ("S A I S H H H H H", "s, a, i, s, h, h, h, h, h"). Found live: the
+# planner and the model-step picker sometimes get each individual letter right but leave them separated, and
+# whatever types the text (rules or the model-step) correctly types exactly what it's given — so the search box
+# ends up with the literal spaced-out letters instead of one assembled word. No part of this project otherwise
+# assembles spelled-out words; this is the one place it happens deterministically, with no model guessing involved.
+SPELLED_LETTERS = re.compile(r"^(?:[A-Za-z][\s,.\-]+){2,}[A-Za-z][\s,.\-]*$")
+
+
+def _collapse_spelled_letters(text: str) -> str:
+    if SPELLED_LETTERS.match(text.strip()):
+        letters = re.findall(r"[A-Za-z]", text)
+        if len(letters) >= 3:
+            return "".join(letters).lower()
+    return text
+
+
 def parse_command(command: str) -> Intent:
     t = command.strip().rstrip(".!?")
     m = re.match(r"^(?:go to|navigate to|visit|open)\s+(\S+)$", t, re.I)
@@ -438,10 +454,10 @@ def parse_command(command: str) -> Intent:
         text = _strip_submit_tail(strip_quotes(m.group(1)))
         if not text:
             return Intent("submit")
-        return Intent("search", text=text)
+        return Intent("search", text=_collapse_spelled_letters(text))
     m = re.match(r"^(?:type|enter|write|fill(?: in)?)\s+(.+?)\s+(?:into|in)\s+(?:the\s+)?(.+)$", t, re.I)
     if m:
-        return Intent("type", text=strip_quotes(m.group(1)), target=m.group(2))
+        return Intent("type", text=_collapse_spelled_letters(strip_quotes(m.group(1))), target=m.group(2))
     m = re.match(r"^scroll\s+(down|up)(?:\s+(\d+))?$", t, re.I)
     if m:
         return Intent("scroll", direction=m.group(1).lower(), amount=float(m.group(2) or 1))
@@ -702,6 +718,7 @@ class FastPath:
             res.handled, res.detail = True, f"model clicked [{target.index}] {label}"
             res.spoken = f"Clicked {_first_label(label)}."
         elif pick.action == "type" and target and pick.text:
+            pick.text = _collapse_spelled_letters(pick.text)
             await self._act({"input": {"index": target.index, "text": pick.text, "clear": True}})
             res.handled, res.detail = True, f"model typed into [{target.index}] {label}"
             res.spoken = f"Typed into {_first_label(label)}."

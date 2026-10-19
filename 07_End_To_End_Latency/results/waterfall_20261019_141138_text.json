@@ -1,0 +1,46 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "go to github.com",
+   "tier": "rules",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "queued_ms": 0,
+   "fast_path_ms": 2012,
+   "route_ms": 2012,
+   "agent_steps": 0,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": 2402,
+   "first_sound_ms": 2402,
+   "finished_ms": 4098,
+   "reply": "Opened github.com.",
+   "detail": "navigated to https://github.com"
+  },
+  {
+   "turn": 2,
+   "command": "search for saishhhhhh",
+   "tier": "model",
+   "ok": true,
+   "silence_wait_ms": 0,
+   "stt_ms": 0,
+   "queued_ms": 0,
+   "fast_path_ms": 4210,
+   "route_ms": 4210,
+   "agent_steps": 0,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": 4570,
+   "first_sound_ms": 4570,
+   "finished_ms": 6772,
+   "reply": "Typed into search or jump to type to search.",
+   "detail": "model typed into [1071] ['search or jump to type to search']"
+  }
+ ]
+}
