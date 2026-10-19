@@ -260,6 +260,45 @@ a plain `search for X`. Added `just` alongside the existing `so`/`well`/`now` fi
 github.com."` now strips to `"Search for github.com."` before the rules check, same pattern as every other
 filler word already handled there.
 
+## 6f. A fifth live session and a deliberate shift from patching to a real fix
+
+A fifth live session repeated almost every failure above at once (STT mishearing "Saish" as "size", spelled
+letters typed with spaces, "Open GitHub." going to the full agent, "Search for Google." typing but never
+submitting, "Stop." asking "Sorry, what should I do?"), and was the point this stopped being "patch whatever
+the latest log shows" and became a short plan with named layers (speech, understanding, execution, replies).
+Not all of it was built — the honest state:
+
+**Done and verified, each against the real failing transcript that found it:**
+- **Speech-to-text**: ElevenLabs Scribe v2 is now the default (`--stt sarvam` to go back), with this app's
+  own vocabulary ("Saish", "GitHub", etc.) sent as `keyterms`. Every turn's audio is now saved to
+  `results/clips_<timestamp>/` so a bad transcript can be replayed against any engine without retesting live.
+- **Search now actually submits.** The real bug behind "it's not even searching": GitHub has no visible
+  search box until a button reveals one, and the model-step was only ever asked to do one action, so it typed
+  a query and stopped. Fixed in two places - the rules path now clicks a "Search" button deterministically
+  before giving up (`find_search_opener`), and the model-step presses Enter after typing into anything that
+  looks like a search box. Confirmed end to end: `"Search for Google."` on GitHub now goes through
+  `tier=rules`, not `tier=model`, and lands on `github.com/search?q=Google`.
+- **A locational preamble** ("In the top right search bar, search for X.") no longer blocks the rules path
+  from matching "search for X" at all.
+- **A bare known site name** ("Open GitHub.") now navigates directly instead of taking the full agent just to
+  type a URL it could have guessed - only for a short list of real site names, not a guessed "<word>.com" for
+  arbitrary words, so "open menu" still means click, not navigate.
+- **"Stop." with nothing running** no longer gets treated as a too-short command needing clarification.
+- **Spoken replies are capped at 220 characters** (word-boundary cut, "...there's more in the log.") - the
+  console, the waterfall record, and conversation memory still keep the full text; only text-to-speech is
+  shortened. Found live: a 10-item repo list was read aloud for 30+ seconds after a plain search.
+- `test_live_regressions.py` (new): every case above as a literal command copied from a real failing
+  transcript, checked against the real end state (the actual URL reached), not just "didn't crash".
+
+**Deliberately not done, and why:** the plan also proposed replacing the whole regex layer (FILLER,
+CORRECTION, QUESTION, the search/type/click rules) with one structured-parsing model call that understands
+intent, references, and literal text assembly in a single pass - plus a dedicated regression set built
+*before* that rewrite, to prove it is actually better rather than just different. That is a meaningfully
+larger, riskier piece of work (a new model choice, a new schema, and a correctness bar against everything the
+current rules already handle) and was not safe to rush through in the same pass as the fixes above. The gaps
+that would need it are still open: STT mishearing a name outright (no downstream fix can recover a word never
+heard), and a correction that replaces only the object, not the verb (section 6b).
+
 ## 7. Caveats
 
 - **4 cases, one run each, one session, one speaker's phrasing of each request.** Not a statistically powerful
