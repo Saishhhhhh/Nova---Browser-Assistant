@@ -1,0 +1,64 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "Search for GitHub.",
+   "tier": "blocked",
+   "ok": false,
+   "silence_wait_ms": 512,
+   "stt_ms": 207,
+   "queued_ms": 0,
+   "fast_path_ms": 8779,
+   "route_ms": 8779,
+   "agent_steps": 0,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": 9798,
+   "first_sound_ms": 9798,
+   "finished_ms": 13791,
+   "reply": "A popup is covering the page and I could not close it. Tell me what to click.",
+   "detail": "a popup is covering the page and would not close | model declined (model answered none)"
+  },
+  {
+   "turn": 2,
+   "command": "There isn't a pop up on the screen.",
+   "tier": "agent",
+   "ok": false,
+   "silence_wait_ms": 512,
+   "stt_ms": 277,
+   "queued_ms": 0,
+   "fast_path_ms": 3056,
+   "route_ms": 5384,
+   "agent_steps": 1,
+   "ack_first_sound_ms": 1080,
+   "answer_first_sound_ms": 6472,
+   "first_sound_ms": 1080,
+   "finished_ms": 13217,
+   "reply": "I don’t see any pop‑up because the page is currently empty. Could you provide the URL or describe the page where the pop‑up should appear?",
+   "detail": "fast path declined (no rule matches | model declined (model answered none)) | 1 steps"
+  },
+  {
+   "turn": 3,
+   "command": "Just search for github.com.",
+   "tier": "agent",
+   "ok": true,
+   "silence_wait_ms": 512,
+   "stt_ms": 220,
+   "queued_ms": 0,
+   "fast_path_ms": 3524,
+   "route_ms": 16217,
+   "agent_steps": 4,
+   "ack_first_sound_ms": 1040,
+   "answer_first_sound_ms": 17252,
+   "first_sound_ms": 1040,
+   "finished_ms": 23643,
+   "reply": "Search completed. The page now displays repository results for \"github.com\" on GitHub.",
+   "detail": "fast path declined (no rule matches | model declined (model answered none)) | 4 steps"
+  }
+ ]
+}

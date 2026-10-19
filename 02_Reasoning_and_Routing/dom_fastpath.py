@@ -517,8 +517,21 @@ class FastPath:
             res.settle_ms = (time.perf_counter() - t) * 1000
             self._dirty = False
 
+    async def _on_real_page(self) -> bool:
+        """False before the browser has ever navigated anywhere (about:blank, or browser-use's own
+        "Starting agent..." placeholder tab). Found live: with no --start-url, the very first command's popup
+        check ran on that placeholder page, found a large DIV on it, and reported "a popup is covering the
+        page" — on a page with nothing real loaded at all. Popup/bot checks only make sense on a real page."""
+        try:
+            url = await self.browser.get_current_page_url()
+        except Exception:
+            return False
+        return (url or "").lower().startswith(("http://", "https://"))
+
     async def _bot_check(self) -> str:
         """The page's title if it is a "verify you are human" / access-denied interstitial, else ''."""
+        if not await self._on_real_page():
+            return ""
         try:
             page = await self.browser.get_current_page()
             title = str(await asyncio.wait_for(page.evaluate("() => document.title"), 3) or "")
@@ -527,6 +540,8 @@ class FastPath:
         return title if BOT_TITLE.search(title) else ""
 
     async def _popup_present(self) -> str:
+        if not await self._on_real_page():
+            return ""
         try:
             page = await self.browser.get_current_page()
             return str(await asyncio.wait_for(page.evaluate(POPUP_JS), 3) or "")

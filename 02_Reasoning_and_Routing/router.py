@@ -35,7 +35,7 @@ QUESTION = re.compile(
 
 # Spoken filler and politeness in front of a command ("um go back", "please scroll down", "can you click travel")
 FILLER = re.compile(
-    r"^(?:(?:um+|uh+|er+|erm|hmm+|mm+|okay|ok|so|well|like|please|hey|now|then|can you|could you|would you|will you|"
+    r"^(?:(?:um+|uh+|er+|erm|hmm+|mm+|okay|ok|so|well|like|just|please|hey|now|then|can you|could you|would you|will you|"
     r"i want you to|i would like you to|i'd like you to|go ahead and)\b[\s,.]*)+", re.I)
 TRAILING = re.compile(r"[\s,.]*\b(?:please|thanks|thank you)\W*$", re.I)
 

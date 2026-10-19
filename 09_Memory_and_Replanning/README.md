@@ -231,6 +231,35 @@ text was submitted, not overwritten. Exp 2's regression suite (13/13) still pass
   recognising there was no real instruction in it. `CHAT`/the short-fragment clarify check don't catch this
   because the sentence is long enough and doesn't match either pattern.
 
+## 6e. A fourth live session: the popup check fired on a page that was never real, plus a filler-word gap
+
+Asked directly after this session: *"tell me what wrong do u find here, it literally went to github and
+typed github.com"* — on a completely fresh browser (no `--start-url`, nothing navigated yet), the very first
+command, **"Search for GitHub."**, came back `tier=blocked`, `"A popup is covering the page and I could not
+close it."` There was no popup, and no real page either.
+
+**Root cause**: before any navigation, browser-use's own internal placeholder tab has the title
+`"Starting agent <id>..."` — a real DOM, not `about:blank`. `_popup_present()`'s JS found a stray `DIV` on
+that placeholder and reported it as a blocking popup, so the fast path refused to even try typing into a
+search box, and the command fell through to the full agent, which is why it worked but took far longer than
+it should have.
+
+**Fixed** in `dom_fastpath.py`: a new `_on_real_page()` check (current URL starts with `http://`/`https://`),
+called as the first line of both `_bot_check()` and `_popup_present()` — before navigation, there's nothing
+real to check for popups on, so skip straight past.
+
+Verified with an isolated script: on a blank browser, `search for GitHub` went from a false
+`blocked: True, "a popup is covering the page..."` to the correct `blocked: False, "no search box found"`
+(falls through toward the agent honestly, instead of lying about a popup). Confirmed real popup detection
+still works unchanged: `go to flipkart.com` then `search for running shoes` still handled and submitted
+normally. Exp 2's regression suite (13/13, 4/4) and the handoff suite (ALL PASSED) both still pass.
+
+**Smaller fix from the same session**: `"Just search for github.com."` took the slow full-agent path (~16s)
+because `"just"` wasn't in `router.py`'s `FILLER` word list, so the fast rules parser didn't recognise it as
+a plain `search for X`. Added `just` alongside the existing `so`/`well`/`now` fillers — `"Just search for
+github.com."` now strips to `"Search for github.com."` before the rules check, same pattern as every other
+filler word already handled there.
+
 ## 7. Caveats
 
 - **4 cases, one run each, one session, one speaker's phrasing of each request.** Not a statistically powerful
