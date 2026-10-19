@@ -46,6 +46,10 @@ async def main() -> int:
     r = await router.run_command("search for S A I S H H H H H H")
     ok &= await check('spelled letters assembled, not typed with spaces', "saishhhhhh" in r.reply.lower(), r.reply)
 
+    print("== a bare known site name navigates instantly, instead of falling to the full agent")
+    r = await router.run_command("Open GitHub.")
+    ok &= await check('"Open GitHub." -> tier rules, not agent', r.tier == "rules", f"tier={r.tier} reply={r.reply!r}")
+
     print("== 'Stop.' with nothing running must not ask for clarification")
     r = await router.run_command("Stop.")
     ok &= await check('"Stop." (idle) is a quiet no-op, not "Sorry, what should I do?"',

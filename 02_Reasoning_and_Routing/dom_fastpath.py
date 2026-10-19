@@ -472,12 +472,28 @@ def _collapse_spelled_letters(text: str) -> str:
     return text
 
 
+# Sites worth a name of their own rather than "<name>.com" guessed generically - names where the obvious
+# guess is wrong (Wikipedia isn't wikipedia.com, Amazon redirects differently per country). Anything else
+# bare ("Open GitHub.") falls through to the "<word>.com" generic case right below.
+KNOWN_SITES = {"wikipedia": "en.wikipedia.org", "amazon": "amazon.com", "youtube": "youtube.com",
+               "google": "google.com", "github": "github.com", "flipkart": "flipkart.com",
+               "reddit": "reddit.com", "twitter": "twitter.com", "x": "x.com", "facebook": "facebook.com",
+               "instagram": "instagram.com", "linkedin": "linkedin.com", "gmail": "mail.google.com"}
+
+
 def parse_command(command: str) -> Intent:
     t = LOCATION_PREFIX.sub("", command.strip()).rstrip(".!?")
     m = re.match(r"^(?:go to|navigate to|visit|open)\s+(\S+)$", t, re.I)
     if m and URLISH.match(m.group(1)):
         url = m.group(1)
         return Intent("navigate", target=url if url.lower().startswith("http") else f"https://{url}")
+    if m and re.match(r"^[A-Za-z][A-Za-z0-9]{1,20}$", m.group(1)):
+        # Found live: "Open GitHub." (a bare name, no ".com") matched no rule at all and fell to the full
+        # agent (9.6 s) just to type a URL it could have guessed. Site names only, not arbitrary single
+        # words ("Open menu."), since there's no way to tell those apart except by knowing real site names.
+        name = m.group(1).lower()
+        if name in KNOWN_SITES:
+            return Intent("navigate", target=f"https://{KNOWN_SITES[name]}")
     if BARE_SUBMIT.match(t):
         return Intent("submit")
     m = re.match(r"^search(?:\s+for)?\s+(.+)$", t, re.I)
