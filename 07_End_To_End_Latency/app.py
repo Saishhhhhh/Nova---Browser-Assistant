@@ -29,6 +29,7 @@ import asyncio
 import datetime
 import json
 import os
+import queue
 import re
 import statistics
 import sys
@@ -112,6 +113,7 @@ class AppLoop(Loop):
             return
         heard = clean_command(text)
         if CANCEL.match(heard):
+            self.say(f"  (heard \"{text.strip()}\" -> stop)")   # otherwise a cancel leaves no trace of what triggered it
             self.cancel_agent()
             return
         if not text.strip():
@@ -123,21 +125,37 @@ class AppLoop(Loop):
         self.say(f"  (heard \"{text.strip()}\" while working; it will run next)")
         self.jobs.put(job)
 
+    def _drain_queue(self) -> int:
+        """Remove anything waiting in the job queue that hasn't started yet. Called on every cancel, so saying
+        "stop" (or a correction) doesn't leave a backlog of other "heard while busy" commands to grind through
+        one by one first — found live: three things said in a row while frustrated with a slow task meant
+        sitting through all three, one after another, each its own slow round trip, before getting a response."""
+        n = 0
+        while True:
+            try:
+                self.jobs.get_nowait()
+                n += 1
+            except queue.Empty:
+                break
+        return n
+
     def cancel_agent(self) -> None:
+        dropped = self._drain_queue()
+        extra = f", dropped {dropped} queued command(s)" if dropped else ""
         stopped_agent = self.router.cancel()
         if self.plan_active:
             # the running agent step (if any) will stop now; a quick rules step cannot be interrupted mid-click,
             # so plan_cancelled makes the loop break as soon as the current step finishes
             self.plan_cancelled = True
             self.cancelled = True
-            self.say("  >> stop: cancelling the plan" + ("" if stopped_agent else " (current step will finish first)"))
+            self.say("  >> stop: cancelling the plan" + ("" if stopped_agent else " (current step will finish first)") + extra)
             threading.Thread(target=self._speak, args=("Okay, stopping.", self.epoch, {}), daemon=True).start()
             return
         if not stopped_agent:
-            self.say("  (nothing to stop)")
+            self.say(f"  (nothing to stop{extra})")
             return
         self.cancelled = True
-        self.say("  >> stop: the agent will stop after its current step")
+        self.say("  >> stop: the agent will stop after its current step" + extra)
         threading.Thread(target=self._speak, args=("Okay, stopping.", self.epoch, {}), daemon=True).start()
 
     # called from the router's thread the moment it falls through to the slow agent

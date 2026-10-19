@@ -161,6 +161,41 @@ Also observed, not a bug: "click the first book" after an earlier "scroll down" 
 page (position hints resolve against what's currently on screen, by design, from Experiment 8) — expected given
 the page had scrolled, not something introduced by this change.
 
+## 6c. A second live session: queued backlog was worse than useless, now fixed
+
+A further live session surfaced a different, more consequential problem than anything above. The user said
+"open github.com/saish" (garbled by STT into something that needed the agent's own search-and-recover
+behaviour, section 6) — a genuinely slow task. **While it was running, they said three more things trying to
+get its attention**, including "Hold hold hold stop stop stop stop." That phrase does **not** start with
+"stop" (it starts with "Hold"), so `CANCEL` — anchored at the very start of the string — didn't match it. None
+of the three utterances matched `CANCEL` or `is_correction()` either, so all three just queued, faithfully, to
+run one after another once the original task eventually stopped (via a plain "stop" said at some point, whose
+text isn't visible in the log at all — see below).
+
+The consequence: each queued command went through its *own* slow path (one reached the agent again, one typed
+nonsense into a search box via the model-step), so **saying more while frustrated made the wait longer, not
+shorter** — the third, sensible command ("open github.com") didn't run until over a minute after it was said.
+
+Two fixes, both requested directly by the user after this session:
+
+1. **`cancel_agent()` now drains the job queue first.** Added `_drain_queue()`, called at the top of
+   `cancel_agent()` in all cases (a cancelled agent step, a cancelled plan, and even "nothing to stop") — so a
+   "stop" or a correction clears any backlog of "heard while busy" commands instead of making you sit through
+   each one. Confirmed with [`test_cancel_drains_queue.py`](../07_End_To_End_Latency/test_cancel_drains_queue.py):
+   two distractions were queued during a real slow agent call, "stop" was said, both were dropped (`queue size
+   right after cancel: 0`), and the next real command ran immediately (2.9 s) instead of waiting behind them.
+2. **A successful cancel now logs what was heard.** Previously, when `CANCEL.match()` succeeded inside
+   `_while_busy`, it called `cancel_agent()` and returned immediately with no `self.say(...)` — unlike every
+   other branch, which prints "(heard ... while working)". That made a successful stop look like it came from
+   nowhere when reading the log back. Now prints `(heard "..." -> stop)` first.
+
+What this does **not** fix, by the user's own choice: `CANCEL` still only matches "stop" as the very first
+word ("Hold hold hold stop..." still won't be recognised as a stop). The user said they'll just say "stop"
+first when they mean it, so loosening the match itself was explicitly left alone.
+
+All existing cancel tests (`test_cancel.py`, `test_cancel_plan.py`, `test_cancel_correction.py`) and the Exp 2
+regression suite (13/13) still pass after this change.
+
 ## 7. Caveats
 
 - **4 cases, one run each, one session, one speaker's phrasing of each request.** Not a statistically powerful
@@ -188,6 +223,7 @@ the page had scrolled, not something introduced by this change.
 | [`../02_Reasoning_and_Routing/planner.py`](../02_Reasoning_and_Routing/planner.py) | `replan_after_failure()` added; the comparison-step guidance added to `SYSTEM` |
 | [`memory_bench.py`](memory_bench.py) | The 4-case, on/off benchmark |
 | `results/memory_bench.json` | Raw per-case replies and timings, both conditions |
+| [`../07_End_To_End_Latency/test_cancel_drains_queue.py`](../07_End_To_End_Latency/test_cancel_drains_queue.py) | Reproduces the live queue-backlog problem (section 6c) and confirms the fix |
 
 ```bash
 cd 09_Memory_and_Replanning

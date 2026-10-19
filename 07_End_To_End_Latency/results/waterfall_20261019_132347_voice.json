@@ -1,0 +1,64 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "Hold hold hold stop stop stop stop.",
+   "tier": "agent",
+   "ok": true,
+   "silence_wait_ms": 512,
+   "stt_ms": 142,
+   "queued_ms": 65414,
+   "fast_path_ms": 1954,
+   "route_ms": 3496,
+   "agent_steps": 1,
+   "ack_first_sound_ms": 66463,
+   "answer_first_sound_ms": 69949,
+   "first_sound_ms": 66463,
+   "finished_ms": 73588,
+   "reply": "Process stopped as requested. No further actions will be taken.",
+   "detail": "fast path declined (no rule matches | model declined (model answered none)) | 1 steps"
+  },
+  {
+   "turn": 2,
+   "command": "github.com/saish. Saish should have 6H.",
+   "tier": "model",
+   "ok": true,
+   "silence_wait_ms": 512,
+   "stt_ms": 208,
+   "queued_ms": 65699,
+   "fast_path_ms": 3190,
+   "route_ms": 3190,
+   "agent_steps": 0,
+   "ack_first_sound_ms": 66802,
+   "answer_first_sound_ms": 69991,
+   "first_sound_ms": 66802,
+   "finished_ms": 72001,
+   "reply": "Typed into find a repository.",
+   "detail": "model typed into [7249] ['find a repository']"
+  },
+  {
+   "turn": 3,
+   "command": "Okay, can you open github.com?",
+   "tier": "rules",
+   "ok": true,
+   "silence_wait_ms": 512,
+   "stt_ms": 250,
+   "queued_ms": 32769,
+   "fast_path_ms": 2627,
+   "route_ms": 2627,
+   "agent_steps": 0,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": 36543,
+   "first_sound_ms": 36543,
+   "finished_ms": 38222,
+   "reply": "Opened github.com.",
+   "detail": "navigated to https://github.com"
+  }
+ ]
+}
