@@ -1,0 +1,82 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "Open GitHub.",
+   "tier": "agent",
+   "ok": true,
+   "silence_wait_ms": 512,
+   "stt_ms": 170,
+   "queued_ms": 0,
+   "fast_path_ms": 3605,
+   "route_ms": 9996,
+   "agent_steps": 2,
+   "ack_first_sound_ms": 4596,
+   "answer_first_sound_ms": 10978,
+   "first_sound_ms": 4596,
+   "finished_ms": 12610,
+   "reply": "GitHub has been opened in the browser.",
+   "detail": "fast path declined (no confident match for 'GitHub' (nothing on page) | model declined (model answered none)) | 2 steps"
+  },
+  {
+   "turn": 2,
+   "command": "In the top right search bar, search for Saish S A I S H H H H H total of 6 H.",
+   "tier": "model",
+   "ok": true,
+   "silence_wait_ms": 512,
+   "stt_ms": 264,
+   "queued_ms": 0,
+   "fast_path_ms": 3538,
+   "route_ms": 3538,
+   "agent_steps": 0,
+   "ack_first_sound_ms": 1083,
+   "answer_first_sound_ms": 4800,
+   "first_sound_ms": 1083,
+   "finished_ms": 7420,
+   "reply": "Typed into search or jump to type to search.",
+   "detail": "model typed into [1117] ['search or jump to type to search']"
+  },
+  {
+   "turn": 3,
+   "command": "I said Saish, Saish with 6H.",
+   "tier": "model",
+   "ok": true,
+   "silence_wait_ms": 512,
+   "stt_ms": 223,
+   "queued_ms": 0,
+   "fast_path_ms": 3170,
+   "route_ms": 3170,
+   "agent_steps": 0,
+   "ack_first_sound_ms": 1041,
+   "answer_first_sound_ms": 4216,
+   "first_sound_ms": 1041,
+   "finished_ms": 6051,
+   "reply": "Typed into search or jump to.",
+   "detail": "model typed into [3032] ['search or jump to']"
+  },
+  {
+   "turn": 4,
+   "command": "Come on man, use some logic. Size with 6 edges. H like 6 edges.",
+   "tier": "model",
+   "ok": true,
+   "silence_wait_ms": 512,
+   "stt_ms": 301,
+   "queued_ms": 0,
+   "fast_path_ms": 2511,
+   "route_ms": 2511,
+   "agent_steps": 0,
+   "ack_first_sound_ms": 1289,
+   "answer_first_sound_ms": 3709,
+   "first_sound_ms": 1289,
+   "finished_ms": 5926,
+   "reply": "Typed into search or jump to.",
+   "detail": "model typed into [3032] ['search or jump to']"
+  }
+ ]
+}

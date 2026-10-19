@@ -196,6 +196,41 @@ first when they mean it, so loosening the match itself was explicitly left alone
 All existing cancel tests (`test_cancel.py`, `test_cancel_plan.py`, `test_cancel_correction.py`) and the Exp 2
 regression suite (13/13) still pass after this change.
 
+## 6d. A third live session: a plain regex rule retyped the search box, nothing to do with any model
+
+Not a memory/planner bug at all — a **rules** bug (Experiment 2's `dom_fastpath.parse_command`), found in the
+same run of live testing. After correctly typing "saishhhhhh" into GitHub's search box (itself a genuine
+success — see the session before this one, where an explicit "all lowercase, no spaces" instruction got the
+spelled-out letters assembled correctly), the user said **"Search now, like hit enter."**, meaning "submit
+what's already there." Instead: the rule `^search(?:\s+for)?\s+(.+)$` captured *everything after the word
+"search"* — "now, like hit enter" — as a brand new literal search query, retyped the box with that nonsense,
+and pressed Enter on it, destroying the correct query it had just typed one turn earlier.
+
+**This was asked about directly and the user correctly rejected my first answer**, which attributed it to "the
+planning model acting dumb" — it isn't the planner, the model-step, or the agent; it's a plain string-matching
+regex with no sanity check at all on what it captures.
+
+**Fixed** in `dom_fastpath.py`: a new `submit` intent. `SUBMIT_TAIL` strips a trailing meta-instruction ("like
+hit enter", "and press enter") and `SUBMIT_LEAD` strips a leading "now"/"go ahead" from a `search` match's
+captured text; if nothing real is left, it becomes `submit` (press Enter, retype nothing) instead of `search`
+with that leftover text as the query. A `BARE_SUBMIT` pattern also catches a standalone "hit enter" / "press
+enter now" with no "search" in front at all. A real query combined with a submit tail still works normally
+("search for cats, then hit enter" → searches "cats").
+
+Confirmed end to end on a real page (Wikipedia): typed "saishhhhhh" into the search box *without* pressing
+Enter, said "Search now, like hit enter.", and the URL afterward showed `search=saishhhhhh` — the existing
+text was submitted, not overwritten. Exp 2's regression suite (13/13) still passes.
+
+**Two more things this same session surfaced, neither fixed yet:**
+- **GitHub's homepage sign-up overlay has no recognisable close mechanism.** `dismiss_popup()`'s Escape-key
+  attempts and its `CLOSE_WORDS` list (close/dismiss/skip/no thanks) all missed it — even the agent itself,
+  given 6 steps to look, found no close button, only "Sign in"/"Sign up" links that navigate away rather than
+  dismissing it. Cost most of a turn and part of another fighting this one popup.
+- **A vague, non-actionable utterance ("Saish has 6 H. Keep that in mind.") still reaches the full agent**,
+  which then spent its whole step budget on an unrelated detour (trying to dismiss the same popup) rather than
+  recognising there was no real instruction in it. `CHAT`/the short-fragment clarify check don't catch this
+  because the sentence is long enough and doesn't match either pattern.
+
 ## 7. Caveats
 
 - **4 cases, one run each, one session, one speaker's phrasing of each request.** Not a statistically powerful

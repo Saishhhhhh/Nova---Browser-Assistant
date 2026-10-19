@@ -405,15 +405,40 @@ def _first_label(labels, fallback: str = "it") -> str:
     return (labels[0] if labels else fallback).strip() or fallback
 
 
+# A meta-instruction to submit whatever is already typed ("like hit enter", "now", "go ahead") rather than
+# literal text to search for. Without this, "search(?:\s+for)?\s+(.+)" blindly captures EVERYTHING after the
+# word "search" as the query — found live: "Search now, like hit enter." retyped the search box with the
+# literal text "now, like hit enter.", overwriting a correctly-typed query from the previous turn. This is a
+# plain regex rule with no model involved; it was not the planner or any model being wrong.
+SUBMIT_TAIL = re.compile(r"[\s,]*(?:like\s+|and\s+|then\s+)*(?:hit|press)\s+enter$", re.I)
+SUBMIT_LEAD = re.compile(r"^(?:now|then|go ahead|okay|ok)[\s,]*", re.I)
+# A bare instruction to submit, with nothing search-shaped in front of it at all ("hit enter", "press enter now").
+BARE_SUBMIT = re.compile(r"^(?:now[\s,]+)?(?:go ahead and\s+)?(?:hit|press)\s+enter(?:\s+now)?$", re.I)
+
+
+def _strip_submit_tail(text: str) -> str:
+    """Remove a trailing "like hit enter" / "and press enter" clause and a leading "now" / "go ahead", so the
+    search rule below can tell "search for cats, then hit enter" (query: "cats") from "search now, like hit
+    enter" (no real query, just a submit instruction)."""
+    t = SUBMIT_TAIL.sub("", text).strip()
+    t = SUBMIT_LEAD.sub("", t).strip()
+    return t
+
+
 def parse_command(command: str) -> Intent:
     t = command.strip().rstrip(".!?")
     m = re.match(r"^(?:go to|navigate to|visit|open)\s+(\S+)$", t, re.I)
     if m and URLISH.match(m.group(1)):
         url = m.group(1)
         return Intent("navigate", target=url if url.lower().startswith("http") else f"https://{url}")
+    if BARE_SUBMIT.match(t):
+        return Intent("submit")
     m = re.match(r"^search(?:\s+for)?\s+(.+)$", t, re.I)
     if m:
-        return Intent("search", text=strip_quotes(m.group(1)))
+        text = _strip_submit_tail(strip_quotes(m.group(1)))
+        if not text:
+            return Intent("submit")
+        return Intent("search", text=text)
     m = re.match(r"^(?:type|enter|write|fill(?: in)?)\s+(.+?)\s+(?:into|in)\s+(?:the\s+)?(.+)$", t, re.I)
     if m:
         return Intent("type", text=strip_quotes(m.group(1)), target=m.group(2))
@@ -569,6 +594,12 @@ class FastPath:
                 self._dirty = True
                 res.handled, res.detail = True, "went back"
                 res.spoken = "Went back."
+            elif intent.kind == "submit":
+                # press Enter on whatever already has focus (e.g. a search box just typed into); never retype
+                await self._act({"send_keys": {"keys": "Enter"}})
+                self._dirty = True
+                res.handled, res.detail = True, "pressed Enter (no retyping)"
+                res.spoken = "Done."
             else:  # search / type / click, or an unknown command when a model is available
                 await self._settle_if_dirty(res)
                 title = await self._bot_check()
