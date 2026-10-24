@@ -35,13 +35,17 @@ def available() -> bool:
 class WakeDetector:
     frame_length = FRAME_SAMPLES
     sample_rate = SAMPLE_RATE
+    threshold = THRESHOLD
 
     def __init__(self):
         download_models([MODEL_NAME])   # idempotent: skips re-downloading if already present
         self._model = Model(wakeword_models=[MODEL_NAME], inference_framework="onnx")
 
+    def score(self, frame) -> float:
+        return self._model.predict(frame).get(MODEL_NAME, 0.0)
+
     def process(self, frame) -> bool:
-        return self._model.predict(frame).get(MODEL_NAME, 0.0) >= THRESHOLD
+        return self.score(frame) >= THRESHOLD
 
     def close(self) -> None:
         pass

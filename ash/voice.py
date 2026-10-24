@@ -316,7 +316,10 @@ class Loop:
                 while wcursor + wake.frame_length <= n:
                     wframe = audio[wcursor:wcursor + wake.frame_length]
                     wcursor += wake.frame_length
-                    if wake.process(wframe):
+                    wscore = wake.score(wframe)
+                    if os.getenv("WAKE_DEBUG") and wscore > 0.1:
+                        self.say(f"  (wake score {wscore:.2f} at {wcursor / SR:.2f}s)")
+                    if wscore >= wake.threshold:
                         self.wake_until = (wcursor / SR) + WAKE_GRACE_S
                         self.say("  (wake word heard - listening for a command)")
             while cursor + det.frame <= n:
