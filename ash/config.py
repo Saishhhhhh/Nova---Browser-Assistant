@@ -1,4 +1,4 @@
-"""Environment, identity, and LLM-provider configuration for Ash.
+"""Environment, identity, and LLM-provider configuration for Rhasspy.
 
 Trimmed from experiments/01_Browser Automation/config.py to just the two providers the
 final app actually uses (Cerebras for the browser agent, DeepInfra for the fast-path's
@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
-ASSISTANT_NAME = "Ash"
+ASSISTANT_NAME = "Rhasspy"
 USER_NAME = os.getenv("USER_NAME", "there")
 
 CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY", "")

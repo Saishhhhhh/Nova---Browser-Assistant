@@ -13,11 +13,14 @@ import wave
 import httpx
 import numpy as np
 
+from . import openwakeword_wake
 from .vad import SR, Endpointer, make_detector
 
 VOICE = "aura-2-phoebe-en"
 TTS_RATE = 24000
 PRE_ROLL_S = 0.3
+WAKE_GRACE_S = 8.0   # how long after the wake word fires an utterance still counts as addressed - covers
+                     # both "Rhasspy, open github" (one breath) and "Rhasspy." <pause> "open github." (two)
 
 
 # ----------------------------------------------------------------------------- audio out
@@ -151,6 +154,16 @@ class Loop:
         self.turns, self.barges, self.ignored = [], [], 0
         self.print_lock = threading.Lock()
         self.last_activity = time.perf_counter()
+        self.wake_until = 0.0   # a VAD utterance whose end-time is <= this (same clock as run()'s t_audio)
+                                 # was triggered acoustically by the real wake-word detector, not just
+                                 # because it contains the wake word in its transcript. 0.0 (the default)
+                                 # means "never" until the detector (if available) actually fires once.
+        self._wake = None
+        if openwakeword_wake.available():
+            try:
+                self._wake = openwakeword_wake.WakeDetector()
+            except Exception as e:
+                print(f"openWakeWord failed to start, falling back to text-based wake-word detection: {e}", flush=True)
         threading.Thread(target=self._worker, daemon=True).start()
 
     def _keepalive(self) -> None:
@@ -281,8 +294,9 @@ class Loop:
         det = make_detector("silero")
         ep = Endpointer(det.frame_s, det.default_threshold, self.args.hangover)
         min_speech = self.args.min_speech
+        wake = self._wake
         audio = np.zeros(SR * 60 * 20, dtype=np.int16)
-        n = cursor = 0
+        n = cursor = wcursor = 0
         run_s = 0.0
         barged = False
         in_utt = False
@@ -296,6 +310,15 @@ class Loop:
                 break
             audio[n:n + len(chunk)] = chunk
             n += len(chunk)
+            if wake is not None:
+                # Independent cursor: the wake detector's frame size (1280 samples/80ms) doesn't line up
+                # with Silero's (512 samples/32ms), so it scans the same growing buffer on its own schedule.
+                while wcursor + wake.frame_length <= n:
+                    wframe = audio[wcursor:wcursor + wake.frame_length]
+                    wcursor += wake.frame_length
+                    if wake.process(wframe):
+                        self.wake_until = (wcursor / SR) + WAKE_GRACE_S
+                        self.say("  (wake word heard - listening for a command)")
             while cursor + det.frame <= n:
                 score = det.score(audio[cursor:cursor + det.frame])
                 cursor += det.frame
@@ -329,7 +352,8 @@ class Loop:
                 self.busy = True
                 self.submit({"kind": "turn", "clip": clip, "epoch": self.epoch, "speech_s": dur,
                                "wait_ms": (trigger - speech_end) * 1000, "hangover": ep.hangover_s,
-                               "t_trigger": time.perf_counter()})
+                               "t_trigger": time.perf_counter(),
+                               "wake_addressed": wake is not None and trigger <= self.wake_until})
             # keys and idle prompt
             while msvcrt and msvcrt.kbhit():
                 ch = msvcrt.getwch().lower()

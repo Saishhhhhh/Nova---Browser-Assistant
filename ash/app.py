@@ -1,17 +1,17 @@
-"""Ash: a voice-driven browser assistant that acts on your real Brave browser.
+"""Rhasspy: a voice-driven browser assistant that acts on your real Brave browser.
 
-  python run_ash.py                          # voice: say "Ash, <command>" - Brave opens with your real profile
+  python run_ash.py                          # voice: say "Rhasspy, <command>" - Brave opens with your real profile
   python run_ash.py --text                   # type commands instead of speaking (no microphone, no overlay)
   python run_ash.py --script commands.txt    # run a list of commands automatically, then print the waterfall
 
 What happens to each voice command (the "waterfall"): you stop speaking -> silence wait (VAD) -> transcript
-(ElevenLabs) -> wake-word gate (did you say "Ash"?) -> router (rules, then one short model call, then the full
-browser agent) -> a spoken reply. If the router has to start the slow browser agent, "On it." is spoken at
-once so you are not left in silence.
+(ElevenLabs) -> wake-word gate (did you say "Rhasspy"?) -> router (rules, then one short model call, then the
+full browser agent) -> a spoken reply. If the router has to start the slow browser agent, "On it." is spoken
+at once so you are not left in silence.
 
-A request that joins several actions ("Ash, go to Amazon, search for MSI monitors, and tell me the cheapest
-one") is split into steps by the planner instead of being handed whole to the agent. Say "Ash, stop" at any
-point to cancel.
+A request that joins several actions ("Rhasspy, go to Amazon, search for MSI monitors, and tell me the
+cheapest one") is split into steps by the planner instead of being handed whole to the agent. Say "Rhasspy,
+stop" at any point to cancel.
 
 REAL API CALLS and a real, visible Brave window: DeepInfra for the fast-path's model step and the planner,
 Cerebras for the agent, ElevenLabs and Deepgram for speech. Voice mode needs HEADPHONES.
@@ -35,7 +35,7 @@ from pathlib import Path
 
 import httpx
 
-from . import config
+from . import config, openwakeword_wake
 from .browser import launch as launch_brave
 from .dom_fastpath import parse_command, make_picker_from_env
 from .identity import GREETING
@@ -108,6 +108,22 @@ class AppLoop(Loop):
         except Exception:
             pass
 
+    def _wake_decision(self, text: str, job: dict) -> tuple:
+        """Was this utterance addressed to Rhasspy, and what's left to route once the name is cleaned out?
+
+        When openWakeWord (real acoustic wake-word detection, ash/openwakeword_wake.py) is available, the
+        addressed/not-addressed decision comes from whether it actually heard the wake word in the raw
+        audio (job["wake_addressed"], set in voice.py's run() loop) - not from whether the transcript
+        happens to contain "Rhasspy". strip_wake_word() is still used to clean the word out of the text if
+        STT did transcribe it, but a mis-transcribed name no longer matters either way: the acoustic
+        trigger already decided this. Without openWakeWord, strip_wake_word() does both jobs itself, same
+        as before - this is a strict upgrade, not a behavior change, when it isn't installed."""
+        if openwakeword_wake.available():
+            addressed = bool(job.get("wake_addressed"))
+            _, remainder = strip_wake_word(text)
+            return addressed, (remainder if remainder.strip() else text)
+        return strip_wake_word(text)
+
     # --- turn-taking rules specific to the app
     def barge_applies(self) -> bool:
         return self.speaking or self.player.pending_s() > 0
@@ -125,7 +141,7 @@ class AppLoop(Loop):
             self.jobs.put(job)
 
     def _while_busy(self, job: dict) -> None:
-        """You spoke while the browser is working: "Ash, stop" cancels outright; a correction also cancels
+        """You spoke while the browser is working: "Rhasspy, stop" cancels outright; a correction also cancels
         the in-flight step and queues the corrected command; anything else just queues."""
         try:
             text, ms = transcribe(self.http, job["clip"], self.args.hinglish, engine=self.args.stt)
@@ -133,9 +149,9 @@ class AppLoop(Loop):
             self.say(f"  !! {type(e).__name__}: {str(e)[:150]}")
             return
         self._save_turn_clip(job, text, ms)
-        addressed, remainder = strip_wake_word(text)
+        addressed, remainder = self._wake_decision(text, job)
         if not addressed:
-            self.say(f"  (heard \"{text.strip()}\" - not addressed to Ash, ignored)")
+            self.say(f"  (heard \"{text.strip()}\" - not addressed to Rhasspy, ignored)")
             return
         heard = clean_command(remainder)
         if CANCEL.match(heard):
@@ -222,14 +238,14 @@ class AppLoop(Loop):
             self.say("  (nothing recognised)")
             return
         # The wake-word gate only applies to live voice mode. Text/script mode (dev/test use, including this
-        # app's own test suite) has no mic and no overlay - requiring "Ash, ..." there would just be friction
+        # app's own test suite) has no mic and no overlay - requiring "Rhasspy, ..." there would just be friction
         # with no benefit, since there's no ambient room conversation to filter out.
         wake_gate_active = (getattr(self.args, "wake_word", True)
                              and not getattr(self.args, "text", False) and not getattr(self.args, "script", None))
         if wake_gate_active and not job.get("_wake_checked"):
-            addressed, remainder = strip_wake_word(text)
+            addressed, remainder = self._wake_decision(text, job)
             if not addressed:
-                self.say(f"  (heard \"{text.strip()}\" - not addressed to Ash, ignored)")
+                self.say(f"  (heard \"{text.strip()}\" - not addressed to Rhasspy, ignored)")
                 return
             text = remainder
             if not text.strip():
@@ -479,7 +495,7 @@ def _run_backend(loop: AppLoop, runner: AsyncRunner, args, overlay_state: Overla
                     break
                 run_commands(loop, [cmd])
         else:
-            print(f"Say \"Ash\" before a command - for example \"Ash, open GitHub.\" Say \"Ash, stop\" to cancel.\n", flush=True)
+            print(f"Say \"Rhasspy\" before a command - for example \"Rhasspy, open GitHub.\" Say \"Rhasspy, stop\" to cancel.\n", flush=True)
             threading.Thread(target=lambda: loop._speak(GREETING, loop.epoch, {}), daemon=True).start()
             loop.run(mic_source(args))
     except KeyboardInterrupt:
@@ -504,7 +520,7 @@ def main() -> int:
     ap.add_argument("--text", action="store_true", help="type commands instead of speaking (no overlay, no wake word)")
     ap.add_argument("--script", help="file with one command per line; runs them in order (no overlay, no wake word)")
     ap.add_argument("--no-sound", action="store_true", help="do not play audio (timings are still real)")
-    ap.add_argument("--no-wake-word", action="store_true", help="act on every command, skip the \"Ash\" gate (voice mode only)")
+    ap.add_argument("--no-wake-word", action="store_true", help="act on every command, skip the \"Rhasspy\" gate (voice mode only)")
     ap.add_argument("--hangover", type=float, default=0.5)
     ap.add_argument("--min-speech", type=float, default=0.25)
     ap.add_argument("--cue", choices=["none", "tick"], default="none")
