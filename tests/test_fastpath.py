@@ -4,8 +4,8 @@ Each scenario runs spoken-style commands through FastPath, then checks the OUTCO
 browser (URL / page text / scroll position), not whether the code claims it clicked.
 A final group checks that vague commands are refused (handled=False) instead of guessed.
 
-  python -m ash.tests.test_fastpath            # headless
-  python -m ash.tests.test_fastpath --headed   # visible window on the primary monitor
+  python -m tests.test_fastpath            # headless
+  python -m tests.test_fastpath --headed   # visible window on the primary monitor
 """
 import argparse
 import asyncio
@@ -13,7 +13,7 @@ import sys
 
 from browser_use import Browser
 
-from ash.dom_fastpath import FastPath, parse_command
+from jarvis.dom_fastpath import FastPath, parse_command
 
 
 async def wait_until(predicate, timeout=10.0, interval=0.4) -> bool:

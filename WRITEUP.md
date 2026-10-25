@@ -149,11 +149,11 @@ was talking to. The final phase turned it into **Jarvis**.
 **Design decisions and why:**
 
 - **Brave, your real profile, not a disposable browser.** Jarvis launches Brave with your actual Brave user
-  profile - your bookmarks, saved logins, and extensions are there, because `ash/browser.py` points
+  profile - your bookmarks, saved logins, and extensions are there, because `jarvis/browser.py` points
   browser-use's `Browser` at your real executable and user-data directory rather than a fresh temp profile.
   The real trade-off, confirmed by reading browser-use's own source rather than assuming: Chromium profiles
   are locked to one running process, so Brave has to be fully closed first. The failure mode when it's still
-  open doesn't look like a clean "profile locked" error - it looks like a generic crash - so `ash/browser.py`
+  open doesn't look like a clean "profile locked" error - it looks like a generic crash - so `jarvis/browser.py`
   treats any launch failure there as "Brave is probably open" and says so plainly, with a hard timeout so a
   failed launch reports back in seconds instead of hanging.
 - **A wake word, built from what already existed, not a new ML model - at first.** Saying the assistant's
@@ -169,7 +169,7 @@ was talking to. The final phase turned it into **Jarvis**.
 - **A name and a greeting.** Jarvis greets you by name on startup and recognizes her own name in the wake-word
   gate - small, but it's the difference between a tool and something that feels addressed-to.
 
-**What verification looked like for this phase:** every existing regression suite (`ash/tests/`) was re-run
+**What verification looked like for this phase:** every existing regression suite (`tests/`) was re-run
 after the move with zero behavior changes expected in the ported logic, and it caught two real bugs
 introduced in the process - a wake-word check that incorrectly applied to test/script mode (breaking four
 tests that inject commands directly), and an error-detection heuristic in the Brave launch path that never
@@ -212,7 +212,7 @@ different tasks, what fraction actually succeed, and is that number consistent?"
 asked of candidate frameworks at the very start of the project, but that was never asked again of the
 *finished*, fully-assembled router once rules, the model-step, and the full agent were all wired together.
 
-`ash/benchmark.py` closes that gap: 15 tasks spanning plain navigation, search, scrolling, a named keystroke,
+`jarvis/benchmark.py` closes that gap: 15 tasks spanning plain navigation, search, scrolling, a named keystroke,
 model-step element picking, three-tier full-agent extraction (checked against real, stable ground truth on
 `books.toscrape.com` and `quotes.toscrape.com`, not just "it didn't crash"), and two deliberate edge cases -
 a compound request run with no planner, and a genuinely unanswerable command that should be refused. Each
@@ -268,7 +268,9 @@ GitHub search-typing bug earlier in this project, this time applied to the measu
 
 ## Project layout
 
-- `ash/` - the finished app. `run_ash.py` at the repo root is the single entry point.
+- `jarvis/` - the finished app. `run_jarvis.py` at the repo root is the single entry point. `tests/` and
+  `results/` sit alongside it at the repo root too - regression tests and generated output aren't part of
+  the importable package itself. `pyproject.toml` makes the whole thing `pip install`-able.
 - `experiments/01_...` through `09_...` - the full experimentation history this was built from, each with
   its own README documenting what was tested and measured. Kept in full, not summarized away, because the
   measurements and dead ends are as much the engineering work as the final answer.

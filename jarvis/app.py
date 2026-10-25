@@ -1,8 +1,8 @@
 """Jarvis: a voice-driven browser assistant that acts on your real Brave browser.
 
-  python run_ash.py                          # voice: say "Jarvis, <command>" - Brave opens with your real profile
-  python run_ash.py --text                   # type commands instead of speaking (no microphone, no overlay)
-  python run_ash.py --script commands.txt    # run a list of commands automatically, then print the waterfall
+  python run_jarvis.py                          # voice: say "Jarvis, <command>" - Brave opens with your real profile
+  python run_jarvis.py --text                   # type commands instead of speaking (no microphone, no overlay)
+  python run_jarvis.py --script commands.txt    # run a list of commands automatically, then print the waterfall
 
 What happens to each voice command (the "waterfall"): you stop speaking -> silence wait (VAD) -> transcript
 (ElevenLabs) -> wake-word gate (did you say "Jarvis"?) -> router (rules, then one short model call, then the
@@ -47,6 +47,7 @@ from .voice import Loop, mic_source, save_clip, transcribe
 from .wakeword import strip_wake_word
 
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent   # repo root - results/ lives here, not inside the jarvis/ package itself
 ACK = "On it."
 STILL = "Still working on it."
 SPOKEN_LIMIT = 220   # characters; past this, speech takes longer than it's worth. The console/log/memory
@@ -91,7 +92,7 @@ class AppLoop(Loop):
         self.plan_cancelled = False  # just the current step), so "stop" cancels the whole plan, not one step
         self.memory = ConversationMemory()
         self._clip_no = 0
-        self.clip_dir = HERE / "results" / f"clips_{datetime.datetime.now():%Y%m%d_%H%M%S}"
+        self.clip_dir = ROOT / "results" / f"clips_{datetime.datetime.now():%Y%m%d_%H%M%S}"
 
     def _on_state(self, state: str) -> None:
         self.overlay_state.set(state)
@@ -111,9 +112,9 @@ class AppLoop(Loop):
     def _wake_decision(self, text: str, job: dict) -> tuple:
         """Was this utterance addressed to Jarvis, and what's left to route once the name is cleaned out?
 
-        Two independent signals, combined with OR: the acoustic detector (ash/openwakeword_wake.py,
+        Two independent signals, combined with OR: the acoustic detector (jarvis/openwakeword_wake.py,
         job["wake_addressed"] - did it hear "Jarvis" in the raw audio?) and the text-based check
-        (ash/wakeword.py's strip_wake_word() - does the transcript contain "Jarvis"?). Found live: a
+        (jarvis/wakeword.py's strip_wake_word() - does the transcript contain "Jarvis"?). Found live: a
         quieter/rushed "Hey Jarvis" was missed acoustically but still correctly transcribed by STT, and
         got rejected anyway because only the acoustic signal was trusted. Either one catching it is now
         enough - this can only accept MORE utterances than acoustic-only did, never fewer, so it doesn't
@@ -457,8 +458,8 @@ def waterfall(records: list, args) -> None:
         print(f"{tier:<7} {len(rs)} commands, {sum(r['ok'] for r in rs)} ok | median first sound "
               f"{statistics.median(fs) / 1000 if fs else float('nan'):.2f} s, median finished {statistics.median(fin) / 1000:.2f} s")
     stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    (HERE / "results").mkdir(exist_ok=True)
-    path = HERE / "results" / f"waterfall_{stamp}{'_voice' if not (args.text or args.script) else '_text'}.json"
+    (ROOT / "results").mkdir(exist_ok=True)
+    path = ROOT / "results" / f"waterfall_{stamp}{'_voice' if not (args.text or args.script) else '_text'}.json"
     path.write_text(json.dumps({"settings": {"hangover_s": args.hangover, "min_speech_s": args.min_speech,
                                              "agent_steps": args.agent_steps, "agent_timeout_s": args.agent_timeout},
                                 "commands": records}, indent=1, ensure_ascii=False), encoding="utf-8")

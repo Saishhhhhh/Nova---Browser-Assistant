@@ -1,13 +1,13 @@
 """Reproduces the live session's problem: several things said while busy pile up in the queue, then a
 "stop" should drop that backlog instead of making you sit through each one, one by one.
 
-  python -m ash.tests.test_cancel_drains_queue        # real browser, a few cents of Cerebras calls
+  python -m tests.test_cancel_drains_queue        # real browser, a few cents of Cerebras calls
 """
 import argparse
 import sys
 import time
 
-from ash import app
+from jarvis import app
 
 
 def main() -> int:

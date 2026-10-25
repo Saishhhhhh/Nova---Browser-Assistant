@@ -72,9 +72,10 @@ def get_browser_use_llm(provider: str, model_name: Optional[str] = None):
     raise ValueError(f"Unsupported provider: {provider}")
 
 
-# --- remembered input/output audio device choice, set once via the overlay's settings window
-
-_DEVICE_CONFIG_PATH = ROOT / "ash" / ".device_config.json"
+# --- remembered input/output audio device choice, set once via the overlay's settings window.
+# Lives at the repo root, not inside the jarvis/ package itself - generated runtime state shouldn't be
+# mixed in with the actual code.
+_DEVICE_CONFIG_PATH = ROOT / ".device_config.json"
 
 
 def load_device_config() -> dict:

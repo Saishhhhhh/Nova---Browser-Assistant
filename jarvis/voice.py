@@ -1,4 +1,4 @@
-"""The voice turn-taking loop: microphone -> Silero VAD -> STT -> (router, wired in by ash/app.py) -> TTS,
+"""The voice turn-taking loop: microphone -> Silero VAD -> STT -> (router, wired in by jarvis/app.py) -> TTS,
 with barge-in (speak over a reply and playback stops instantly). Originated as Experiment 6/7; this is the
 production version - the standalone demo CLI, canned replies, and recorded-audio simulation mode from the
 experiment version are gone (see experiments/06_Turn_Taking/voice_loop.py for those). Use HEADPHONES.
@@ -229,7 +229,7 @@ class Loop:
     def _handle(self, job: dict) -> None:
         """Always overridden by AppLoop, which wires in the router, memory, and planner. Kept only so a
         subclass that forgets to override it fails loudly instead of silently doing nothing."""
-        raise NotImplementedError("Loop._handle must be overridden (see AppLoop in ash/app.py)")
+        raise NotImplementedError("Loop._handle must be overridden (see AppLoop in jarvis/app.py)")
 
     def _next_turn(self) -> int:
         self.turn_no += 1

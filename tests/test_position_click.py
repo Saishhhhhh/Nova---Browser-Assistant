@@ -1,11 +1,11 @@
 """End to end through the fast path: the click really happens (no model calls).
 
-  python -m ash.tests.test_position_click
+  python -m tests.test_position_click
 """
 import asyncio
 
 from browser_use import Browser
-from ash.dom_fastpath import FastPath
+from jarvis.dom_fastpath import FastPath
 
 async def main():
     b = Browser(headless=True, keep_alive=True, window_size={"width": 1280, "height": 800}, viewport={"width": 1280, "height": 800})

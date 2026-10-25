@@ -1,9 +1,9 @@
 """Reproduces a live bug: a short "Hey Jarvis, open github" utterance was rejected because the wake
 detector needs a little trailing audio to recognise the word, and VAD had already decided the utterance
-was over by then. Confirms the catch-up window (ash/voice.py's run()) accepts it anyway, using the exact
+was over by then. Confirms the catch-up window (jarvis/voice.py's run()) accepts it anyway, using the exact
 same run() code path real voice input goes through - not a separate simulation.
 
-  python -m ash.tests.test_wake_race        # real browser + real Deepgram TTS synth, a few cents
+  python -m tests.test_wake_race        # real browser + real Deepgram TTS synth, a few cents
 """
 import argparse
 import io
@@ -16,9 +16,9 @@ import httpx
 import numpy as np
 from browser_use import Browser
 
-from ash import app, config
-from ash.dom_fastpath import make_picker_from_env
-from ash.router import CommandRouter
+from jarvis import app, config
+from jarvis.dom_fastpath import make_picker_from_env
+from jarvis.router import CommandRouter
 
 
 def synth_pcm_16k(text: str) -> np.ndarray:

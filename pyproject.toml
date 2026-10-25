@@ -1,0 +1,34 @@
+[project]
+name = "jarvis-assistant"
+version = "1.0.0"
+description = "A voice-driven browser assistant that acts on your real Brave browser."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "browser-use==0.13.10",
+    "litellm>=1.81",
+    "mcp==2.1.1",
+    "langchain-core==1.6.5",
+    "langchain-openai==1.3.4",
+    "openai==2.26.0",
+    "python-dotenv==1.2.2",
+    "httpx>=0.28",
+    "numpy>=2.4",
+    "sounddevice>=0.5",
+    "torch>=2.14",
+    "silero-vad>=6.2",
+    # Optional at runtime (jarvis/voice.py imports it lazily): real acoustic wake-word detection, free and
+    # fully local, no account needed. Without it, the text-based wake-word check still works on its own.
+    "openwakeword==0.6.0",
+]
+
+[project.scripts]
+# After `pip install .`, this runs the app as a plain command instead of `python run_jarvis.py`.
+jarvis = "jarvis.app:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["jarvis"]

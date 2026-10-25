@@ -1,5 +1,5 @@
 """Real acoustic wake-word detection via openWakeWord: catches the wake word from raw audio the instant
-it's spoken, instead of checking the transcript for it afterward (ash/wakeword.py's text-based check, which
+it's spoken, instead of checking the transcript for it afterward (jarvis/wakeword.py's text-based check, which
 stays as the fallback and as the thing that still cleans the word out of the final command text).
 
 Free, fully local, no account needed - unlike Porcupine (Picovoice), which requires signing up and rejects
@@ -28,7 +28,7 @@ MODEL_NAME = os.getenv("OPENWAKEWORD_MODEL", "hey_jarvis")
 THRESHOLD = float(os.getenv("OPENWAKEWORD_THRESHOLD", "0.4"))   # found live: 0.5 missed an occasional
                                                                   # quieter/rushed "Hey Jarvis" that STT
                                                                   # still transcribed correctly (see the
-                                                                  # text-match fallback in ash/app.py)
+                                                                  # text-match fallback in jarvis/app.py)
 FRAME_SAMPLES = 1280   # openWakeWord's fixed feed size: 80 ms at 16 kHz (unrelated to Silero's 512-sample
                        # frame also used for VAD - the mic loop runs both on independent cursors)
 SAMPLE_RATE = 16000

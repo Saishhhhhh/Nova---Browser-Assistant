@@ -1,12 +1,12 @@
 """Starts a slow agent task, then "says" a correction partway through, and checks it cancels the in-flight
 step (not just queues the correction to run after it finishes) and then runs the corrected command.
 
-  python -m ash.tests.test_cancel_correction        # real browser, a few cents of Cerebras calls
+  python -m tests.test_cancel_correction        # real browser, a few cents of Cerebras calls
 """
 import sys
 import time
 
-from ash import app
+from jarvis import app
 
 
 def main() -> int:
@@ -41,7 +41,7 @@ def main() -> int:
     correction_text = "No, I meant scroll down"
     print(f"agent running at {time.perf_counter() - t0:.1f} s: {still_running}; saying a correction: {correction_text!r}",
           flush=True)
-    from ash.router import is_correction
+    from jarvis.router import is_correction
     assert is_correction(correction_text), "is_correction() should recognise this as a correction"
     loop.cancel_agent()
     job2 = {"kind": "turn", "text": correction_text, "clip": None, "epoch": loop.epoch, "speech_s": 0.0,

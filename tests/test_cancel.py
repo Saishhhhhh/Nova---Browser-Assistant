@@ -1,12 +1,12 @@
 """Starts a long agent task, says "stop" 4 s in, and checks the agent stops promptly and nothing is announced.
 
-  python -m ash.tests.test_cancel        # real browser, a few cents of Cerebras calls
+  python -m tests.test_cancel        # real browser, a few cents of Cerebras calls
 """
 import argparse
 import sys
 import time
 
-from ash import app
+from jarvis import app
 
 
 def main() -> int:

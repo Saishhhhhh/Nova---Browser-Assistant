@@ -1,0 +1,46 @@
+{
+ "settings": {
+  "hangover_s": 0.5,
+  "min_speech_s": 0.25,
+  "agent_steps": 8,
+  "agent_timeout_s": 120.0
+ },
+ "commands": [
+  {
+   "turn": 1,
+   "command": "हा. हे बघा Lisa घेतलं नाही घेतलं थांबे परत आता. MiSa open YouTube",
+   "tier": "agent",
+   "ok": false,
+   "silence_wait_ms": 512,
+   "stt_ms": 1419,
+   "queued_ms": 8,
+   "fast_path_ms": 6566,
+   "route_ms": 21784,
+   "agent_steps": 2,
+   "ack_first_sound_ms": 2341,
+   "answer_first_sound_ms": null,
+   "first_sound_ms": 2341,
+   "finished_ms": 24049,
+   "reply": "YouTube is open. Please let me know what you’d like to do next (e.g., search for a video, play a specific video, etc.).",
+   "detail": "fast path declined (no rule matches | model declined (model answered none)) | 2 steps"
+  },
+  {
+   "turn": 2,
+   "command": "search for YouTube",
+   "tier": "rules",
+   "ok": true,
+   "silence_wait_ms": 512,
+   "stt_ms": 686,
+   "queued_ms": 4,
+   "fast_path_ms": 6324,
+   "route_ms": 6325,
+   "agent_steps": 0,
+   "ack_first_sound_ms": null,
+   "answer_first_sound_ms": 7915,
+   "first_sound_ms": 7915,
+   "finished_ms": 9263,
+   "reply": "Searched for YouTube.",
+   "detail": "typed 'YouTube' into [4] (verified) and pressed Enter"
+  }
+ ]
+}

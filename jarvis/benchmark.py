@@ -1,11 +1,11 @@
 """A systematic success-rate benchmark for the finished router (rules -> model-step -> full agent),
 answering a question live testing never could: not "does this specific bug stay fixed" (that's what
-ash/tests/test_live_regressions.py is for), but "out of a broad, varied set of tasks, what fraction
+tests/test_live_regressions.py is for), but "out of a broad, varied set of tasks, what fraction
 actually succeed, and is that consistent run to run?"
 
-  python -m ash.benchmark                 # real browser, real API calls, 2 repeats per task (a few dollars)
-  python -m ash.benchmark --repeats 1      # cheaper, one pass, less evidence about consistency
-  python -m ash.benchmark --headed         # watch it run
+  python -m jarvis.benchmark                 # real browser, real API calls, 2 repeats per task (a few dollars)
+  python -m jarvis.benchmark --repeats 1      # cheaper, one pass, less evidence about consistency
+  python -m jarvis.benchmark --headed         # watch it run
 
 Deliberately scoped to the router alone (CommandRouter.run_command - rules, the model-step, and the full
 browser-use agent, whichever one actually ends up handling each task). The planner (multi-step splitting)
@@ -34,6 +34,7 @@ from .dom_fastpath import make_picker_from_env
 from .router import CommandRouter
 
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent   # repo root - results/ lives here, not inside the jarvis/ package itself
 
 
 async def _poll(predicate, timeout: float = 3.0, interval: float = 0.3) -> bool:
@@ -209,7 +210,7 @@ async def main_async(args) -> int:
           f"({len(tasks)} tasks x {args.repeats} repeat(s))")
 
     stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_dir = HERE / "results"
+    out_dir = ROOT / "results"
     out_dir.mkdir(exist_ok=True)
     path = out_dir / f"benchmark_{stamp}.json"
     path.write_text(json.dumps({"overall_pass_rate": overall, "repeats": args.repeats, "runs": runs}, indent=1), encoding="utf-8")

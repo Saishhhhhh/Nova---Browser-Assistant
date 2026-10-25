@@ -1,7 +1,7 @@
 """Regression set built from real failing live-voice transcripts (not invented phrasing), each with a concrete
 expected end state instead of just "didn't crash". Run this after any router/dom_fastpath change.
 
-  python -m ash.tests.test_live_regressions        # real browser, a few cents of API calls
+  python -m tests.test_live_regressions        # real browser, a few cents of API calls
 
 Every case here is a literal command copied from a pasted live session that did the wrong thing. The point of
 this file is that a future change can't silently re-break one of these without the suite catching it.
@@ -12,10 +12,10 @@ import sys
 import argparse
 
 from browser_use import Browser
-from ash import app
-from ash.dom_fastpath import make_picker_from_env
-from ash.router import CommandRouter
-from ash.wakeword import strip_wake_word
+from jarvis import app
+from jarvis.dom_fastpath import make_picker_from_env
+from jarvis.router import CommandRouter
+from jarvis.wakeword import strip_wake_word
 
 
 async def check(name: str, cond: bool, detail: str) -> bool:

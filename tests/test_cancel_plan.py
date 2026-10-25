@@ -1,13 +1,13 @@
 """Starts a multi-step PLAN, says "stop" partway through, and checks the plan stops after the current step
 instead of running the rest (Phase 1: planner integration, the plan-aware half of cancel_agent()).
 
-  python -m ash.tests.test_cancel_plan        # real browser, a few cents of DeepInfra (plan) + Cerebras (final step) calls
+  python -m tests.test_cancel_plan        # real browser, a few cents of DeepInfra (plan) + Cerebras (final step) calls
 """
 import argparse
 import sys
 import time
 
-from ash import app
+from jarvis import app
 
 
 def main() -> int:

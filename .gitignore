@@ -26,6 +26,6 @@ experiments/04_Voice_Activity_Detection/live_out/
 # Generated speech clips for the listening test (Experiment 5)
 experiments/05_Text_To_Speech/data/
 
-# Ash's own live-session audio (personal; same reasoning as above) and remembered device choice
-ash/results/clips_*/
-ash/.device_config.json
+# Jarvis's own live-session audio (personal; same reasoning as above) and remembered device choice
+results/clips_*/
+.device_config.json

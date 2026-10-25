@@ -1,7 +1,7 @@
 """Tests for the optional small-model step of FastPath.
 
-  python -m ash.tests.test_model_step          # offline parser tests + real browser with a STAND-IN model. No API calls.
-  python -m ash.tests.test_model_step --live   # also runs ~6 commands against the REAL model (a few cents at most)
+  python -m tests.test_model_step          # offline parser tests + real browser with a STAND-IN model. No API calls.
+  python -m tests.test_model_step --live   # also runs ~6 commands against the REAL model (a few cents at most)
 
 The default run proves the plumbing: the model is only called when the rules refuse, a valid
 pick is executed in the real browser, and every bad answer (none, unknown index, exception)
@@ -14,8 +14,8 @@ import sys
 
 from browser_use import Browser
 
-from ash.dom_fastpath import ElementInfo, FastPath, Pick, format_elements, make_picker_from_env, parse_pick
-from ash.tests.test_fastpath import url_contains, wait_until
+from jarvis.dom_fastpath import ElementInfo, FastPath, Pick, format_elements, make_picker_from_env, parse_pick
+from tests.test_fastpath import url_contains, wait_until
 
 failures = []
 

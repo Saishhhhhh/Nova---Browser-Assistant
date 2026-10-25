@@ -1,7 +1,7 @@
 """Verifies the fast path -> full agent handoff on ONE shared browser.
 
-  python -m ash.tests.test_handoff            # headless
-  python -m ash.tests.test_handoff --headed   # watch it (window pinned to the primary monitor)
+  python -m tests.test_handoff            # headless
+  python -m tests.test_handoff --headed   # watch it (window pinned to the primary monitor)
 
 REAL API CALLS (a few cents): one DeepInfra Gemma call for the model step, then the browser-use
 agent on Cerebras for ~3-6 steps. Checks that:
@@ -16,10 +16,10 @@ import sys
 
 from browser_use import Browser
 
-from ash.config import EXTRACTION_MODEL, EXTRACTION_PROVIDER, get_browser_use_llm
-from ash.dom_fastpath import make_picker_from_env
-from ash.router import CommandRouter
-from ash.tests.test_fastpath import url_contains, wait_until
+from jarvis.config import EXTRACTION_MODEL, EXTRACTION_PROVIDER, get_browser_use_llm
+from jarvis.dom_fastpath import make_picker_from_env
+from jarvis.router import CommandRouter
+from tests.test_fastpath import url_contains, wait_until
 
 failures = []
 
