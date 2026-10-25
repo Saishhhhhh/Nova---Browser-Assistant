@@ -5,7 +5,7 @@
 import asyncio
 
 from browser_use import Browser
-from jarvis.dom_fastpath import FastPath
+from mycroft.dom_fastpath import FastPath
 
 async def main():
     b = Browser(headless=True, keep_alive=True, window_size={"width": 1280, "height": 800}, viewport={"width": 1280, "height": 800})

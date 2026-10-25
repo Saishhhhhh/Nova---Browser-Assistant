@@ -1,4 +1,4 @@
-"""A small always-on-top floating widget showing what Jarvis is doing right now.
+"""A small always-on-top floating widget showing what Mycroft is doing right now.
 
 Tkinter (stdlib, no install needed) owns the main thread via Overlay.run() -> mainloop(); every other part
 of the app (mic capture, the browser's asyncio loop, the job-processing worker) runs in a background thread
@@ -33,7 +33,7 @@ class OverlayState:
 
 
 class Overlay:
-    def __init__(self, state: OverlayState, assistant_name: str = "Jarvis", on_pick_devices=None):
+    def __init__(self, state: OverlayState, assistant_name: str = "Mycroft", on_pick_devices=None):
         self.state = state
         self.assistant_name = assistant_name
         self.on_pick_devices = on_pick_devices

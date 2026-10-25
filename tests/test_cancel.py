@@ -6,7 +6,7 @@ import argparse
 import sys
 import time
 
-from jarvis import app
+from mycroft import app
 
 
 def main() -> int:

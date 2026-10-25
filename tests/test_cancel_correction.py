@@ -6,7 +6,7 @@ step (not just queues the correction to run after it finishes) and then runs the
 import sys
 import time
 
-from jarvis import app
+from mycroft import app
 
 
 def main() -> int:
@@ -41,7 +41,7 @@ def main() -> int:
     correction_text = "No, I meant scroll down"
     print(f"agent running at {time.perf_counter() - t0:.1f} s: {still_running}; saying a correction: {correction_text!r}",
           flush=True)
-    from jarvis.router import is_correction
+    from mycroft.router import is_correction
     assert is_correction(correction_text), "is_correction() should recognise this as a correction"
     loop.cancel_agent()
     job2 = {"kind": "turn", "text": correction_text, "clip": None, "epoch": loop.epoch, "speech_s": 0.0,

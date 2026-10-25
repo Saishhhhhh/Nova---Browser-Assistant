@@ -14,7 +14,7 @@ import sys
 
 from browser_use import Browser
 
-from jarvis.dom_fastpath import ElementInfo, FastPath, Pick, format_elements, make_picker_from_env, parse_pick
+from mycroft.dom_fastpath import ElementInfo, FastPath, Pick, format_elements, make_picker_from_env, parse_pick
 from tests.test_fastpath import url_contains, wait_until
 
 failures = []

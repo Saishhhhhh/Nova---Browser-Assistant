@@ -1,4 +1,4 @@
-"""Environment, identity, and LLM-provider configuration for Jarvis.
+"""Environment, identity, and LLM-provider configuration for Mycroft.
 
 Trimmed from experiments/01_Browser Automation/config.py to just the two providers the
 final app actually uses (Cerebras for the browser agent, DeepInfra for the fast-path's
@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
-ASSISTANT_NAME = "Jarvis"
+ASSISTANT_NAME = "Mycroft"
 USER_NAME = os.getenv("USER_NAME", "there")
 
 CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY", "")
@@ -73,7 +73,7 @@ def get_browser_use_llm(provider: str, model_name: Optional[str] = None):
 
 
 # --- remembered input/output audio device choice, set once via the overlay's settings window.
-# Lives at the repo root, not inside the jarvis/ package itself - generated runtime state shouldn't be
+# Lives at the repo root, not inside the mycroft/ package itself - generated runtime state shouldn't be
 # mixed in with the actual code.
 _DEVICE_CONFIG_PATH = ROOT / ".device_config.json"
 

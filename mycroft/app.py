@@ -1,16 +1,16 @@
-"""Jarvis: a voice-driven browser assistant that acts on your real Brave browser.
+"""Mycroft: a voice-driven browser assistant that acts on your real Brave browser.
 
-  python run_jarvis.py                          # voice: say "Jarvis, <command>" - Brave opens with your real profile
-  python run_jarvis.py --text                   # type commands instead of speaking (no microphone, no overlay)
-  python run_jarvis.py --script commands.txt    # run a list of commands automatically, then print the waterfall
+  python run_mycroft.py                          # voice: say "Mycroft, <command>" - Brave opens with your real profile
+  python run_mycroft.py --text                   # type commands instead of speaking (no microphone, no overlay)
+  python run_mycroft.py --script commands.txt    # run a list of commands automatically, then print the waterfall
 
 What happens to each voice command (the "waterfall"): you stop speaking -> silence wait (VAD) -> transcript
-(ElevenLabs) -> wake-word gate (did you say "Jarvis"?) -> router (rules, then one short model call, then the
+(ElevenLabs) -> wake-word gate (did you say "Mycroft"?) -> router (rules, then one short model call, then the
 full browser agent) -> a spoken reply. If the router has to start the slow browser agent, "On it." is spoken
 at once so you are not left in silence.
 
-A request that joins several actions ("Jarvis, go to Amazon, search for MSI monitors, and tell me the
-cheapest one") is split into steps by the planner instead of being handed whole to the agent. Say "Jarvis,
+A request that joins several actions ("Mycroft, go to Amazon, search for MSI monitors, and tell me the
+cheapest one") is split into steps by the planner instead of being handed whole to the agent. Say "Mycroft,
 stop" at any point to cancel.
 
 REAL API CALLS and a real, visible Brave window: DeepInfra for the fast-path's model step and the planner,
@@ -47,7 +47,7 @@ from .voice import Loop, mic_source, save_clip, transcribe
 from .wakeword import strip_wake_word
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent   # repo root - results/ lives here, not inside the jarvis/ package itself
+ROOT = HERE.parent   # repo root - results/ lives here, not inside the mycroft/ package itself
 ACK = "On it."
 STILL = "Still working on it."
 SPOKEN_LIMIT = 220   # characters; past this, speech takes longer than it's worth. The console/log/memory
@@ -110,12 +110,12 @@ class AppLoop(Loop):
             pass
 
     def _wake_decision(self, text: str, job: dict) -> tuple:
-        """Was this utterance addressed to Jarvis, and what's left to route once the name is cleaned out?
+        """Was this utterance addressed to Mycroft, and what's left to route once the name is cleaned out?
 
-        Two independent signals, combined with OR: the acoustic detector (jarvis/openwakeword_wake.py,
-        job["wake_addressed"] - did it hear "Jarvis" in the raw audio?) and the text-based check
-        (jarvis/wakeword.py's strip_wake_word() - does the transcript contain "Jarvis"?). Found live: a
-        quieter/rushed "Hey Jarvis" was missed acoustically but still correctly transcribed by STT, and
+        Two independent signals, combined with OR: the acoustic detector (mycroft/openwakeword_wake.py,
+        job["wake_addressed"] - did it hear "Mycroft" in the raw audio?) and the text-based check
+        (mycroft/wakeword.py's strip_wake_word() - does the transcript contain "Mycroft"?). Found live: a
+        quieter/rushed "Hey Mycroft" was missed acoustically but still correctly transcribed by STT, and
         got rejected anyway because only the acoustic signal was trusted. Either one catching it is now
         enough - this can only accept MORE utterances than acoustic-only did, never fewer, so it doesn't
         reopen the old text-only failure modes (anywhere-in-sentence matching is unchanged below).
@@ -141,7 +141,7 @@ class AppLoop(Loop):
             self.jobs.put(job)
 
     def _while_busy(self, job: dict) -> None:
-        """You spoke while the browser is working: "Jarvis, stop" cancels outright; a correction also cancels
+        """You spoke while the browser is working: "Mycroft, stop" cancels outright; a correction also cancels
         the in-flight step and queues the corrected command; anything else just queues."""
         try:
             text, ms = transcribe(self.http, job["clip"], self.args.hinglish, engine=self.args.stt)
@@ -151,7 +151,7 @@ class AppLoop(Loop):
         self._save_turn_clip(job, text, ms)
         addressed, remainder = self._wake_decision(text, job)
         if not addressed:
-            self.say(f"  (heard \"{text.strip()}\" - not addressed to Jarvis, ignored)")
+            self.say(f"  (heard \"{text.strip()}\" - not addressed to Mycroft, ignored)")
             return
         heard = clean_command(remainder)
         if CANCEL.match(heard):
@@ -238,14 +238,14 @@ class AppLoop(Loop):
             self.say("  (nothing recognised)")
             return
         # The wake-word gate only applies to live voice mode. Text/script mode (dev/test use, including this
-        # app's own test suite) has no mic and no overlay - requiring "Jarvis, ..." there would just be friction
+        # app's own test suite) has no mic and no overlay - requiring "Mycroft, ..." there would just be friction
         # with no benefit, since there's no ambient room conversation to filter out.
         wake_gate_active = (getattr(self.args, "wake_word", True)
                              and not getattr(self.args, "text", False) and not getattr(self.args, "script", None))
         if wake_gate_active and not job.get("_wake_checked"):
             addressed, remainder = self._wake_decision(text, job)
             if not addressed:
-                self.say(f"  (heard \"{text.strip()}\" - not addressed to Jarvis, ignored)")
+                self.say(f"  (heard \"{text.strip()}\" - not addressed to Mycroft, ignored)")
                 return
             text = remainder
             if not text.strip():
@@ -495,7 +495,7 @@ def _run_backend(loop: AppLoop, runner: AsyncRunner, args, overlay_state: Overla
                     break
                 run_commands(loop, [cmd])
         else:
-            print(f"Say \"Jarvis\" before a command - for example \"Jarvis, open GitHub.\" Say \"Jarvis, stop\" to cancel.\n", flush=True)
+            print(f"Say \"Mycroft\" before a command - for example \"Mycroft, open GitHub.\" Say \"Mycroft, stop\" to cancel.\n", flush=True)
             threading.Thread(target=lambda: loop._speak(GREETING, loop.epoch, {}), daemon=True).start()
             loop.run(mic_source(args))
     except KeyboardInterrupt:
@@ -520,7 +520,7 @@ def main() -> int:
     ap.add_argument("--text", action="store_true", help="type commands instead of speaking (no overlay, no wake word)")
     ap.add_argument("--script", help="file with one command per line; runs them in order (no overlay, no wake word)")
     ap.add_argument("--no-sound", action="store_true", help="do not play audio (timings are still real)")
-    ap.add_argument("--no-wake-word", action="store_true", help="act on every command, skip the \"Jarvis\" gate (voice mode only)")
+    ap.add_argument("--no-wake-word", action="store_true", help="act on every command, skip the \"Mycroft\" gate (voice mode only)")
     ap.add_argument("--hangover", type=float, default=0.5)
     ap.add_argument("--min-speech", type=float, default=0.25)
     ap.add_argument("--cue", choices=["none", "tick"], default="none")

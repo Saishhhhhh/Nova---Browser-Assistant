@@ -1,4 +1,4 @@
-"""Jarvis's persona: just enough to greet you by name and recognise her own name - not a personality engine."""
+"""Mycroft's persona: just enough to greet you by name and recognise her own name - not a personality engine."""
 from .config import ASSISTANT_NAME, USER_NAME
 
 GREETING = f"Hi {USER_NAME}, I'm {ASSISTANT_NAME}. Say my name before a command and I'll get on it."

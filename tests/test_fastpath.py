@@ -13,7 +13,7 @@ import sys
 
 from browser_use import Browser
 
-from jarvis.dom_fastpath import FastPath, parse_command
+from mycroft.dom_fastpath import FastPath, parse_command
 
 
 async def wait_until(predicate, timeout=10.0, interval=0.4) -> bool:
