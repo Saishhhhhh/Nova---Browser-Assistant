@@ -156,12 +156,12 @@ was talking to. The final phase turned it into **Jarvis**.
   open doesn't look like a clean "profile locked" error - it looks like a generic crash - so `ash/browser.py`
   treats any launch failure there as "Brave is probably open" and says so plainly, with a hard timeout so a
   failed launch reports back in seconds instead of hanging.
-- **A wake word, built from what already existed, not a new ML model.** Saying "Jarvis" before a command
-  gates whether something gets acted on, so idle conversation in the room doesn't trigger actions. This is
-  *not* an acoustic wake-word engine (Porcupine, openWakeWord) - that needs a trained model for a custom name
-  and a new dependency. Instead it reuses the exact "strip a known prefix off the transcript" pattern the
-  router already used for filler words and corrections. The honest trade-off: it reacts after a full
-  utterance is transcribed, not the instant the name is spoken, the way a real wake-word engine would.
+- **A wake word, built from what already existed, not a new ML model - at first.** Saying the assistant's
+  name before a command gates whether something gets acted on, so idle conversation in the room doesn't
+  trigger actions. The first version was text-based only: it reuses the exact "strip a known prefix off the
+  transcript" pattern the router already used for filler words and corrections, reacting after a full
+  utterance is transcribed rather than the instant the name is spoken. That turned into its own short saga,
+  below.
 - **A floating overlay, not a dashboard tab.** A borderless, always-on-top Tkinter widget shows
   listening/thinking/speaking/error at a glance, draggable, with a settings gear for audio device selection -
   chosen over a browser-tab dashboard because the whole point is that it sits visibly over whatever you're
@@ -176,6 +176,76 @@ tests that inject commands directly), and an error-detection heuristic in the Br
 actually matched Brave's real failure message. Both were found by running the suite, not by inspection, and
 both are now fixed and covered.
 
+## Part 4: the wake-word name saga, and a real acoustic engine after all
+
+The assistant went through four names before settling - each change driven by a real finding, not taste:
+
+1. **Ash** - the original name. STT consistently mangled it in ordinary sentences.
+2. **Misa** - tried next, rolled back on request before it was properly tested.
+3. **Rhasspy** - picked specifically to get a free, local, no-account acoustic wake-word engine
+   ([openWakeWord](https://github.com/dscripka/openWakeWord)) instead of Porcupine, which requires a
+   Picovoice account and rejects personal email addresses at signup. Rhasspy has a pretrained model, so no
+   custom training was needed - but live testing found it was *also* hard to say and consistently
+   mis-transcribed ("Raspy", "Raspberry", "Rashmi"). More importantly, replaying the exact same saved audio
+   offline through the real detector scored 0.65-0.89 - well above threshold - while the live session had
+   just rejected it. That gap pointed at a genuine integration bug, not a bad model: openWakeWord needs a
+   little trailing audio after a word to recognize it confidently, and for a short utterance, the voice
+   activity detector can decide you're done talking before that recognition catches up.
+4. **Jarvis** - another pretrained openWakeWord model, chosen for being short and easy to say, with no
+   training step either. Also deliberately *not* "Alexa" (suggested, then reconsidered): Alexa is Amazon's
+   actual wake word, so saying it would trigger any real Echo device in the room, trademark issues aside.
+   The timing bug above was fixed properly (a brief catch-up window lets the detector finish processing
+   audio it already has before a rejection is finalized) rather than just hoping a different word would
+   paper over it.
+
+Even with the fix, Jarvis still missed an occasional quieter or rushed utterance live - confirmed with
+`WAKE_DEBUG` score logging that it was a genuine low-confidence read, not the same timing bug recurring. No
+wake-word engine, including commercial ones, has a 0% miss rate. The actual fix was to stop trusting the
+acoustic signal alone: the wake decision now combines it with the text-based check using OR - either one
+catching the name is enough. This only ever accepts more utterances than acoustic-only did, never fewer.
+
+## Part 5: measuring the agent, not just finding its bugs
+
+Everything above was live-testing-driven: run it, hit a failure, fix that specific thing, write a regression
+test so it stays fixed. That proves specific bugs stay fixed. It does not answer "out of a broad set of
+different tasks, what fraction actually succeed, and is that number consistent?" - the question Experiment 1
+asked of candidate frameworks at the very start of the project, but that was never asked again of the
+*finished*, fully-assembled router once rules, the model-step, and the full agent were all wired together.
+
+`ash/benchmark.py` closes that gap: 15 tasks spanning plain navigation, search, scrolling, a named keystroke,
+model-step element picking, three-tier full-agent extraction (checked against real, stable ground truth on
+`books.toscrape.com` and `quotes.toscrape.com`, not just "it didn't crash"), and two deliberate edge cases -
+a compound request run with no planner, and a genuinely unanswerable command that should be refused. Each
+task runs from a fixed starting page and is repeated twice, since an LLM-driven agent is not perfectly
+deterministic.
+
+**Honest result, not a round number: 27 of 30 runs (15 tasks x 2 repeats) pass - 90%.** Every failure is
+informative, not a mystery:
+
+- **The compound task fails 2/2, by design.** It tests whether the bare router can do multi-part requests
+  with no planner, and the honest answer is no - the model-step clicked "travel" and stopped, never reaching
+  the second half of the request. That's exactly why the planner exists; this task's job was to show what's
+  missing without it, not to pass.
+- **The ambiguous-click refusal was inconsistent - 1/2** - and the reason is the most interesting result the
+  benchmark produced. The task ("click the blue one," from a clean homepage, no blue element in sight) was
+  meant to test a confident refusal. The first run did exactly that: declined in 3 steps, ~7 seconds. On the
+  second run, the full agent spent its larger step budget exploring further and found a real blue "Add to
+  Basket" button on a product page - books.toscrape.com's actual buttons are blue - and clicked it. That's
+  not a bug; it's the agent being more resourceful than the task assumed. The honest finding here is that
+  *the benchmark task itself* was based on a false premise (that no blue element existed anywhere reachable),
+  not that the system misbehaved - a reminder that writing a benchmark that actually tests what you think it
+  tests is its own non-trivial problem.
+- **GitHub's own search combobox is still intermittently flaky to type into** - the same JS-vs-programmatic-
+  input race documented earlier in this project. It showed up again in this run (an "m" dropped from
+  "microsoft/playwright") but the task still passed, because the check also accepted the URL containing
+  "playwright" - which it did, corrupted text and all. Worth knowing honestly: the check passed, the
+  underlying typing still didn't land cleanly.
+
+Building the benchmark itself caught a bug in the benchmark: an early version checked page state the instant
+a command returned, which raced a still-settling navigation on Wikipedia and scored a genuine success as a
+failure. Fixed by polling briefly instead of checking once - the same "verify, don't assume" lesson from the
+GitHub search-typing bug earlier in this project, this time applied to the measurement tool itself.
+
 ## What's still open, honestly
 
 - **STT mishearing a word outright** has no downstream fix - nothing after transcription can recover a word
@@ -187,8 +257,14 @@ both are now fixed and covered.
   unified design and deliberately *not* built in the same pass as a batch of urgent live fixes - that's a
   large enough change to deserve its own measured comparison against the current system, not a rush job
   riding on the back of something else.
-- **The wake-word gate is software, not hardware-level listening** - see above. A real offline wake-word
-  engine remains a clearly-labeled stretch goal.
+- **GitHub's own search combobox is still intermittently flaky** to type into (a JS-controlled component
+  fighting programmatic input) - the fix shipped earlier was making the system honest when this happens, not
+  making the site reliable; the benchmark caught this exact failure mode again.
+- **An "unanswerable" command's outcome isn't actually consistent run to run** - sometimes a confident
+  refusal in seconds, sometimes the agent uses its full step budget to explore further and takes a real
+  action instead. Measured by the benchmark (`ambiguous_click_refused`, 1/2 passes), not yet addressed - and
+  arguably not simply a bug, since the "wrong" outcome was the agent finding a real match the task didn't
+  account for.
 
 ## Project layout
 

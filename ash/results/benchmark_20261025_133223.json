@@ -1,0 +1,306 @@
+{
+ "overall_pass_rate": 0.9,
+ "repeats": 2,
+ "runs": [
+  {
+   "id": "nav_github",
+   "tier_hint": "rules",
+   "command": "go to github.com",
+   "passed": true,
+   "tier": "rules",
+   "detail": "navigated to https://github.com",
+   "ms": 2609,
+   "attempt": 1
+  },
+  {
+   "id": "nav_wikipedia",
+   "tier_hint": "rules",
+   "command": "go to wikipedia",
+   "passed": true,
+   "tier": "rules",
+   "detail": "navigated to https://en.wikipedia.org",
+   "ms": 1734,
+   "attempt": 1
+  },
+  {
+   "id": "search_wikipedia",
+   "tier_hint": "rules",
+   "command": "search for Alan Turing",
+   "passed": true,
+   "tier": "rules",
+   "detail": "typed 'Alan Turing' into [4268] (verified) and pressed Enter",
+   "ms": 3269,
+   "attempt": 1
+  },
+  {
+   "id": "scroll_down",
+   "tier_hint": "rules",
+   "command": "scroll down",
+   "passed": true,
+   "tier": "rules",
+   "detail": "scrolled down (0 -> 1080 px)",
+   "ms": 2642,
+   "attempt": 1
+  },
+  {
+   "id": "click_category",
+   "tier_hint": "rules",
+   "command": "click travel",
+   "passed": true,
+   "tier": "rules",
+   "detail": "clicked [1838] ['travel'] (score 1.03)",
+   "ms": 2347,
+   "attempt": 1
+  },
+  {
+   "id": "search_youtube",
+   "tier_hint": "rules",
+   "command": "search for lofi music",
+   "passed": true,
+   "tier": "rules",
+   "detail": "typed 'lofi music' into [4] (verified) and pressed Enter",
+   "ms": 6432,
+   "attempt": 1
+  },
+  {
+   "id": "keypress_mute",
+   "tier_hint": "rules",
+   "command": "hit M",
+   "passed": true,
+   "tier": "rules",
+   "detail": "sent key 'm'",
+   "ms": 5034,
+   "attempt": 1
+  },
+  {
+   "id": "click_signin",
+   "tier_hint": "model",
+   "command": "click the Sign in button",
+   "passed": true,
+   "tier": "rules",
+   "detail": "clicked [1139] ['sign in'] (score 1.03)",
+   "ms": 4964,
+   "attempt": 1
+  },
+  {
+   "id": "extract_book_title",
+   "tier_hint": "agent",
+   "command": "tell me the title of the first book on this page",
+   "passed": true,
+   "tier": "agent",
+   "detail": "question, fast path skipped | 1 steps",
+   "ms": 3900,
+   "attempt": 1
+  },
+  {
+   "id": "extract_book_price",
+   "tier_hint": "agent",
+   "command": "what is the price of the first book on this page",
+   "passed": true,
+   "tier": "agent",
+   "detail": "question, fast path skipped | 1 steps",
+   "ms": 2589,
+   "attempt": 1
+  },
+  {
+   "id": "extract_quote_author",
+   "tier_hint": "agent",
+   "command": "who said the first quote on this page",
+   "passed": true,
+   "tier": "agent",
+   "detail": "question, fast path skipped | 1 steps",
+   "ms": 3065,
+   "attempt": 1
+  },
+  {
+   "id": "compound_without_planner",
+   "tier_hint": "compound, no planner",
+   "command": "open the travel category and tell me the title of the first book listed",
+   "passed": false,
+   "tier": "model",
+   "detail": "model clicked [3923] ['travel']",
+   "ms": 4359,
+   "attempt": 1
+  },
+  {
+   "id": "navigate_and_check_tab",
+   "tier_hint": "agent",
+   "command": "open the microsoft playwright repository and tell me if it has an issues tab",
+   "passed": true,
+   "tier": "model",
+   "detail": "model tried to type 'microsoft/playwright' into [1172] but the box showed 'laywrightmicrosoft/playwright'; pressed Enter anyway",
+   "ms": 8966,
+   "attempt": 1
+  },
+  {
+   "id": "ambiguous_click_refused",
+   "tier_hint": "refusal",
+   "command": "click the blue one",
+   "passed": true,
+   "tier": "agent",
+   "detail": "fast path declined (no confident match for 'blue one' (best was [122] ['books to scrape'] at 0.03) | model declined (model answered none)) | 3 steps",
+   "ms": 7397,
+   "attempt": 1
+  },
+  {
+   "id": "vague_command_refused",
+   "tier_hint": "refusal",
+   "command": "click",
+   "passed": true,
+   "tier": "clarify",
+   "detail": "command has no target",
+   "ms": 1156,
+   "attempt": 1
+  },
+  {
+   "id": "nav_github",
+   "tier_hint": "rules",
+   "command": "go to github.com",
+   "passed": true,
+   "tier": "rules",
+   "detail": "navigated to https://github.com",
+   "ms": 3547,
+   "attempt": 2
+  },
+  {
+   "id": "nav_wikipedia",
+   "tier_hint": "rules",
+   "command": "go to wikipedia",
+   "passed": true,
+   "tier": "rules",
+   "detail": "navigated to https://en.wikipedia.org",
+   "ms": 2171,
+   "attempt": 2
+  },
+  {
+   "id": "search_wikipedia",
+   "tier_hint": "rules",
+   "command": "search for Alan Turing",
+   "passed": true,
+   "tier": "rules",
+   "detail": "typed 'Alan Turing' into [4294] (verified) and pressed Enter",
+   "ms": 3768,
+   "attempt": 2
+  },
+  {
+   "id": "scroll_down",
+   "tier_hint": "rules",
+   "command": "scroll down",
+   "passed": true,
+   "tier": "rules",
+   "detail": "scrolled down (0 -> 1080 px)",
+   "ms": 1576,
+   "attempt": 2
+  },
+  {
+   "id": "click_category",
+   "tier_hint": "rules",
+   "command": "click travel",
+   "passed": true,
+   "tier": "rules",
+   "detail": "clicked [1857] ['travel'] (score 1.03)",
+   "ms": 3249,
+   "attempt": 2
+  },
+  {
+   "id": "search_youtube",
+   "tier_hint": "rules",
+   "command": "search for lofi music",
+   "passed": true,
+   "tier": "rules",
+   "detail": "typed 'lofi music' into [4] (verified) and pressed Enter",
+   "ms": 8368,
+   "attempt": 2
+  },
+  {
+   "id": "keypress_mute",
+   "tier_hint": "rules",
+   "command": "hit M",
+   "passed": true,
+   "tier": "rules",
+   "detail": "sent key 'm'",
+   "ms": 4837,
+   "attempt": 2
+  },
+  {
+   "id": "click_signin",
+   "tier_hint": "model",
+   "command": "click the Sign in button",
+   "passed": true,
+   "tier": "rules",
+   "detail": "clicked [1162] ['sign in'] (score 1.03)",
+   "ms": 7898,
+   "attempt": 2
+  },
+  {
+   "id": "extract_book_title",
+   "tier_hint": "agent",
+   "command": "tell me the title of the first book on this page",
+   "passed": true,
+   "tier": "agent",
+   "detail": "question, fast path skipped | 1 steps",
+   "ms": 2675,
+   "attempt": 2
+  },
+  {
+   "id": "extract_book_price",
+   "tier_hint": "agent",
+   "command": "what is the price of the first book on this page",
+   "passed": true,
+   "tier": "agent",
+   "detail": "question, fast path skipped | 1 steps",
+   "ms": 2411,
+   "attempt": 2
+  },
+  {
+   "id": "extract_quote_author",
+   "tier_hint": "agent",
+   "command": "who said the first quote on this page",
+   "passed": true,
+   "tier": "agent",
+   "detail": "question, fast path skipped | 1 steps",
+   "ms": 2383,
+   "attempt": 2
+  },
+  {
+   "id": "compound_without_planner",
+   "tier_hint": "compound, no planner",
+   "command": "open the travel category and tell me the title of the first book listed",
+   "passed": false,
+   "tier": "model",
+   "detail": "model clicked [3984] ['travel']",
+   "ms": 5194,
+   "attempt": 2
+  },
+  {
+   "id": "navigate_and_check_tab",
+   "tier_hint": "agent",
+   "command": "open the microsoft playwright repository and tell me if it has an issues tab",
+   "passed": true,
+   "tier": "model",
+   "detail": "model tried to type 'microsoft/playwright' into [1139] but the box showed 'aywrightmicrosoft/playwright'; pressed Enter anyway",
+   "ms": 10145,
+   "attempt": 2
+  },
+  {
+   "id": "ambiguous_click_refused",
+   "tier_hint": "refusal",
+   "command": "click the blue one",
+   "passed": false,
+   "tier": "agent",
+   "detail": "fast path declined (no confident match for 'blue one' (best was [121] ['books to scrape'] at 0.03) | model declined (model answered none)) | 7 steps",
+   "ms": 71122,
+   "attempt": 2
+  },
+  {
+   "id": "vague_command_refused",
+   "tier_hint": "refusal",
+   "command": "click",
+   "passed": true,
+   "tier": "clarify",
+   "detail": "command has no target",
+   "ms": 908,
+   "attempt": 2
+  }
+ ]
+}

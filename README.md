@@ -28,8 +28,14 @@ python run_ash.py --script cmds.txt   # run a list of commands automatically
 **Real wake-word detection:** the name "Jarvis" was picked deliberately - it matches a pretrained,
 ready-to-use model in [openWakeWord](https://github.com/dscripka/openWakeWord), a free, fully local,
 no-account wake-word engine. When `openwakeword` is installed, she reacts the instant you say her name, off
-the raw audio - not by transcribing the whole sentence first and checking the text for it. Without the
-package installed, everything still works exactly the same via the text-based check.
+the raw audio - not by transcribing the whole sentence first and checking the text for it. Either that
+acoustic signal or the text-based check is enough to count as addressed, so a quiet miss on one doesn't
+reject the command. Without the package installed, everything still works via the text-based check alone.
+
+**How well does it actually work?** `python -m ash.benchmark` runs a fixed set of real tasks against the
+router (navigation, search, extraction, refusing ambiguous commands) twice each and reports a measured
+success rate - not a vibe, a number, checked against the real page state or reply text. See `WRITEUP.md`
+for the latest result and what the failures actually meant.
 
 ## How this was built
 
