@@ -1,4 +1,4 @@
-# Building Rhasspy: a voice-driven browser assistant, from first principles to a working tool
+# Building Jarvis: a voice-driven browser assistant, from first principles to a working tool
 
 *Written for: a technical reader (e.g. an interviewer) evaluating this as a portfolio project. It assumes no
 prior context and explains what was tried, what was measured, what broke in practice, and why each decision
@@ -16,7 +16,7 @@ time the user is waiting, and every misunderstood word has to be caught and corr
 by scrolling back through a log. The project is organized as nine numbered experiments
 (`experiments/01_...` through `09_...`), each answering one question with a measured benchmark before being
 built into the real app - and then a tenth phase, this one, which took the working automation and turned it
-into **Rhasspy**: a named assistant with a floating status overlay, your own name, and your real Brave browser.
+into **Jarvis**: a named assistant with a floating status overlay, your own name, and your real Brave browser.
 
 ## Part 1: the experiments
 
@@ -140,15 +140,15 @@ A few of these are worth calling out because they contradict an easy assumption:
   invent information a transcription never captured. The honest answer was documenting a reliable phrasing
   (spell it plainly, nothing else in the sentence) rather than claiming a fix that didn't exist.
 
-## Part 3: from automation to Rhasspy
+## Part 3: from automation to Jarvis
 
 By the end of Part 2, the automation itself was solid, live-tested, and regression-covered. What it still
 lacked was a product: it ran on a throwaway browser, had no name, no visible status, and no sense of who it
-was talking to. The final phase turned it into **Rhasspy**.
+was talking to. The final phase turned it into **Jarvis**.
 
 **Design decisions and why:**
 
-- **Brave, your real profile, not a disposable browser.** Rhasspy launches Brave with your actual Brave user
+- **Brave, your real profile, not a disposable browser.** Jarvis launches Brave with your actual Brave user
   profile - your bookmarks, saved logins, and extensions are there, because `ash/browser.py` points
   browser-use's `Browser` at your real executable and user-data directory rather than a fresh temp profile.
   The real trade-off, confirmed by reading browser-use's own source rather than assuming: Chromium profiles
@@ -156,7 +156,7 @@ was talking to. The final phase turned it into **Rhasspy**.
   open doesn't look like a clean "profile locked" error - it looks like a generic crash - so `ash/browser.py`
   treats any launch failure there as "Brave is probably open" and says so plainly, with a hard timeout so a
   failed launch reports back in seconds instead of hanging.
-- **A wake word, built from what already existed, not a new ML model.** Saying "Rhasspy" before a command
+- **A wake word, built from what already existed, not a new ML model.** Saying "Jarvis" before a command
   gates whether something gets acted on, so idle conversation in the room doesn't trigger actions. This is
   *not* an acoustic wake-word engine (Porcupine, openWakeWord) - that needs a trained model for a custom name
   and a new dependency. Instead it reuses the exact "strip a known prefix off the transcript" pattern the
@@ -166,7 +166,7 @@ was talking to. The final phase turned it into **Rhasspy**.
   listening/thinking/speaking/error at a glance, draggable, with a settings gear for audio device selection -
   chosen over a browser-tab dashboard because the whole point is that it sits visibly over whatever you're
   doing, the way a real assistant's presence would.
-- **A name and a greeting.** Rhasspy greets you by name on startup and recognizes her own name in the wake-word
+- **A name and a greeting.** Jarvis greets you by name on startup and recognizes her own name in the wake-word
   gate - small, but it's the difference between a tool and something that feels addressed-to.
 
 **What verification looked like for this phase:** every existing regression suite (`ash/tests/`) was re-run

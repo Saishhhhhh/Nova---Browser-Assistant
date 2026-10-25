@@ -27,13 +27,13 @@ async def main() -> int:
     ok = True
 
     print("== the wake word is recognised anywhere in the sentence, not just as the first word")
-    addressed, remainder = strip_wake_word("Can you scroll down, Rhasspy?")
-    ok &= await check('"Can you scroll down, Rhasspy?" (name at the end) is addressed to Rhasspy',
+    addressed, remainder = strip_wake_word("Can you scroll down, Jarvis?")
+    ok &= await check('"Can you scroll down, Jarvis?" (name at the end) is addressed to Jarvis',
                        addressed and remainder == "Can you scroll down?", f"addressed={addressed} remainder={remainder!r}")
     addressed, remainder = strip_wake_word("open github")
-    ok &= await check('"open github" (no name at all) is not addressed to Rhasspy', not addressed, "")
-    addressed, remainder = strip_wake_word("Rhasspydog said hi")
-    ok &= await check('"Rhasspydog said hi" does not false-match on the name "Rhasspy"', not addressed, "")
+    ok &= await check('"open github" (no name at all) is not addressed to Jarvis', not addressed, "")
+    addressed, remainder = strip_wake_word("Jarvison said hi")
+    ok &= await check('"Jarvison said hi" does not false-match on the name "Jarvis"', not addressed, "")
 
     print("== a named keyboard key is pressed literally, not clicked as a UI button")
     r = await router.run_command("go to youtube.com")

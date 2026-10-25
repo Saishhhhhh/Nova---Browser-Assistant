@@ -20,7 +20,7 @@ VOICE = "aura-2-phoebe-en"
 TTS_RATE = 24000
 PRE_ROLL_S = 0.3
 WAKE_GRACE_S = 8.0   # how long after the wake word fires an utterance still counts as addressed - covers
-                     # both "Rhasspy, open github" (one breath) and "Rhasspy." <pause> "open github." (two)
+                     # both "Jarvis, open github" (one breath) and "Jarvis." <pause> "open github." (two)
 
 
 # ----------------------------------------------------------------------------- audio out
@@ -347,6 +347,34 @@ class Loop:
                     self.ignored += 1
                     self.say(f"  (ignored a {dur * 1000:.0f} ms sound)")
                     continue
+                if wake is not None and trigger > self.wake_until:
+                    # Found live: a short "Jarvis, open github" utterance sometimes got rejected even
+                    # though the word WAS in the audio, because the wake detector needs a little trailing
+                    # context to recognise a word confidently, and VAD can decide the utterance is over
+                    # before that recognition catches up. Give it a brief window (0.6 s) to finish
+                    # processing audio it already has, pulling a bit more live audio only if it runs out -
+                    # not a fixed delay on every command, just on the rare case that's actually ambiguous.
+                    catchup_deadline = time.perf_counter() + 0.6
+                    while trigger > self.wake_until and time.perf_counter() < catchup_deadline:
+                        caught_up = False
+                        while wcursor + wake.frame_length <= n:
+                            wframe = audio[wcursor:wcursor + wake.frame_length]
+                            wcursor += wake.frame_length
+                            wscore = wake.score(wframe)
+                            if os.getenv("WAKE_DEBUG") and wscore > 0.1:
+                                self.say(f"  (wake score {wscore:.2f} at {wcursor / SR:.2f}s, catching up)")
+                            if wscore >= wake.threshold:
+                                self.wake_until = (wcursor / SR) + WAKE_GRACE_S
+                                self.say("  (wake word heard - listening for a command)")
+                                break
+                            caught_up = True
+                        if not caught_up:
+                            extra = next(source, None)
+                            if extra is not None and len(extra):
+                                audio[n:n + len(extra)] = extra
+                                n += len(extra)
+                            else:
+                                time.sleep(0.02)
                 clip = audio[max(0, int((start - PRE_ROLL_S) * SR)):int(trigger * SR)].copy()
                 if self.args.cue == "tick":
                     k = np.arange(int(0.06 * TTS_RATE))

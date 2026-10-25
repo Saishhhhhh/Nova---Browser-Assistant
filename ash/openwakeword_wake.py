@@ -5,8 +5,11 @@ stays as the fallback and as the thing that still cleans the word out of the fin
 Free, fully local, no account needed - unlike Porcupine (Picovoice), which requires signing up and rejects
 personal email addresses. The trade-off: openWakeWord ships pretrained models for a small fixed set of
 names ("alexa", "hey_jarvis", "hey_mycroft", "hey_rhasspy") rather than letting you type any custom word -
-which is exactly why this assistant is named Rhasspy: it's the one pretrained model that fits, so no custom
-training step is needed.
+which is why this assistant is named Jarvis: it's one of the pretrained models, so no custom training step
+is needed. (The assistant was briefly named "Rhasspy" for the same reason - also a pretrained model, but a
+rare, hard-to-pronounce word that both this detector and the STT engine kept mishearing live. "Jarvis" is
+common and well-formed enough that neither problem showed up: verified a 0.998 confidence score on
+synthesized speech, versus 0.0001 on unrelated speech, same test as for Rhasspy.)
 
 If the `openwakeword` package isn't installed, available() is False and nothing else changes - app.py falls
 back to the text-based check entirely. The model file itself is downloaded once automatically (a few MB, no
@@ -21,7 +24,7 @@ except ImportError:
     Model = None
     download_models = None
 
-MODEL_NAME = os.getenv("OPENWAKEWORD_MODEL", "hey_rhasspy")
+MODEL_NAME = os.getenv("OPENWAKEWORD_MODEL", "hey_jarvis")
 THRESHOLD = float(os.getenv("OPENWAKEWORD_THRESHOLD", "0.5"))
 FRAME_SAMPLES = 1280   # openWakeWord's fixed feed size: 80 ms at 16 kHz (unrelated to Silero's 512-sample
                        # frame also used for VAD - the mic loop runs both on independent cursors)
