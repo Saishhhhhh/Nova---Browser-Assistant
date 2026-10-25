@@ -9,7 +9,10 @@ this file is that a future change can't silently re-break one of these without t
 import asyncio
 import sys
 
+import argparse
+
 from browser_use import Browser
+from ash import app
 from ash.dom_fastpath import make_picker_from_env
 from ash.router import CommandRouter
 from ash.wakeword import strip_wake_word
@@ -34,6 +37,20 @@ async def main() -> int:
     ok &= await check('"open github" (no name at all) is not addressed to Jarvis', not addressed, "")
     addressed, remainder = strip_wake_word("Jarvison said hi")
     ok &= await check('"Jarvison said hi" does not false-match on the name "Jarvis"', not addressed, "")
+
+    print("== the wake decision is acoustic OR text, either one is enough")
+    test_args = argparse.Namespace(text=True, script=None, no_sound=True, input_device=None, output_device=None,
+                                   hangover=0.5, min_speech=0.25, cue="none", idle=0, hinglish=False,
+                                   agent_steps=8, agent_timeout=120.0, start_url="", simulate=True, memory=True,
+                                   stt="elevenlabs", save_clips=False, wake_word=True)
+    probe_loop = app.AppLoop(test_args, app.AsyncRunner())
+    addressed, remainder = probe_loop._wake_decision("Hey Jarvis, hit F", {"wake_addressed": False})
+    ok &= await check('acoustic missed it but STT transcribed "Jarvis" -> still addressed (found live)',
+                       addressed and remainder == "hit F", f"addressed={addressed} remainder={remainder!r}")
+    addressed, remainder = probe_loop._wake_decision("hit F", {"wake_addressed": False})
+    ok &= await check('neither signal catches it -> not addressed', not addressed, "")
+    addressed, remainder = probe_loop._wake_decision("Hey Jarvison, hit F", {"wake_addressed": True})
+    ok &= await check('acoustic caught it even though text garbled the name -> still addressed', addressed, "")
 
     print("== a named keyboard key is pressed literally, not clicked as a UI button")
     r = await router.run_command("go to youtube.com")

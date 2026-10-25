@@ -111,18 +111,17 @@ class AppLoop(Loop):
     def _wake_decision(self, text: str, job: dict) -> tuple:
         """Was this utterance addressed to Jarvis, and what's left to route once the name is cleaned out?
 
-        When openWakeWord (real acoustic wake-word detection, ash/openwakeword_wake.py) is available, the
-        addressed/not-addressed decision comes from whether it actually heard the wake word in the raw
-        audio (job["wake_addressed"], set in voice.py's run() loop) - not from whether the transcript
-        happens to contain "Jarvis". strip_wake_word() is still used to clean the word out of the text if
-        STT did transcribe it, but a mis-transcribed name no longer matters either way: the acoustic
-        trigger already decided this. Without openWakeWord, strip_wake_word() does both jobs itself, same
-        as before - this is a strict upgrade, not a behavior change, when it isn't installed."""
-        if openwakeword_wake.available():
-            addressed = bool(job.get("wake_addressed"))
-            _, remainder = strip_wake_word(text)
-            return addressed, (remainder if remainder.strip() else text)
-        return strip_wake_word(text)
+        Two independent signals, combined with OR: the acoustic detector (ash/openwakeword_wake.py,
+        job["wake_addressed"] - did it hear "Jarvis" in the raw audio?) and the text-based check
+        (ash/wakeword.py's strip_wake_word() - does the transcript contain "Jarvis"?). Found live: a
+        quieter/rushed "Hey Jarvis" was missed acoustically but still correctly transcribed by STT, and
+        got rejected anyway because only the acoustic signal was trusted. Either one catching it is now
+        enough - this can only accept MORE utterances than acoustic-only did, never fewer, so it doesn't
+        reopen the old text-only failure modes (anywhere-in-sentence matching is unchanged below).
+        Without openWakeWord installed, the text check is the only signal there is, same as before."""
+        text_addressed, remainder = strip_wake_word(text)
+        addressed = text_addressed or (openwakeword_wake.available() and bool(job.get("wake_addressed")))
+        return addressed, (remainder if remainder.strip() else text)
 
     # --- turn-taking rules specific to the app
     def barge_applies(self) -> bool:
