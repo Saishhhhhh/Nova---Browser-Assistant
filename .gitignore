@@ -29,3 +29,7 @@ experiments/05_Text_To_Speech/data/
 # Jarvis's own live-session audio (personal; same reasoning as above) and remembered device choice
 results/clips_*/
 .device_config.json
+
+# The full honest build journal - kept locally for the project owner only, never pushed to GitHub.
+# The public story lives in README.md / ARCHITECTURE.md instead.
+WRITEUP.md
