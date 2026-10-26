@@ -3,9 +3,9 @@ answering a question live testing never could: not "does this specific bug stay 
 tests/test_live_regressions.py is for), but "out of a broad, varied set of tasks, what fraction
 actually succeed, and is that consistent run to run?"
 
-  python -m mycroft.benchmark                 # real browser, real API calls, 2 repeats per task (a few dollars)
-  python -m mycroft.benchmark --repeats 1      # cheaper, one pass, less evidence about consistency
-  python -m mycroft.benchmark --headed         # watch it run
+  python -m nova.benchmark                 # real browser, real API calls, 2 repeats per task (a few dollars)
+  python -m nova.benchmark --repeats 1      # cheaper, one pass, less evidence about consistency
+  python -m nova.benchmark --headed         # watch it run
 
 Deliberately scoped to the router alone (CommandRouter.run_command - rules, the model-step, and the full
 browser-use agent, whichever one actually ends up handling each task). The planner (multi-step splitting)
@@ -34,7 +34,7 @@ from .dom_fastpath import make_picker_from_env
 from .router import CommandRouter
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent   # repo root - results/ lives here, not inside the mycroft/ package itself
+ROOT = HERE.parent   # repo root - results/ lives here, not inside the nova/ package itself
 
 
 async def _poll(predicate, timeout: float = 3.0, interval: float = 0.3) -> bool:

@@ -1,6 +1,6 @@
-# Mycroft — Architecture
+# Nova — Architecture
 
-This document explains how Mycroft actually works, from the moment you speak to the moment the browser
+This document explains how Nova actually works, from the moment you speak to the moment the browser
 acts and she replies. It starts simple and gets progressively more technical, so you can stop reading
 whenever you have the depth you need.
 
@@ -22,7 +22,7 @@ whenever you have the depth you need.
 
 ## 1. The Big Picture
 
-At the simplest level, Mycroft is a loop:
+At the simplest level, Nova is a loop:
 
 ```mermaid
 flowchart LR
@@ -55,11 +55,11 @@ graph TB
     subgraph GATE ["👂 Wake-Word Gate"]
         STT --> TEXT["Transcript"]
         CLIP --> ACOUSTIC["Acoustic Detector<br/><i>openWakeWord</i>"]
-        TEXT --> TCHECK["Text Check:<br/>does 'Mycroft' appear?"]
+        TEXT --> TCHECK["Text Check:<br/>does 'Nova' appear?"]
         ACOUSTIC --> SCORE{"Confidence<br/>above threshold?"}
         TCHECK --> OR{"OR"}
         SCORE --> OR
-        OR -->|"yes"| ADDRESSED["Command is addressed to Mycroft"]
+        OR -->|"yes"| ADDRESSED["Command is addressed to Nova"]
         OR -->|"no"| IGNORED["Heard, not acted on"]
     end
 
@@ -110,11 +110,11 @@ graph TB
 
 ### Voice Activity Detection (VAD)
 
-Before any transcription happens, Mycroft needs to know *when you're actually talking* versus silence or
+Before any transcription happens, Nova needs to know *when you're actually talking* versus silence or
 background noise. This is the job of the **VAD** — it watches small windows of raw audio (32ms frames)
 and scores how likely each one is to contain speech.
 
-Mycroft uses **Silero VAD**, a small neural model that runs locally and in real time. It's accurate enough
+Nova uses **Silero VAD**, a small neural model that runs locally and in real time. It's accurate enough
 to tell the difference between a pause mid-sentence and the end of an utterance, which matters: cut the
 clip too early and you lose the end of a sentence; wait too long and the assistant feels sluggish.
 
@@ -135,14 +135,14 @@ lives or dies by how well it understands what you actually said.
 
 ## 3. Deciding If She Was Addressed
 
-A microphone hears everything — including speech that isn't meant for the assistant at all. Mycroft needs
-to separate "talking to Mycroft" from "talking near Mycroft," and it does this with **two independent
+A microphone hears everything — including speech that isn't meant for the assistant at all. Nova needs
+to separate "talking to Nova" from "talking near Nova," and it does this with **two independent
 signals**, combined so that either one is sufficient:
 
 ```mermaid
 flowchart TD
-    AUDIO["Raw Audio Clip"] --> ACOUSTIC["Acoustic Wake-Word Model<br/>(openWakeWord, 'hey_mycroft')"]
-    TEXT["Transcribed Text"] --> SEARCH["Does 'Mycroft' appear<br/>anywhere in the sentence?"]
+    AUDIO["Raw Audio Clip"] --> ACOUSTIC["Acoustic Wake-Word Model<br/>(openWakeWord, 'hey_nova')"]
+    TEXT["Transcribed Text"] --> SEARCH["Does 'Nova' appear<br/>anywhere in the sentence?"]
 
     ACOUSTIC --> C1{"Confidence ≥ threshold?"}
     SEARCH --> C2{"Found?"}
@@ -159,13 +159,13 @@ flowchart TD
     style NO fill:#1a1a2e,color:#64748b,stroke:#64748b
 ```
 
-**The acoustic detector** (openWakeWord, using the pretrained `hey_mycroft` model) listens to the raw sound
+**The acoustic detector** (openWakeWord, using the pretrained `hey_nova` model) listens to the raw sound
 waveform directly — the same way a smart speaker reacts to its name. This works even if the transcription
 service mishears the rest of the sentence, because it doesn't depend on transcription at all.
 
-**The text check** looks at the already-transcribed sentence and matches "Mycroft" anywhere in it — not
-just at the very start. This means *"Can you open GitHub, Mycroft?"* is recognized exactly as well as
-*"Mycroft, open GitHub."*
+**The text check** looks at the already-transcribed sentence and matches "Nova" anywhere in it — not
+just at the very start. This means *"Can you open GitHub, Nova?"* is recognized exactly as well as
+*"Nova, open GitHub."*
 
 Combining the two with **OR logic** means a command is accepted if *either* signal catches the name. Each
 signal has a different failure mode — acoustic detection depends on raw audio characteristics, text
@@ -176,7 +176,7 @@ either one alone.
 
 ## 4. The Three-Tier Command Router
 
-This is the core design decision behind how Mycroft feels fast *and* capable at the same time. Instead of
+This is the core design decision behind how Nova feels fast *and* capable at the same time. Instead of
 sending every single command through a large reasoning agent (slow, and overkill for "open GitHub"),
 every command is offered to three tiers **in increasing order of power**, and the first tier that can
 confidently handle it wins.
@@ -220,7 +220,7 @@ than plan a sequence of actions.
 ### Tier 3 — Full Agent
 
 For requests that genuinely require multi-step reasoning — navigating through several pages, comparing
-options, handling a flow where the next action depends on what the previous one revealed — Mycroft hands
+options, handling a flow where the next action depends on what the previous one revealed — Nova hands
 the command to a full autonomous agent, built on the [browser-use](https://github.com/browser-use/browser-use)
 framework. This tier can plan, act, observe the result, and adjust, the same way a person would work
 through an unfamiliar website.
@@ -232,7 +232,7 @@ Most real commands are simple and repetitive — "open YouTube," "search for X,"
 compute cost for things that don't need it. The tiered design means the common case is instant, and the
 expensive, powerful tier is reserved for commands that actually justify it. Every result — regardless of
 which tier produced it — is checked against the real outcome (page content, URL, or the agent's own
-report) before Mycroft considers the command successful.
+report) before Nova considers the command successful.
 
 ---
 
@@ -261,7 +261,7 @@ flowchart LR
     style SPLIT fill:#1a1a2e,color:#e0e0e0,stroke:#3b82f6
 ```
 
-If a step in the middle of a plan doesn't go as expected, Mycroft can generate a one-shot replacement for
+If a step in the middle of a plan doesn't go as expected, Nova can generate a one-shot replacement for
 the remaining steps rather than abandoning the whole request — the plan adapts to what actually happened
 on the page instead of blindly continuing a script that no longer matches reality.
 
@@ -270,7 +270,7 @@ on the page instead of blindly continuing a script that no longer matches realit
 ## 6. Memory and Context
 
 Conversations build on themselves. If you ask *"search for noise-cancelling headphones"* and then follow
-up with *"which one is cheaper?"*, Mycroft needs to know what "which one" refers to.
+up with *"which one is cheaper?"*, Nova needs to know what "which one" refers to.
 
 `memory.py` keeps two things for the duration of a session:
 
@@ -286,14 +286,14 @@ match can benefit from knowing what was just discussed.
 
 ## 7. The Browser Layer
 
-Mycroft controls **Brave**, launched with **your real browser profile** — the same bookmarks, saved
+Nova controls **Brave**, launched with **your real browser profile** — the same bookmarks, saved
 logins, and extensions you already have, rather than a disposable, empty automation browser. This matters
 for genuine usefulness: a browsing assistant that can't see you're already logged into a site, or doesn't
 have your saved passwords and bookmarks, can't actually do much on your behalf.
 
 ```mermaid
 graph LR
-    APP["Mycroft"] -->|"launches with"| PROFILE["Your Real Brave Profile<br/>(bookmarks, logins, extensions)"]
+    APP["Nova"] -->|"launches with"| PROFILE["Your Real Brave Profile<br/>(bookmarks, logins, extensions)"]
     PROFILE --> PAGE["Live Web Page"]
     APP -->|"reads & acts on"| PAGE
 
@@ -308,19 +308,19 @@ yourself, on the exact browser session you already use day to day.
 
 ## 8. Turning Text Back Into Speech
 
-Once a command has been carried out (or a question answered), Mycroft composes a natural-language reply
+Once a command has been carried out (or a question answered), Nova composes a natural-language reply
 and sends it to **Deepgram's Aura-2** text-to-speech model, using the "Phoebe" voice. Speech streams back
 and starts playing before the entire reply has even finished generating, which keeps the conversation
 feeling responsive rather than making you wait for a complete paragraph before anything plays.
 
-Speech is **interruptible** — if you start talking while Mycroft is still speaking, playback stops
+Speech is **interruptible** — if you start talking while Nova is still speaking, playback stops
 immediately so your next command is heard without having to wait her out.
 
 ---
 
 ## 9. The Status Overlay
 
-A small, floating, always-on-top widget (`overlay.py`, built with Tkinter) shows at a glance what Mycroft
+A small, floating, always-on-top widget (`overlay.py`, built with Tkinter) shows at a glance what Nova
 is currently doing — listening, thinking, speaking, or idle and waiting for her name — so you always know
 whether she's ready for your next command. A single click opens a device picker to choose which
 microphone and speakers she should use.
@@ -333,8 +333,8 @@ is doing.
 
 ## 10. Measuring It
 
-Rather than relying on a feel for "it seems to work," Mycroft ships with a real benchmark
-(`mycroft/benchmark.py`): a battery of tasks spanning all three router tiers, each one checked against the
+Rather than relying on a feel for "it seems to work," Nova ships with a real benchmark
+(`nova/benchmark.py`): a battery of tasks spanning all three router tiers, each one checked against the
 **actual resulting page state or reply text** — never just "the command ran without crashing." Each task
 is run multiple times to surface a consistency signal, not just a single pass/fail. This turns "does it
 work" into a number that can be tracked over time as the system evolves.
@@ -351,7 +351,7 @@ A few threads run through every decision described above:
   (page state, returned text) rather than trusted just because it "ran."
 - **Use the user's real environment.** The Brave launch deliberately uses your actual profile rather than
   a disposable sandbox, because a browsing assistant is only as useful as the context it has access to.
-- **Make state visible.** The overlay exists so you're never left wondering whether Mycroft heard you,
+- **Make state visible.** The overlay exists so you're never left wondering whether Nova heard you,
   is thinking, or is about to speak.
 - **Layer independent signals when reliability matters.** The acoustic-plus-text wake-word gate is the
   clearest example: two different kinds of evidence, combined, cover more ground than either alone.

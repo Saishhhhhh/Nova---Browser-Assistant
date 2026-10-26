@@ -16,9 +16,9 @@ import sys
 
 from browser_use import Browser
 
-from mycroft.config import EXTRACTION_MODEL, EXTRACTION_PROVIDER, get_browser_use_llm
-from mycroft.dom_fastpath import make_picker_from_env
-from mycroft.router import CommandRouter
+from nova.config import EXTRACTION_MODEL, EXTRACTION_PROVIDER, get_browser_use_llm
+from nova.dom_fastpath import make_picker_from_env
+from nova.router import CommandRouter
 from tests.test_fastpath import url_contains, wait_until
 
 failures = []

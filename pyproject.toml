@@ -1,5 +1,5 @@
 [project]
-name = "mycroft-assistant"
+name = "nova-assistant"
 version = "1.0.0"
 description = "A voice-driven browser assistant that acts on your real Brave browser."
 readme = "README.md"
@@ -17,18 +17,22 @@ dependencies = [
     "sounddevice>=0.5",
     "torch>=2.14",
     "silero-vad>=6.2",
-    # Optional at runtime (mycroft/voice.py imports it lazily): real acoustic wake-word detection, free and
+    # Optional at runtime (nova/voice.py imports it lazily): real acoustic wake-word detection, free and
     # fully local, no account needed. Without it, the text-based wake-word check still works on its own.
     "openwakeword==0.6.0",
 ]
 
 [project.scripts]
-# After `pip install .`, this runs the app as a plain command instead of `python run_mycroft.py`.
-mycroft = "mycroft.app:main"
+# After `pip install .`, this runs the app as a plain command instead of `python run_nova.py`.
+nova = "nova.app:main"
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["mycroft"]
+packages = ["nova"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+nova = ["wakeword_models/*.onnx"]

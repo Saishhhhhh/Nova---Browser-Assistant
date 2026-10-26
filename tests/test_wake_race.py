@@ -1,6 +1,6 @@
-"""Reproduces a live bug: a short "Hey Mycroft, open github" utterance was rejected because the wake
+"""Reproduces a live bug: a short "Hey Nova, open github" utterance was rejected because the wake
 detector needs a little trailing audio to recognise the word, and VAD had already decided the utterance
-was over by then. Confirms the catch-up window (mycroft/voice.py's run()) accepts it anyway, using the exact
+was over by then. Confirms the catch-up window (nova/voice.py's run()) accepts it anyway, using the exact
 same run() code path real voice input goes through - not a separate simulation.
 
   python -m tests.test_wake_race        # real browser + real Deepgram TTS synth, a few cents
@@ -16,9 +16,9 @@ import httpx
 import numpy as np
 from browser_use import Browser
 
-from mycroft import app, config
-from mycroft.dom_fastpath import make_picker_from_env
-from mycroft.router import CommandRouter
+from nova import app, config
+from nova.dom_fastpath import make_picker_from_env
+from nova.router import CommandRouter
 
 
 def synth_pcm_16k(text: str) -> np.ndarray:
@@ -56,7 +56,7 @@ def main() -> int:
                                 on_agent_start=loop.on_agent_start)
     loop.plan_client = runner.run(app._make_async_client())
 
-    pcm = synth_pcm_16k("Hey Mycroft, open GitHub.")
+    pcm = synth_pcm_16k("Hey Nova, open GitHub.")
     print(f"synthesized clip: {len(pcm) / 16000:.2f} s", flush=True)
 
     loop.run(chunked_source(pcm))

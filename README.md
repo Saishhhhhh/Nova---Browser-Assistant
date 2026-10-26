@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1><b>🤖 Mycroft</b></h1>
+<h1><b>🤖 Nova</b></h1>
 <p><strong>A voice assistant that actually browses the web for you — on your real browser, with your real bookmarks and logins.</strong></p>
 
 [![Python](https://img.shields.io/badge/Python_3.11-3776AB.svg?style=flat&logo=Python&logoColor=white)](https://www.python.org/)
@@ -29,12 +29,12 @@
 
 ## 📚 Description
 
-**Mycroft** is a voice-driven assistant that controls a real web browser on your behalf. Say her name,
+**Nova** is a voice-driven assistant that controls a real web browser on your behalf. Say her name,
 give her a command, and she listens, understands, and acts — searching, clicking, filling in forms,
 reading pages back to you, and answering questions about what's on screen, all through natural spoken
 conversation.
 
-Unlike a typical browser-automation script, Mycroft runs on **your actual Brave browser**, with your real
+Unlike a typical browser-automation script, Nova runs on **your actual Brave browser**, with your real
 profile — bookmarks, saved logins, and extensions all present, exactly as if you were sitting at the
 keyboard yourself. And unlike a typical voice assistant, she's genuinely fast: most commands are handled
 by lightweight rule-based logic in a fraction of a second, with a full reasoning agent kept in reserve for
@@ -45,7 +45,7 @@ anything that actually needs it.
 ## ✨ Features
 
 - 🎙️ **Natural Voice Control** — speak naturally; no rigid command syntax required
-- 👂 **Real Acoustic Wake Word** — say "Mycroft" and she reacts off the raw audio instantly, combined with a
+- 👂 **Real Acoustic Wake Word** — say "Nova" and she reacts off the raw audio instantly, combined with a
   transcript-based check as a second signal for extra reliability
 - ⚡ **Three-Tier Command Routing** — instant rule-based actions for common requests, a lightweight model
   for element-picking, and a full autonomous agent for anything genuinely complex — each command takes the
@@ -56,7 +56,7 @@ anything that actually needs it.
   questions ("which one is cheaper?") without repeating context
 - 🗂️ **Automatic Multi-Step Planning** — a single spoken request like "go to Amazon, search for monitors,
   and tell me the cheapest one" is automatically split into steps and executed in order
-- 🔁 **Self-Correcting Plans** — if one step of a plan fails, Mycroft tries a one-shot replacement for the
+- 🔁 **Self-Correcting Plans** — if one step of a plan fails, Nova tries a one-shot replacement for the
   rest of the plan instead of simply giving up
 - ⌨️ **Literal Keyboard Shortcuts** — "hit F" or "press M" sends a real keystroke (handy for fullscreen,
   mute, and other site shortcuts), not a guess at what to click
@@ -144,7 +144,7 @@ that can actually do the job** — most everyday commands never touch a language
 flowchart TD
     START(["🎙️ You speak"]) --> VAD["Silence detected -\nclip captured"]
     VAD --> STT["Transcribed to text"]
-    STT --> WAKE{"Addressed to\nMycroft?"}
+    STT --> WAKE{"Addressed to\nNova?"}
     WAKE -->|no| END1(["Ignored"])
     WAKE -->|yes| RULES{"Tier 1: Rules\ncan handle it?"}
 
@@ -173,8 +173,8 @@ flowchart TD
 ## 📁 Project Structure
 
 ```
-Mycroft/
-├── 🤖 mycroft/                      # The application package
+Nova/
+├── 🤖 nova/                      # The application package
 │   ├── app.py                     # Main loop: ties voice, router, memory, and the overlay together
 │   ├── router.py                  # The three-tier command router
 │   ├── dom_fastpath.py            # Tier 1 (rules) + Tier 2 (model-step) logic
@@ -193,7 +193,7 @@ Mycroft/
 ├── 📊 results/                     # Generated session logs and benchmark reports
 ├── 📦 experiments/                 # The full research history this was built from
 │
-├── run_mycroft.py                   # Entry point — `python run_mycroft.py`
+├── run_nova.py                   # Entry point — `python run_nova.py`
 ├── pyproject.toml                  # Package metadata and dependencies
 └── .env                            # API keys and configuration (not committed)
 ```
@@ -224,24 +224,24 @@ Mycroft/
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/Saishhhhhh/Mycroft---Browser-Assistant.git
-cd Mycroft---Browser-Assistant
+git clone https://github.com/Saishhhhhh/Nova---Browser-Assistant.git
+cd Nova---Browser-Assistant
 pip install -r requirements.txt   # or: pip install .
 
 # 2. Configure
 cp .env.example .env              # fill in your API keys and your name
 
 # 3. Close Brave (she needs sole use of your profile), then run
-python run_mycroft.py
+python run_nova.py
 ```
 
-Or just double-click **`Start Mycroft.bat`**. Say **"Mycroft"** before any command — for example,
-*"Mycroft, open GitHub,"* or *"Mycroft, search for lofi music."*
+Or just double-click **`Start Nova.bat`**. Say **"Nova"** before any command — for example,
+*"Nova, open GitHub,"* or *"Nova, search for lofi music."*
 
 ```bash
-python run_mycroft.py --text              # type commands instead of speaking, for quick testing
-python run_mycroft.py --script cmds.txt   # run a list of commands automatically
-python -m mycroft.benchmark                # run the measured success-rate benchmark
+python run_nova.py --text              # type commands instead of speaking, for quick testing
+python run_nova.py --script cmds.txt   # run a list of commands automatically
+python -m nova.benchmark                # run the measured success-rate benchmark
 ```
 
 ---

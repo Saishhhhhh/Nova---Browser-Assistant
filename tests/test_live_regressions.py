@@ -12,10 +12,10 @@ import sys
 import argparse
 
 from browser_use import Browser
-from mycroft import app
-from mycroft.dom_fastpath import make_picker_from_env
-from mycroft.router import CommandRouter
-from mycroft.wakeword import strip_wake_word
+from nova import app
+from nova.dom_fastpath import make_picker_from_env
+from nova.router import CommandRouter
+from nova.wakeword import strip_wake_word
 
 
 async def check(name: str, cond: bool, detail: str) -> bool:
@@ -30,13 +30,13 @@ async def main() -> int:
     ok = True
 
     print("== the wake word is recognised anywhere in the sentence, not just as the first word")
-    addressed, remainder = strip_wake_word("Can you scroll down, Mycroft?")
-    ok &= await check('"Can you scroll down, Mycroft?" (name at the end) is addressed to Mycroft',
+    addressed, remainder = strip_wake_word("Can you scroll down, Nova?")
+    ok &= await check('"Can you scroll down, Nova?" (name at the end) is addressed to Nova',
                        addressed and remainder == "Can you scroll down?", f"addressed={addressed} remainder={remainder!r}")
     addressed, remainder = strip_wake_word("open github")
-    ok &= await check('"open github" (no name at all) is not addressed to Mycroft', not addressed, "")
-    addressed, remainder = strip_wake_word("Mycroftian said hi")
-    ok &= await check('"Mycroftian said hi" does not false-match on the name "Mycroft"', not addressed, "")
+    ok &= await check('"open github" (no name at all) is not addressed to Nova', not addressed, "")
+    addressed, remainder = strip_wake_word("Novation said hi")
+    ok &= await check('"Novation said hi" does not false-match on the name "Nova"', not addressed, "")
 
     print("== the wake decision is acoustic OR text, either one is enough")
     test_args = argparse.Namespace(text=True, script=None, no_sound=True, input_device=None, output_device=None,
@@ -44,12 +44,12 @@ async def main() -> int:
                                    agent_steps=8, agent_timeout=120.0, start_url="", simulate=True, memory=True,
                                    stt="elevenlabs", save_clips=False, wake_word=True)
     probe_loop = app.AppLoop(test_args, app.AsyncRunner())
-    addressed, remainder = probe_loop._wake_decision("Hey Mycroft, hit F", {"wake_addressed": False})
-    ok &= await check('acoustic missed it but STT transcribed "Mycroft" -> still addressed (found live)',
+    addressed, remainder = probe_loop._wake_decision("Hey Nova, hit F", {"wake_addressed": False})
+    ok &= await check('acoustic missed it but STT transcribed "Nova" -> still addressed (found live)',
                        addressed and remainder == "hit F", f"addressed={addressed} remainder={remainder!r}")
     addressed, remainder = probe_loop._wake_decision("hit F", {"wake_addressed": False})
     ok &= await check('neither signal catches it -> not addressed', not addressed, "")
-    addressed, remainder = probe_loop._wake_decision("Hey Mycroftian, hit F", {"wake_addressed": True})
+    addressed, remainder = probe_loop._wake_decision("Hey Novation, hit F", {"wake_addressed": True})
     ok &= await check('acoustic caught it even though text garbled the name -> still addressed', addressed, "")
 
     print("== a named keyboard key is pressed literally, not clicked as a UI button")

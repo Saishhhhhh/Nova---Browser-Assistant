@@ -6,7 +6,7 @@ import argparse
 import sys
 import time
 
-from mycroft import app
+from nova import app
 
 
 def main() -> int:

@@ -1,7 +1,7 @@
-"""Launches Brave using the user's real profile, so Mycroft acts on your actual logged-in browser - your
+"""Launches Brave using the user's real profile, so Nova acts on your actual logged-in browser - your
 bookmarks, your saved logins, your extensions - instead of a disposable automation instance.
 
-Brave must be closed before starting Mycroft: Chromium profiles are locked to one running process at a time,
+Brave must be closed before starting Nova: Chromium profiles are locked to one running process at a time,
 and (confirmed by reading browser_use's own profile.py) Brave's profile is launched directly rather than
 auto-copied to a safe temp copy first, the way Chrome's is. That's what makes it genuinely "your" browser
 instead of a sandboxed clone - the trade-off is that a second Brave process can't open the same profile.

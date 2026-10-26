@@ -1,4 +1,4 @@
-"""The voice turn-taking loop: microphone -> Silero VAD -> STT -> (router, wired in by mycroft/app.py) -> TTS,
+"""The voice turn-taking loop: microphone -> Silero VAD -> STT -> (router, wired in by nova/app.py) -> TTS,
 with barge-in (speak over a reply and playback stops instantly). Originated as Experiment 6/7; this is the
 production version - the standalone demo CLI, canned replies, and recorded-audio simulation mode from the
 experiment version are gone (see experiments/06_Turn_Taking/voice_loop.py for those). Use HEADPHONES.
@@ -20,7 +20,7 @@ VOICE = "aura-2-phoebe-en"
 TTS_RATE = 24000
 PRE_ROLL_S = 0.3
 WAKE_GRACE_S = 8.0   # how long after the wake word fires an utterance still counts as addressed - covers
-                     # both "Mycroft, open github" (one breath) and "Mycroft." <pause> "open github." (two)
+                     # both "Nova, open github" (one breath) and "Nova." <pause> "open github." (two)
 
 
 # ----------------------------------------------------------------------------- audio out
@@ -229,7 +229,7 @@ class Loop:
     def _handle(self, job: dict) -> None:
         """Always overridden by AppLoop, which wires in the router, memory, and planner. Kept only so a
         subclass that forgets to override it fails loudly instead of silently doing nothing."""
-        raise NotImplementedError("Loop._handle must be overridden (see AppLoop in mycroft/app.py)")
+        raise NotImplementedError("Loop._handle must be overridden (see AppLoop in nova/app.py)")
 
     def _next_turn(self) -> int:
         self.turn_no += 1
@@ -348,7 +348,7 @@ class Loop:
                     self.say(f"  (ignored a {dur * 1000:.0f} ms sound)")
                     continue
                 if wake is not None and trigger > self.wake_until:
-                    # Found live: a short "Mycroft, open github" utterance sometimes got rejected even
+                    # Found live: a short "Nova, open github" utterance sometimes got rejected even
                     # though the word WAS in the audio, because the wake detector needs a little trailing
                     # context to recognise a word confidently, and VAD can decide the utterance is over
                     # before that recognition catches up. Give it a brief window (0.6 s) to finish
