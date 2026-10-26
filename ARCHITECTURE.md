@@ -141,7 +141,7 @@ signals**, combined so that either one is sufficient:
 
 ```mermaid
 flowchart TD
-    AUDIO["Raw Audio Clip"] --> ACOUSTIC["Acoustic Wake-Word Model<br/>(openWakeWord, 'hey_nova')"]
+    AUDIO["Raw Audio Clip"] --> ACOUSTIC["Acoustic Wake-Word Model<br/>(custom-trained 'Nova' model)"]
     TEXT["Transcribed Text"] --> SEARCH["Does 'Nova' appear<br/>anywhere in the sentence?"]
 
     ACOUSTIC --> C1{"Confidence ≥ threshold?"}
@@ -159,9 +159,10 @@ flowchart TD
     style NO fill:#1a1a2e,color:#64748b,stroke:#64748b
 ```
 
-**The acoustic detector** (openWakeWord, using the pretrained `hey_nova` model) listens to the raw sound
-waveform directly — the same way a smart speaker reacts to its name. This works even if the transcription
-service mishears the rest of the sentence, because it doesn't depend on transcription at all.
+**The acoustic detector** (openWakeWord, running a custom-trained model built specifically for "Nova")
+listens to the raw sound waveform directly — the same way a smart speaker reacts to its name. This works
+even if the transcription service mishears the rest of the sentence, because it doesn't depend on
+transcription at all.
 
 **The text check** looks at the already-transcribed sentence and matches "Nova" anywhere in it — not
 just at the very start. This means *"Can you open GitHub, Nova?"* is recognized exactly as well as
@@ -171,6 +172,30 @@ Combining the two with **OR logic** means a command is accepted if *either* sign
 signal has a different failure mode — acoustic detection depends on raw audio characteristics, text
 matching depends on transcription quality — so layering them gives a meaningfully more reliable gate than
 either one alone.
+
+### How the acoustic model actually hears "Nova"
+
+The acoustic detector isn't one single model — it's three stages, chained together, each with a distinct
+job:
+
+```mermaid
+flowchart LR
+    A["Raw Audio Frame<br/>(80ms chunk)"] --> B["Mel-Spectrogram Model<br/>sound → time/frequency picture"]
+    B --> C["Embedding Model<br/>picture → 96-number fingerprint"]
+    C --> D["Nova Classifier<br/>fingerprint → yes/no score"]
+
+    style B fill:#1a1a2e,color:#e0e0e0,stroke:#3b82f6
+    style C fill:#1a1a2e,color:#e0e0e0,stroke:#3b82f6
+    style D fill:#1a1a2e,color:#10b981,stroke:#10b981
+```
+
+The first two stages — turning raw sound into a time-vs-frequency "picture," then compressing that into a
+compact 96-number fingerprint — are **shared and frozen**: the exact same two models are used for every
+wake word openWakeWord has ever been trained for, and they were never touched while building this one.
+Only the third stage, a small classifier, is specific to "Nova" — it's the only part that was actually
+trained, and all it has to learn is "does this fingerprint describe the word Nova, or not." This is the
+same shape as fine-tuning a small classifier on top of a pretrained embedding model in any other domain:
+the expensive, general-purpose understanding is reused as-is; only a small, narrow decision layer is new.
 
 ---
 
